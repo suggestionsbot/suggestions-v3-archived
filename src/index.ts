@@ -1,26 +1,12 @@
-import { Client } from 'eris';
-import * as dotenv from 'dotenv-flow';
+import dotenv from 'dotenv';
 dotenv.config();
 
-const client = new Client(process.env.DISCORD_TOKEN);
-
-client.on('ready', () => {
-  console.log('Ready!');
-});
-
-client.on('messageCreate', async (message) => {
-  if (message.content === ';;ping') {
-    try {
-      await client.createMessage(message.channel.id, 'Pong!');
-    } catch (error) {
-      console.error(error);
-    }
-  }
-});
+import SuggestionsClient from './structures/client';
 
 export const main = async (): Promise<boolean> => {
   try {
-    await client.connect();
+    const client = new SuggestionsClient(process.env.DISCORD_TOKEN);
+    client.start();
     return true;
   } catch (error) {
     console.error(error);
@@ -29,3 +15,7 @@ export const main = async (): Promise<boolean> => {
 };
 
 main();
+
+process.on('unhandledRejection', err => {
+  console.error('Unhandled Rejection', err);
+});

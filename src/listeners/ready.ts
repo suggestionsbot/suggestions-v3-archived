@@ -21,6 +21,7 @@ export default class extends Event {
       `👂 Loaded (${this.client.events.size}) events!`
     ];
 
+    await this.client.database.init();
     for (const m of readyMessages) await console.log(m);
     this.client.updateBotPresence();
   }

@@ -2133,6 +2133,11 @@ fragment-cache@^0.2.1:
   dependencies:
     map-cache "^0.2.2"
 
+frenchkiss@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/frenchkiss/-/frenchkiss-0.2.1.tgz#409d38d127114ba4c55a2d457f127ef6edfad646"
+  integrity sha512-CQ4hOuPJ9EExmYcv4z9CEuIFAxny672NU2xRk9rJ5Y6XqJknYaRHRKZ/zVLlLPcSNnRttriIOR1UYaVSVAbrlg==
+
 fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fs.realpath/-/fs.realpath-1.0.0.tgz#1504ad2523158caa40db4a2787cb01411994ea4f"

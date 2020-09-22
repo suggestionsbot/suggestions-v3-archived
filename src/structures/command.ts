@@ -1,28 +1,28 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Permission, User, Message } from 'eris';
+import { Permission, User, Message, Constants } from 'eris';
 
 import SuggestionsClient from './client';
 import { CommandThrottle, CommandThrottling } from '../types';
 
 export default class Command {
-  active: boolean;
-  adminOnly: boolean;
-  aliases: Array<string>;
-  botPermissions: Array<string|number>;
-  category: string;
-  description: string;
-  examples: Array<string>;
-  guarded: boolean;
-  guildOnly: boolean;
-  name: string;
-  ownerOnly: boolean;
-  staffOnly: boolean;
-  subCommands: Array<string>;
-  superOnly: boolean;
-  throttles: Map<string, CommandThrottle>;
-  throttling: CommandThrottling;
-  usage: Array<string>;
-  userPermissions: Array<string|number>;
+  public active: boolean;
+  public adminOnly: boolean;
+  public aliases: Array<string>;
+  public botPermissions: Array<string|number>;
+  public category: string;
+  public description: string;
+  public examples: Array<string>;
+  public guarded: boolean;
+  public guildOnly: boolean;
+  public name: string;
+  public ownerOnly: boolean;
+  public staffOnly: boolean;
+  public subCommands: Array<string>;
+  public superOnly: boolean;
+  public throttles: Map<string, CommandThrottle>;
+  public throttling: CommandThrottling;
+  public usage: Array<string>;
+  public userPermissions: Array<string|number>;
 
   constructor(public client: SuggestionsClient) {
     this.client = client;

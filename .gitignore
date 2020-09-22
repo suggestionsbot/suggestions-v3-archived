@@ -107,4 +107,4 @@ dist
 .idea/
 
 # Beta Command
-./src/commands/Bot\ Owner/beta.ts
+src/commands/Bot\ Owner/beta.ts

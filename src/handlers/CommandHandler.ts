@@ -62,7 +62,6 @@ export default class CommandHandler {
 
     // rate limiting
     const throttle = cmd.throttle(message.author);
-    console.log(throttle.usages);
     if (throttle && throttle.usages + 1 > cmd.throttling.usages) {
       const remaining = (throttle.start + (cmd.throttling.duration * 1000) - Date.now()) / 1000;
       // this.client.emit('commandBlocked', cmd, 'throttling');

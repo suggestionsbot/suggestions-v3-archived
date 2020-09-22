@@ -41,7 +41,7 @@ export default class Command {
   }
 
   throttle(user: User): CommandThrottle {
-    if (!this.throttling) return;
+    if (!this.throttling || this.client.isOwner(user)) return;
 
     let throttle = this.throttles.get(user.id);
     if (!throttle) {

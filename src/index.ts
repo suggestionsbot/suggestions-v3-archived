@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -18,4 +19,16 @@ main();
 
 process.on('unhandledRejection', err => {
   console.error('Unhandled Rejection', err);
+});
+
+mongoose.connection.on('connected', () => {
+  console.log('Mongoose connection successfully opened!');
+});
+
+mongoose.connection.on('err', (err: Error) => {
+  console.error(`Mongoose connection error: \n ${err.stack}`);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('Mongoose connection disconnected');
 });

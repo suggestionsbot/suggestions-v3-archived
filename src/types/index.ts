@@ -1,11 +1,13 @@
-import { ClientOptions, Message, Permission, User } from 'eris';
+import { ClientOptions, Message, Permission, User, Constants } from 'eris';
 import SuggestionsClient from '../structures/client';
 import Collection from '@discordjs/collection';
 import * as EventClass from '../structures/event';
+import * as mongoose from 'mongoose';
+import { Document } from 'mongoose';
 
 declare module 'eris' {
-  interface ExtendedTextChannel {
-    awaitMessages(filter: CollectorFilter<any>, options: AwaitMessagesOptions): boolean | Promise<boolean>;
+  interface Guild {
+    settings: any;
   }
 }
 
@@ -131,4 +133,108 @@ export interface AwaitReactionsOptions extends ReactionCollectorOptions {
   errors?: readonly string[];
 }
 
+export interface GuildSchema extends Document {
+  guildID: string,
+  prefix: string;
+  channels: Array<SuggestionChannel>;
+  staffRoles: Array<string>;
+  voteEmojis: string;
+  responseRequired: boolean;
+  dmResponses: boolean;
+  disabledCommand: Array<DisabledCommand>;
+}
 
+export interface SuggestionChannel extends Document {
+  channel: string;
+  type: SuggestionChannelType;
+  added: number;
+  addedBy: string;
+}
+
+export enum SuggestionChannelType {
+  'suggestions' = 'suggestions',
+  'logs' = 'logs',
+  'staff' = 'staff',
+  'approved' = 'approved',
+  'rejected' = 'rejected'
+}
+
+export interface DisabledCommand extends Document {
+  command: string;
+  added: number;
+  addedBy: string;
+}
+
+export interface SuggestionSchema extends Document {
+  guild: string;
+  channel: string;
+  message: string;
+  user: string;
+  suggestion: string;
+  id: string;
+  time: number;
+  results: ResultEmoji;
+  statusUpdates: Array<StatusUpdates>;
+  voted: Array<VoteResult>;
+  notes: Array<Note>;
+  edits: Array<Edit>;
+  getMessageLink(args: MessageLinkFormatter): string;
+}
+
+export type StatusReply = Document;
+
+export interface StatusUpdates extends Document {
+  status: string;
+  response: string;
+  time: number;
+  updatedBy: string;
+}
+
+export interface Note extends Document {
+  note: string;
+  addedBy: string;
+  time: number;
+}
+
+export interface Edit extends Document {
+  edit: string;
+  editedBy: string;
+  edited: number;
+}
+
+export interface ResultEmoji extends Document {
+  emoji: string;
+  result: number;
+}
+
+export interface VoteResult extends Document {
+  emoji: string;
+  voted: Array<string>;
+}
+
+export interface BlacklistSchema extends Document {
+  guild: string;
+  user: string;
+  reason: string;
+  issuedBy: string;
+  time: number;
+  status: boolean;
+  case: number;
+  scope: BlacklistScope;
+}
+
+export enum BlacklistScope {
+  'guild' = 'guild',
+  'global' = 'global'
+}
+
+export interface CommandSchema extends Document {
+  guild: string;
+  channel: string;
+  message: string;
+  command: string;
+  user: string;
+  time: number;
+}
+
+export type MessageLinkFormatter = [string, string, string];

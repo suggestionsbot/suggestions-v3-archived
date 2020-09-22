@@ -1,4 +1,4 @@
-import { Client, ClientOptions, GuildChannel, GuildTextableChannel, Message, } from 'eris';
+import { Client, ClientOptions, Emoji, Guild, GuildChannel, GuildTextableChannel, Member, Message, User } from 'eris';
 import { promisify } from 'util';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -9,6 +9,7 @@ import CoreLoaders from '../utils/core';
 import config from '../config';
 import { stripIndents } from 'common-tags';
 import CommandHandler from '../handlers/CommandHandler';
+import MongoDB from '../provider/mongodb';
 
 export default class SuggestionsClient extends Client {
   private _core: CoreLoaders;
@@ -21,6 +22,7 @@ export default class SuggestionsClient extends Client {
   public config: BotConfig;
   public commandHandler: CommandHandler;
   public wait: any;
+  public database: MongoDB;
 
   constructor(public token: string, options?: ClientOptions) {
     super(token, options);
@@ -32,6 +34,7 @@ export default class SuggestionsClient extends Client {
     this.events = new Collection();
 
     this._core = new CoreLoaders(this);
+    this.database = new MongoDB(this);
     this.production = (/true/i).test(process.env.NODE_ENV);
     this.config = config;
     this.commandHandler = new CommandHandler(this);
@@ -78,6 +81,42 @@ export default class SuggestionsClient extends Client {
         type: 0
       });
     }
+  }
+
+  public findEmojiByName(name: string, guild: Guild): Emoji {
+    return guild.emojis.find((r: Emoji) => r.name === name);
+  }
+
+  public findEmojiByID(id: string, guild: Guild): Emoji {
+    return guild.emojis[id];
+  }
+
+  public findEmojiByString(str: string, guild: Guild): Emoji {
+    return guild.emojis.find((r: Emoji) => r.toString() === str);
+  }
+
+  public isStaff(member: Member): boolean {
+    let staffCheck: boolean;
+    const adminCheck = this.isAdmin(member) || this.isOwner(member);
+    const staffRoles = member.guild.settings.staffRoles;
+    if (staffRoles) staffCheck = member.roles.some(r => staffRoles.map(s => s.id).includes(r)) || adminCheck;
+    else staffCheck = adminCheck;
+
+    return staffCheck;
+  }
+
+  public isAdmin(member: Member): boolean {
+    let hasPerm = false;
+    ['administrator', 'manageGuild'].map(p => {
+      if (member.permission.has(p)) hasPerm = true;
+      return;
+    });
+
+    return hasPerm;
+  }
+
+  public isOwner(user: User|Member): boolean {
+    return this.config.owners.includes(user.id);
   }
 
   private _addEventListeners(): void {

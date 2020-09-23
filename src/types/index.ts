@@ -106,7 +106,7 @@ export interface EventOptions {
   emitter?: SuggestionsClient|string;
 }
 
-export type CollectorFilter<T> = (...args: Array<T>) => Promise<Collection<string, T>>;
+export type CollectorFilter<T> = (...args: Array<T>) => boolean;
 
 export interface CollectorOptions {
   time?: number;
@@ -131,6 +131,11 @@ export interface AwaitMessagesOptions extends MessageCollectorOptions {
 
 export interface AwaitReactionsOptions extends ReactionCollectorOptions {
   errors?: readonly string[];
+}
+
+export interface AwaitReply {
+  originMsg: Message;
+  reply: Message;
 }
 
 export interface GuildSchema extends Document {

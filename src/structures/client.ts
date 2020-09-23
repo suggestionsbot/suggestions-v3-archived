@@ -1,15 +1,38 @@
-import { Client, ClientOptions, Emoji, Guild, GuildChannel, GuildTextableChannel, Member, Message, User } from 'eris';
+import {
+  Client,
+  ClientOptions,
+  Embed,
+  Emoji,
+  Guild,
+  GuildChannel,
+  GuildTextableChannel,
+  Member,
+  Message,
+  TextableChannel,
+  User
+} from 'eris';
 import { promisify } from 'util';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { Command, Event, BotConfig, SubCommand } from '../types';
+import {
+  Command,
+  Event,
+  BotConfig,
+  SubCommand,
+  CollectorFilter,
+  AwaitMessagesOptions,
+  AwaitReply,
+  AwaitReactionsOptions
+} from '../types';
 import Collection from '@discordjs/collection';
 import CoreLoaders from '../utils/core';
 import config from '../config';
 import { stripIndents } from 'common-tags';
 import CommandHandler from '../handlers/CommandHandler';
 import MongoDB from '../provider/mongodb';
+import MessageCollector from '../utils/MessageCollector';
+import ReactionCollector from '../utils/ReactionCollector';
 
 export default class SuggestionsClient extends Client {
   private _core: CoreLoaders;
@@ -23,6 +46,7 @@ export default class SuggestionsClient extends Client {
   public commandHandler: CommandHandler;
   public wait: any;
   public database: MongoDB;
+  public messageCollectors: Array<MessageCollector>;
 
   constructor(public token: string, options?: ClientOptions) {
     super(token, options);
@@ -39,6 +63,7 @@ export default class SuggestionsClient extends Client {
     this.config = config;
     this.commandHandler = new CommandHandler(this);
     this.wait = promisify(setTimeout);
+    this.messageCollectors = [];
   }
 
   public start(): void {
@@ -117,6 +142,76 @@ export default class SuggestionsClient extends Client {
 
   public isOwner(user: User|Member): boolean {
     return this.config.owners.includes(user.id);
+  }
+
+  public async awaitChannelMessages(channel: TextableChannel, filter: CollectorFilter<Message>, options: AwaitMessagesOptions): Promise<MessageCollector> {
+    return new MessageCollector(this, channel, filter, options).run();
+  }
+
+  public async awaitMessageReactions(message: Message, filter: CollectorFilter<any>, options: AwaitReactionsOptions): Promise<ReactionCollector> {
+    return new ReactionCollector(this, message, filter, options).run();
+  }
+
+  public async awaitReply(
+    message: Message,
+    channel: TextableChannel,
+    question: string,
+    embed: Embed,
+    limit?: number
+  ): Promise<AwaitReply> {
+    const filter = (msg: Message): boolean => msg.author.id === message.author.id;
+    channel = channel || message.channel;
+
+    try {
+      const originMsg: Message = await channel.createMessage({
+        content: question || null,
+        embed: embed || null
+      });
+      const { collected } = await this.awaitChannelMessages(channel, filter, {
+        max: 1,
+        time: limit || 60000, // by default, limit 1 minutes
+        errors: ['time']
+      });
+
+      return {
+        originMsg,
+        reply: collected.get(collected.keys().next().value)
+      };
+    } catch (e) {
+      return;
+    }
+  }
+
+  public async awaitReactions(
+    user: User,
+    channel: TextableChannel,
+    question: string,
+    reactions: Array<any>,
+    embed: Embed,
+    limit?: number
+  ): Promise<any> {
+    const filter = (data: any): boolean => {
+      return reactions.map(r => r?.id).includes(data.emoji?.name || data.emoji?.id) && (data.id === user.id);
+    };
+
+    let msg: Message;
+    try {
+      msg = await channel.createMessage({
+        content: question || null,
+        embed: embed || null
+      });
+      for (const r of reactions) await msg.addReaction(r);
+
+      const { collected } = await this.awaitMessageReactions(msg, filter, {
+        max: 1,
+        time: limit || 60000, // by default, limit 1 minutes
+        errors: ['time']
+      });
+
+      return collected[0];
+    } catch (error) {
+      if (msg) msg.delete();
+    }
   }
 
   private _addEventListeners(): void {

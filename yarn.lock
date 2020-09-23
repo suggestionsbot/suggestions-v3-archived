@@ -1635,6 +1635,11 @@ enquirer@^2.3.5:
   dependencies:
     ansi-colors "^4.1.1"
 
+eris-reactions@^0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/eris-reactions/-/eris-reactions-0.1.3.tgz#cd0b95d0a947ae173f11f085d744882d2be4a436"
+  integrity sha512-lcqxCconH4Ca5GdUR1qUWQDHHv64JowIpRZZewRTrPHvXbGZyoE1BJZ8LETux+NSye4WIrEiysnzxfPBLZT6wg==
+
 eris-sharder@^1.10.0:
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/eris-sharder/-/eris-sharder-1.10.0.tgz#60f180e66d9f697b1d368b650a4c0488ba838438"
@@ -1645,7 +1650,16 @@ eris-sharder@^1.10.0:
     eris "^0.13.1"
     fancy-log "^1.3.0"
 
-eris@^0.13.1, eris@^0.13.3:
+eris@^0.13.1:
+  version "0.13.3"
+  resolved "https://codeload.github.com/abalabahaha/eris/tar.gz/29b529324e6cd9c56eb67057555b7866b0c7b396"
+  dependencies:
+    ws "^7.2.1"
+  optionalDependencies:
+    opusscript "^0.0.7"
+    tweetnacl "^1.0.1"
+
+eris@^0.13.3:
   version "0.13.3"
   resolved "https://registry.yarnpkg.com/eris/-/eris-0.13.3.tgz#22abb71f9ce0d453200b537cad457dc39c7b302b"
   integrity sha512-WBtLyknOWZpYZL9yPhez0oKUWvYpunSg43hGxawwjwSf3gFXmbEPYrT8KlmZXtpJnX16eQ7mzIq+MgSh3LarEg==

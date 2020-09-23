@@ -95,6 +95,7 @@
     "dbots": "^5.0.4",
     "dotenv": "^8.2.0",
     "eris": "^0.13.3",
+    "eris-reactions": "^0.1.3",
     "eris-sharder": "^1.10.0",
     "erlpack": "^0.1.3",
     "frenchkiss": "^0.2.1",

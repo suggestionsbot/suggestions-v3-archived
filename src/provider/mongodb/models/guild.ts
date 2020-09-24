@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { GuildSchema } from '../../types';
+import { GuildSchema } from '../../../types';
 
 export const GuildSettings = new Schema({
   guildID: {

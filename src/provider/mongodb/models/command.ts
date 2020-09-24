@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { CommandSchema } from '../../types';
+import { CommandSchema } from '../../../types';
 
 export const Command = new Schema({
   guild: { type: String },

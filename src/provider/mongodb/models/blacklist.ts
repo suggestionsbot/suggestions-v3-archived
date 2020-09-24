@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { BlacklistSchema } from '../../types';
+import { BlacklistSchema } from '../../../types';
 
 export const Blacklist = new Schema({
   guildID: { type: String },

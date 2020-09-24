@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { SuggestionSchema, MessageLinkFormatter } from '../../types';
+import { SuggestionSchema, MessageLinkFormatter } from '../../../types';
 
 export const Suggestion = new Schema({
   guild: { type: String },

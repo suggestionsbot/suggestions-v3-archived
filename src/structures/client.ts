@@ -33,6 +33,7 @@ import CommandHandler from '../handlers/CommandHandler';
 import MongoDB from '../provider/mongodb';
 import MessageCollector from '../utils/MessageCollector';
 import ReactionCollector from '../utils/ReactionCollector';
+import Redis from '../provider/redis';
 
 export default class SuggestionsClient extends Client {
   private _core: CoreLoaders;
@@ -46,6 +47,7 @@ export default class SuggestionsClient extends Client {
   public commandHandler: CommandHandler;
   public wait: any;
   public database: MongoDB;
+  public redis: Redis;
   public messageCollectors: Array<MessageCollector>;
 
   constructor(public token: string, options?: ClientOptions) {
@@ -59,6 +61,7 @@ export default class SuggestionsClient extends Client {
 
     this._core = new CoreLoaders(this);
     this.database = new MongoDB(this);
+    this.redis = new Redis(this);
     this.production = (/true/i).test(process.env.NODE_ENV);
     this.config = config;
     this.commandHandler = new CommandHandler(this);
@@ -123,7 +126,8 @@ export default class SuggestionsClient extends Client {
   public isStaff(member: Member): boolean {
     let staffCheck: boolean;
     const adminCheck = this.isAdmin(member) || this.isOwner(member);
-    const staffRoles = member.guild.settings.staffRoles;
+    // TODO implement proper staff role usage
+    const staffRoles = [];
     if (staffRoles) staffCheck = member.roles.some(r => staffRoles.map(s => s.id).includes(r)) || adminCheck;
     else staffCheck = adminCheck;
 
@@ -190,9 +194,7 @@ export default class SuggestionsClient extends Client {
     embed: Embed,
     limit?: number
   ): Promise<any> {
-    const filter = (data: any): boolean => {
-      return reactions.map(r => r?.id).includes(data.emoji?.name || data.emoji?.id) && (data.id === user.id);
-    };
+    const filter = (userID: string): boolean => userID === user.id;
 
     let msg: Message;
     try {

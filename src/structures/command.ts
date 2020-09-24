@@ -2,9 +2,9 @@
 import { Permission, User, Message, Constants } from 'eris';
 
 import SuggestionsClient from './client';
-import { CommandThrottle, CommandThrottling } from '../types';
+import { CommandThrottle, CommandThrottling, GuildSchema } from '../types';
 
-export default class Command {
+export default abstract class Command {
   public active: boolean;
   public adminOnly: boolean;
   public aliases: Array<string>;
@@ -24,7 +24,7 @@ export default class Command {
   public usage: Array<string>;
   public userPermissions: Array<string|number>;
 
-  constructor(public client: SuggestionsClient) {
+  protected constructor(public client: SuggestionsClient) {
     this.client = client;
     this.throttles = new Map();
     this.throttling = {
@@ -36,11 +36,11 @@ export default class Command {
     this.subCommands = [];
   }
 
-  run(message: Message, args: Array<string>, settings: any): Promise<void> {
+  public run(message: Message, args: Array<string>, settings?: GuildSchema): Promise<void> {
     throw new Error(`The command ${this.name} does not have the required "run" method!`);
   }
 
-  throttle(user: User): CommandThrottle {
+  public throttle(user: User): CommandThrottle {
     if (!this.throttling || this.client.isOwner(user)) return;
 
     let throttle = this.throttles.get(user.id);

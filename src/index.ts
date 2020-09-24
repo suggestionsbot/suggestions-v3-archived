@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import SuggestionsClient from './structures/client';
+import Logger from './utils/Logger';
 
 export const main = async (): Promise<boolean> => {
   try {
@@ -10,7 +11,7 @@ export const main = async (): Promise<boolean> => {
     client.start();
     return true;
   } catch (error) {
-    console.error(error);
+    Logger.error('APPLICATION MAIN', error);
     return false;
   }
 };
@@ -18,17 +19,17 @@ export const main = async (): Promise<boolean> => {
 main();
 
 process.on('unhandledRejection', err => {
-  console.error('Unhandled Rejection', err);
+  Logger.error('Unhandled Rejection', err);
 });
 
 mongoose.connection.on('connected', () => {
-  console.log('Mongoose connection successfully opened!');
+  Logger.ready('MONGOOSE', 'Connection successfully opened!');
 });
 
 mongoose.connection.on('err', (err: Error) => {
-  console.error(`Mongoose connection error: \n ${err.stack}`);
+  Logger.error('MONGOOSE', 'Connection error', err);
 });
 
 mongoose.connection.on('disconnected', () => {
-  console.log('Mongoose connection disconnected');
+  Logger.event('MONGOOSE', 'Mongoose connection disconnected');
 });

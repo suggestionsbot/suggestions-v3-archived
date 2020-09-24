@@ -3,6 +3,7 @@ import { Message, TextableChannel, Collection } from 'eris';
 
 import SuggestionsClient from '../structures/client';
 import { AwaitMessagesOptions, CollectorFilter } from '../types';
+import Logger from './Logger';
 
 export default class MessageCollector extends EventEmitter {
   public collected: Collection<Message>;
@@ -97,7 +98,7 @@ export default class MessageCollector extends EventEmitter {
   private _onMessageDelete(message: Message): void {
     if (!this.running) return;
     if (!this.collected.has(message.id)) return;
-    console.log('message was deleted');
+    Logger.event('MESSAGE_DELETE', 'message was deleted');
     this.emit('delete', message);
   }
 }

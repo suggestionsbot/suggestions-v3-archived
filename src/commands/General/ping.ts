@@ -3,6 +3,7 @@ import { oneLine } from 'common-tags';
 
 import Command from '../../structures/command';
 import SuggestionsClient from '../../structures/client';
+import Logger from '../../utils/Logger';
 
 export default class PingCommand extends Command {
   constructor(public client: SuggestionsClient) {
@@ -25,9 +26,8 @@ export default class PingCommand extends Command {
         Latency is \`${msg.timestamp - message.timestamp}ms\`.
         API Latency is \`${Math.round(ping)}ms\`.
       `);
-
     } catch (error) {
-      console.error(error);
+      Logger.error('CMD:' + this.name.toUpperCase(), error.stack);
     }
   }
 }

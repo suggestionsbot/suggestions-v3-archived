@@ -1,15 +1,7 @@
-import { ClientOptions, Message, Permission, User, Constants } from 'eris';
+import { Message, User } from 'eris';
 import SuggestionsClient from '../structures/client';
-import Collection from '@discordjs/collection';
-import * as EventClass from '../structures/event';
-import * as mongoose from 'mongoose';
 import { Document } from 'mongoose';
-
-declare module 'eris' {
-  interface Guild {
-    settings: any;
-  }
-}
+import { Commands, RedisClient } from 'redis';
 
 export interface BotConfig {
   prefixes: Array<string>;
@@ -69,7 +61,9 @@ export interface Command {
   userPermissions: Array<string|number>;
   throttles: Map<string, CommandThrottle>;
   throttling: CommandThrottling;
-  run(message: Message, args: Array<string>, settings: any): Promise<void>;
+  run(message: Message, args: Array<string>, settings?: GuildSchema): Promise<void>;
+  runPreconditions(message: Message, args: Array<string>, next: CommandNextFunction, settings?: GuildSchema): Promise<void>;
+  runPostconditions(message: Message, args: Array<string>, next: CommandNextFunction, settings?: GuildSchema): Promise<void>;
   throttle(user: User): CommandThrottle;
 }
 
@@ -89,6 +83,8 @@ export interface CommandThrottling {
   usages: number;
   duration: number;
 }
+
+export type CommandNextFunction = () => void;
 
 export interface Event {
   client?: SuggestionsClient;
@@ -243,3 +239,12 @@ export interface CommandSchema extends Document {
 }
 
 export type MessageLinkFormatter = [string, string, string];
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export interface Promisified<T = RedisClient>
+  extends Omitted,
+  Commands<Promise<boolean>> {}
+
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
+type Omitted = Omit<RedisClient, keyof Commands<boolean>>;

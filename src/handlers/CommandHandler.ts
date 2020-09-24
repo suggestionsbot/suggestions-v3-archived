@@ -2,8 +2,9 @@ import { GuildChannel, Message, GuildTextableChannel } from 'eris';
 import { oneLine } from 'common-tags';
 
 import SuggestionsClient from '../structures/client';
-import { Command, SubCommand } from '../types';
+import { Command, CommandNextFunction, GuildSchema, SubCommand } from '../types';
 import Util from '../utils/Util';
+import Logger from '../utils/Logger';
 
 export default class CommandHandler {
   public minimumPermissions: Array<string|number>;
@@ -46,17 +47,20 @@ export default class CommandHandler {
 
       // TODO if bot is missing 'sendMessages' in a particular channel, dm the command sender
       if (missingPermissions.length > 0) {
-        // this.client.emit('commandBlocked', cmd, `botPermissions: ${missing.join(', ')}`);
-        if (missingPermissions.length === 1) {
-          return message.channel.createMessage(`I need the \`${missingPermissions[0]}\` permission for the \`${cmd.name}\` command to work.`)
-            .then((msg: Message) => this.client.wait(msg.delete, 5000));
-        }
-        await message.channel.createMessage(oneLine`
-    			I need the following permissions for the \`${cmd.name}\` command to work:
-    			${missingPermissions.map((p: string) => `\`${p}\``).join(', ')}
-    		`);
+        try { // this.client.emit('commandBlocked', cmd, `botPermissions: ${missing.join(', ')}`);
+          if (missingPermissions.length === 1) {
+            return message.channel.createMessage(`I need the \`${missingPermissions[0]}\` permission for the \`${cmd.name}\` command to work.`)
+              .then((msg: Message) => this.client.wait(msg.delete, 5000));
+          }
+          await message.channel.createMessage(oneLine`
+            I need the following permissions for the \`${cmd.name}\` command to work:
+            ${missingPermissions.map((p: string) => `\`${p}\``).join(', ')}
+          `);
 
-        return;
+          return;
+        } catch (e) {
+          return Logger.error('COMMAND HANDLER', e);
+        }
       }
     }
 
@@ -72,11 +76,35 @@ export default class CommandHandler {
       return;
     }
 
-    try {
+    // run preconditions
+    const preConditionNext = async (): Promise<void> => {
       if (throttle) throttle.usages++;
-      await cmd.run(message, args, {});
+      await cmd.run(message, args);
+      if (cmd.runPostconditions) await cmd.runPostconditions(message, args, postConditionNext);
+      // TODO make sure to eventually set this to only run in production in the future
+      const guildKey = `guild:${message.guildID}:commands`;
+      const userKey = `guild:${message.guildID}:user:${message.author.id}:commands`;
+
+      await Promise.all([
+        this.client.redis.redis.hincrby(userKey, cmd.name, 1),
+        this.client.redis.redis.hincrby(guildKey, cmd.name, 1)
+      ]);
+    };
+
+    // run postconditions
+    const postConditionNext = async (): Promise<void> => {
+      return;
+    };
+
+    try {
+      if (cmd.runPreconditions) {
+        if (throttle) throttle.usages++;
+        await cmd.runPreconditions(message, args, preConditionNext);
+      } else {
+        await preConditionNext();
+      }
     } catch (e) {
-      return console.error(e.stack);
+      return Logger.error('COMMAND HANDLER', e.stack);
     }
   }
 }

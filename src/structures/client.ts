@@ -23,7 +23,7 @@ import {
   CollectorFilter,
   AwaitMessagesOptions,
   AwaitReply,
-  AwaitReactionsOptions
+  AwaitReactionsOptions, GuildSchema, SuggestionsMessage
 } from '../types';
 import Collection from '@discordjs/collection';
 import CoreLoaders from '../utils/core';
@@ -34,6 +34,8 @@ import MongoDB from '../provider/mongodb';
 import MessageCollector from '../utils/MessageCollector';
 import ReactionCollector from '../utils/ReactionCollector';
 import Redis from '../provider/redis';
+import Logger from '../utils/Logger';
+import GuildModel from '../provider/mongodb/models/guild';
 
 export default class SuggestionsClient extends Client {
   private _core: CoreLoaders;
@@ -76,11 +78,16 @@ export default class SuggestionsClient extends Client {
     super.connect();
   }
 
-  public getPrefixes(regex = false): ReadonlyArray<string> {
-    const prefixes: Array<string> = [
-      ...this.config.prefixes,
-      this.user.mention
-    ];
+  public getPrefixes(regex = false, settings?: GuildSchema): ReadonlyArray<string> {
+    const prefixes: Array<string> = settings ?
+      [
+        ...settings.prefixes,
+        this.user.mention
+      ] :
+      [
+        ...this.config.prefixes,
+        this.user.mention
+      ];
 
     const modified: Array<string> = prefixes.map((p, i) => {
       if (regex) {
@@ -123,12 +130,12 @@ export default class SuggestionsClient extends Client {
     return guild.emojis.find((r: Emoji) => r.toString() === str);
   }
 
-  public isStaff(member: Member): boolean {
+  public isStaff(member: Member, settings: GuildSchema): boolean {
     let staffCheck: boolean;
     const adminCheck = this.isAdmin(member) || this.isOwner(member);
     // TODO implement proper staff role usage
-    const staffRoles = [];
-    if (staffRoles) staffCheck = member.roles.some(r => staffRoles.map(s => s.id).includes(r)) || adminCheck;
+    const staffRoles = settings.staffRoles;
+    if (staffRoles) staffCheck = member.roles.some(r => staffRoles.includes(r)) || adminCheck;
     else staffCheck = adminCheck;
 
     return staffCheck;
@@ -220,30 +227,36 @@ export default class SuggestionsClient extends Client {
     this.on('messageCreate', this._runMessageOperator);
   }
 
-  private _runMessageOperator(message: Message): void {
+  private _runMessageOperator(message: SuggestionsMessage): void {
     this._commandListener(message);
   }
 
-  private _commandListener(message: Message): void {
+  private async _commandListener(message: SuggestionsMessage): Promise<void> {
     try {
-      const prefixes = this.getPrefixes(true);
 
       if (message.author.bot) return;
       if ((message.channel instanceof GuildChannel) && !message.channel.permissionsOf(this.user.id).has('sendMessages')) return;
 
-      if (this.config.prefixes.length === 0)
-        new Error('The array of prefixes cannot be empty!');
+      let settings: GuildSchema;
+      if (message.guildID) {
+        try {
+          settings = await this.database.guildHelpers.getGuild(message.guildID);
+        } catch (e) {
+          Logger.error('COMMAND HANDLER', e);
+        }
+      }
 
+      const prefixes = this.getPrefixes(true, settings);
       const prefixRegex = new RegExp(`(${prefixes.join('|')})`);
       const prefix = message.content.match(prefixRegex) ? message.content.match(prefixRegex)[0] : null;
 
       const getPrefix = new RegExp(`^<@!?${this.user.id}>( |)$`);
       if (message.content.match(getPrefix)) {
         let i = 1;
-        (message.channel as GuildTextableChannel).createMessage({ embed: {
+        await (message.channel as GuildTextableChannel).createMessage({ embed: {
           description: stripIndents`My prefixes in this guild are:
 
-            ${this.getPrefixes().map(p => `**${i++})** ${p}`).join('\n')}`,
+            ${this.getPrefixes(false, settings).map(p => `**${i++})** ${p}`).join('\n')}`,
           color: this.config.colors.main
         }}
         );
@@ -254,7 +267,7 @@ export default class SuggestionsClient extends Client {
       if (message.content.indexOf(prefix) !== 0) return;
       message.prefix = prefix;
 
-      this.commandHandler.handle(message);
+      await this.commandHandler.handle(message, settings);
     } catch (e) {
       console.error(e.stack);
     }

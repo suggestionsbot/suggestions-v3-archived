@@ -2,10 +2,12 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
 import SuggestionsClient from '../../structures/client';
+import GuildHelpers from './helpers/guild';
 dotenv.config();
 
-export default class Index {
+export default class MongoDB {
   public connection: mongoose.Connection;
+  public guildHelpers: GuildHelpers;
 
   constructor(public client: SuggestionsClient) {
     this.client = client;
@@ -13,6 +15,8 @@ export default class Index {
   }
 
   public async init(): Promise<void> {
+    this.guildHelpers = new GuildHelpers(this.client);
+
     const dbOptions = {
       useNewUrlParser: true,
       autoIndex: false,

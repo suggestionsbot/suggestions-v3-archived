@@ -21,7 +21,7 @@ export default abstract class Command {
   public superOnly: boolean;
   public throttles: Map<string, CommandThrottle>;
   public throttling: CommandThrottling;
-  public usage: Array<string>;
+  public usages: Array<string>;
   public userPermissions: Array<string|number>;
 
   protected constructor(public client: SuggestionsClient) {

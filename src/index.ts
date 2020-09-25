@@ -1,3 +1,4 @@
+import { Master } from 'eris-sharder';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -9,6 +10,21 @@ export const main = async (): Promise<boolean> => {
   try {
     const client = new SuggestionsClient(process.env.DISCORD_TOKEN);
     client.start();
+    // const sharder = new Master(process.env.DISCORD_TOKEN, '/dist/lib/src/structures/client.js', {
+    //   stats: false,
+    //   debug: true,
+    //   clusters: 1,
+    //   name: 'Suggestions',
+    //   clientOptions: {
+    //     messageLimit: 150,
+    //     defaultImageFormat: 'png'
+    //   }
+    // });
+    //
+    // sharder.on('stats', stats => {
+    //   Logger.debug('SHARDS', stats);
+    // });
+
     return true;
   } catch (error) {
     Logger.error('APPLICATION MAIN', error);

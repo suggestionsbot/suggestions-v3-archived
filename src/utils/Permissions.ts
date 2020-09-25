@@ -29,5 +29,5 @@ export default {
   'manageNicknames': 'Manage Nicknames',
   'manageRoles': 'Manage Roles',
   'manageWebhooks': 'Manage Webhooks',
-  'manageEmojis': 'Mange Emojis'
+  'manageEmojis': 'Manage Emojis'
 };

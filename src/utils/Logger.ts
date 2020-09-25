@@ -18,6 +18,10 @@ export default class Logger {
     return `${month}.${day}.${year} ${hour}:${minute}:${second}`;
   }
 
+  public static log(...body: Array<any>): void {
+    console.log(chalk.bold.white(`[ ${Logger._getCurrentTime()} ]`), ...body);
+  }
+
   public static success(title: string, ...body: Array<any>): void {
     console.log(chalk.bold.green(`[ ${Logger._getCurrentTime()} ] [ $${title} ]`), ...body);
   }
@@ -43,6 +47,6 @@ export default class Logger {
   }
 
   public static ready(...body: Array<any>): void {
-    console.log(chalk.bold.green(`[ ${this._getCurrentTime()} ] [ READY ]`), ...body);
+    console.log(chalk.bold.blue(`[ ${this._getCurrentTime()} ] [ READY ]`), ...body);
   }
 }

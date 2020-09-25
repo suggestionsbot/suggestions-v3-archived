@@ -1,7 +1,15 @@
-import { Message, User } from 'eris';
+import { Guild, Message, TextableChannel, User } from 'eris';
 import SuggestionsClient from '../structures/client';
 import { Document } from 'mongoose';
 import { Commands, RedisClient } from 'redis';
+
+export interface SuggestionsMessage extends Message {
+  guild: Guild;
+}
+
+export interface EmbedThumbnail {
+  url: string;
+}
 
 export interface BotConfig {
   prefixes: Array<string>;
@@ -34,6 +42,13 @@ export interface BotConfig {
     logs: number;
     staff: number;
   };
+  defaults: {
+    prefixes: Array<string>;
+    channels: {
+      channel: string;
+      type: string;
+    }
+  }
 }
 
 export interface VoteSite {
@@ -47,7 +62,7 @@ export interface Command {
   description: string;
   category: string;
   subCommands: Array<string>;
-  usage: Array<string>;
+  usages: Array<string>;
   examples: Array<string>;
   aliases: Array<string>;
   active: boolean;
@@ -135,14 +150,22 @@ export interface AwaitReply {
 }
 
 export interface GuildSchema extends Document {
-  guildID: string,
-  prefix: string;
+  guild: string,
+  prefixes: Array<string>;
+  locale: string;
   channels: Array<SuggestionChannel>;
   staffRoles: Array<string>;
   voteEmojis: string;
   responseRequired: boolean;
   dmResponses: boolean;
-  disabledCommand: Array<DisabledCommand>;
+  disabledCommands: Array<DisabledCommand>;
+  setEmojis(id: string): void;
+  setGuild(guild: Guild|string): void;
+  setLocale(locale: string): void;
+  updatePrefixes(prefix: string): void;
+  updateChannels(channel: SuggestionChannel): void;
+  updateCommands(command: DisabledCommand): void;
+  updateStaffRoles(role: string): void;
 }
 
 export interface SuggestionChannel extends Document {
@@ -153,11 +176,11 @@ export interface SuggestionChannel extends Document {
 }
 
 export enum SuggestionChannelType {
-  'suggestions' = 'suggestions',
-  'logs' = 'logs',
-  'staff' = 'staff',
-  'approved' = 'approved',
-  'rejected' = 'rejected'
+  SUGGESTIONS = 'suggestions',
+  LOGS = 'logs',
+  STAFF = 'staff',
+  APPROVED = 'approved',
+  REJECTED = 'rejected'
 }
 
 export interface DisabledCommand extends Document {
@@ -165,6 +188,14 @@ export interface DisabledCommand extends Document {
   added: number;
   addedBy: string;
 }
+
+export interface VoteEmoji extends Document {
+  emojis: VoteEmojiArray;
+  added: number;
+  addedBy: string;
+}
+
+export type VoteEmojiArray = [string, string, string?];
 
 export interface SuggestionSchema extends Document {
   guild: string;
@@ -225,8 +256,8 @@ export interface BlacklistSchema extends Document {
 }
 
 export enum BlacklistScope {
-  'guild' = 'guild',
-  'global' = 'global'
+  GUILD = 'guild',
+  GLOBAL = 'global'
 }
 
 export interface CommandSchema extends Document {

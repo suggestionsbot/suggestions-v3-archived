@@ -2,7 +2,7 @@ import { GuildChannel, Message, GuildTextableChannel } from 'eris';
 import { oneLine } from 'common-tags';
 
 import SuggestionsClient from '../structures/client';
-import { Command, CommandNextFunction, GuildSchema, SubCommand } from '../types';
+import { Command, GuildSchema, SubCommand, SuggestionsMessage } from '../types';
 import Util from '../utils/Util';
 import Logger from '../utils/Logger';
 
@@ -14,7 +14,7 @@ export default class CommandHandler {
     this.minimumPermissions = ['readMessages', 'sendMessages'];
   }
 
-  public async handle(message: Message): Promise<void> {
+  public async handle(message: SuggestionsMessage, settings: GuildSchema): Promise<any> {
     let args = message.content.slice(message.prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
 
@@ -33,6 +33,17 @@ export default class CommandHandler {
     if (!cmd) return;
     // TODO eventually override Message#command with our own Command/SubCommand class
 
+    const staffCheck = this.client.isStaff(message.member, settings);
+    const adminCheck = this.client.isAdmin(message.member);
+    const ownerCheck = this.client.isOwner(message.author);
+
+    if (message.guildID) message.guild = this.client.guilds.get(message.guildID);
+
+    if (cmd.staffOnly && !staffCheck) return message.channel.createMessage('This is a staff only command!');
+    if (cmd.adminOnly && !adminCheck) return message.channel.createMessage('This is an admin only command!');
+    if (cmd.superOnly && !this.client.config.superSecretUsers.includes(message.author.id)) return;
+    if (cmd.ownerOnly && !ownerCheck) return;
+
     // check bot permissions
     if ((message.channel instanceof GuildChannel) && (message.channel as GuildTextableChannel) && cmd.botPermissions) {
       const pendingPermissions = (!cmd.botPermissions) ? this.minimumPermissions : this.minimumPermissions.concat(cmd.botPermissions);
@@ -49,8 +60,9 @@ export default class CommandHandler {
       if (missingPermissions.length > 0) {
         try { // this.client.emit('commandBlocked', cmd, `botPermissions: ${missing.join(', ')}`);
           if (missingPermissions.length === 1) {
-            return message.channel.createMessage(`I need the \`${missingPermissions[0]}\` permission for the \`${cmd.name}\` command to work.`)
-              .then((msg: Message) => this.client.wait(msg.delete, 5000));
+            return message.channel.createMessage(oneLine`I need the \`${missingPermissions[0]}\` permission for the
+              \`${(cmd as Command).name || (cmd as SubCommand).friendly}\` command to work.
+            `).then((msg: Message) => this.client.wait(msg.delete, 5000));
           }
           await message.channel.createMessage(oneLine`
             I need the following permissions for the \`${cmd.name}\` command to work:
@@ -79,7 +91,7 @@ export default class CommandHandler {
     // run preconditions
     const preConditionNext = async (): Promise<void> => {
       if (throttle) throttle.usages++;
-      await cmd.run(message, args);
+      await cmd.run(message, args, settings);
       if (cmd.runPostconditions) await cmd.runPostconditions(message, args, postConditionNext);
       // TODO make sure to eventually set this to only run in production in the future
       const guildKey = `guild:${message.guildID}:commands`;
@@ -99,7 +111,7 @@ export default class CommandHandler {
     try {
       if (cmd.runPreconditions) {
         if (throttle) throttle.usages++;
-        await cmd.runPreconditions(message, args, preConditionNext);
+        await cmd.runPreconditions(message, args, preConditionNext, settings);
       } else {
         await preConditionNext();
       }

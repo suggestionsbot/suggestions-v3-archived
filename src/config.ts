@@ -43,6 +43,13 @@ const config: BotConfig = {
     default: 355392,
     logs: 84992,
     staff: 85056,
+  },
+  defaults: {
+    prefixes: [','],
+    channels: {
+      channel: 'suggestions',
+      type: 'suggestions'
+    }
   }
 };
 

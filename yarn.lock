@@ -1616,9 +1616,9 @@ eris-reactions@^0.1.3:
   resolved "https://registry.yarnpkg.com/eris-reactions/-/eris-reactions-0.1.3.tgz#cd0b95d0a947ae173f11f085d744882d2be4a436"
   integrity sha512-lcqxCconH4Ca5GdUR1qUWQDHHv64JowIpRZZewRTrPHvXbGZyoE1BJZ8LETux+NSye4WIrEiysnzxfPBLZT6wg==
 
-eris-sharder@discordware/eris-sharder#dev:
+"eris-sharder@https://github.com/suggestionsbot/eris-sharder.git":
   version "1.10.0"
-  resolved "https://codeload.github.com/discordware/eris-sharder/tar.gz/9490c673ee0b20112a1157b3715a582a9fd5f9f3"
+  resolved "https://github.com/suggestionsbot/eris-sharder.git#08ff6a45ec6672274ba71dbcfd6cc8c98665e278"
   dependencies:
     asciiart-logo "^0.2.6"
     colors "^1.1.2"
@@ -2302,6 +2302,13 @@ has@^1.0.3:
   integrity sha512-f2dvO0VU6Oej7RkWJGrehjbzMAjFp5/VKPp5tTpWIV4JHHZK1/BxbFRtf/siA2SWTe09caDmVtYYzWEIbBS4zw==
   dependencies:
     function-bind "^1.1.1"
+
+hastebin-gen@^2.0.5:
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/hastebin-gen/-/hastebin-gen-2.0.5.tgz#8f4f11d5c4890280e2dbd34217e6ff06d053fe68"
+  integrity sha512-At1LaKtcqh2jiP8xfE2sDGT9IshIki6FqsgLwn2y7FzAvlFJRtpUsSPh3yWjWIQIvxi/GPF07IBqSI8WhPL/gQ==
+  dependencies:
+    node-fetch "^2.6.0"
 
 hosted-git-info@^2.1.4:
   version "2.8.8"
@@ -3479,7 +3486,7 @@ nice-try@^1.0.4:
   resolved "https://registry.yarnpkg.com/nice-try/-/nice-try-1.0.5.tgz#a3378a7696ce7d223e88fc9b764bd7ef1089e366"
   integrity sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==
 
-node-fetch@^2.6.1:
+node-fetch@^2.6.0, node-fetch@^2.6.1:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.1.tgz#045bd323631f76ed2e2b55573394416b639a0052"
   integrity sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==

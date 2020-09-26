@@ -1,10 +1,10 @@
-import { Guild, Message, TextableChannel, User } from 'eris';
+import { Guild, Message, User } from 'eris';
 import SuggestionsClient from '../structures/client';
 import { Document } from 'mongoose';
 import { Commands, RedisClient } from 'redis';
 
 export interface SuggestionsMessage extends Message {
-  guild: Guild;
+  guild?: Guild;
 }
 
 export interface EmbedThumbnail {
@@ -211,6 +211,7 @@ export interface SuggestionSchema extends Document {
   notes: Array<Note>;
   edits: Array<Edit>;
   getMessageLink(args: MessageLinkFormatter): string;
+  getSuggestionID(long: boolean): string;
 }
 
 export type StatusReply = Document;

@@ -11,8 +11,9 @@ import {
   TextableChannel,
   User
 } from 'eris';
-import { promisify } from 'util';
+import { inspect, promisify } from 'util';
 import dotenv from 'dotenv';
+import { Base } from 'eris-sharder';
 dotenv.config();
 
 import {
@@ -35,11 +36,15 @@ import MessageCollector from '../utils/MessageCollector';
 import ReactionCollector from '../utils/ReactionCollector';
 import Redis from '../provider/redis';
 import Logger from '../utils/Logger';
-import GuildModel from '../provider/mongodb/models/guild';
+import MessageUtils from '../utils/MessageUtils';
 
+/**
+ * Rewrite all emoji search methods to support sharding/clustering
+ */
 export default class SuggestionsClient extends Client {
   private _core: CoreLoaders;
   public readonly production: boolean;
+  public base: Base;
   public commands: Collection<string, Command>;
   public aliases: Collection<string, string>;
   public subCommands: Collection<string, SubCommand>;
@@ -103,17 +108,21 @@ export default class SuggestionsClient extends Client {
 
   public updateBotPresence(): void {
     const prefix = this.getPrefixes()[0];
-    const help = this.commands.get('help');
+    const help = this.commands.get('help') || { name: 'help' };
 
     if (this.production) {
-      this.editStatus('online', {
-        name: `your suggestions | ${prefix + help}`,
-        type: 2
+      this.base.ipc.broadcast('changeStatus', {
+        status: 'online',
+        name: `your suggestions | ${prefix + help.name}`,
+        type: 2,
+        url: null
       });
     } else {
-      this.editStatus('dnd', {
+      this.base.ipc.broadcast('changeStatus', {
+        status: 'dnd',
         name: 'in code land...',
-        type: 0
+        type: 0,
+        url: null
       });
     }
   }
@@ -253,13 +262,12 @@ export default class SuggestionsClient extends Client {
       const getPrefix = new RegExp(`^<@!?${this.user.id}>( |)$`);
       if (message.content.match(getPrefix)) {
         let i = 1;
-        await (message.channel as GuildTextableChannel).createMessage({ embed: {
-          description: stripIndents`My prefixes in this guild are:
+        const embed = MessageUtils.defaultEmbed()
+          .setDescription(stripIndents`My prefixes ${message.guildID ? 'in this guild' : ''} are:
 
-            ${this.getPrefixes(false, settings).map(p => `**${i++})** ${p}`).join('\n')}`,
-          color: this.config.colors.main
-        }}
-        );
+          ${this.getPrefixes(false, settings).map(p => `**${i++})** ${p}`).join('\n')}
+        `);
+        await (message.channel as GuildTextableChannel).createMessage({ embed });
         return;
       }
 
@@ -272,4 +280,27 @@ export default class SuggestionsClient extends Client {
       console.error(e.stack);
     }
   }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public async clean(text: any): Promise<any> {
+    if (text && text.constructor.name === 'Promise') text = await text;
+    if (typeof text !== 'string') {
+      text = inspect(text, {
+        depth: 1
+      });
+    }
+
+    text = text
+      .replace(/`/g, '`' + String.fromCharCode(8203))
+      .replace(/@/g, '@' + String.fromCharCode(8203))
+      .replace(this.token, '-REDACTED-')
+      .replace(process.env.MONGO_URI, '-REDACTED-')
+      .replace(process.env.DISCORD_TOKEN, '-REDACTED-')
+      .replace(process.env.REDIS_HOSTNAME, '-REDACTED-')
+      .replace(process.env.REDIS_PASSWORD, '-REDACTED-')
+      .replace(process.env.REDIS_PORT, '-REDACTED-');
+
+    return text;
+  }
+
 }

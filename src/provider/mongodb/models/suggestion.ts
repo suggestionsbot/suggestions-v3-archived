@@ -39,6 +39,11 @@ Suggestion.method('getMessageLink', function(args: MessageLinkFormatter): string
   return `https://discord.com/channels/${args[0]}/${args[1]}/${args[2]}`;
 });
 
+Suggestion.method('getSuggestionID', function(long = false): string {
+  if (long) return this.id;
+  else return this.id.slice(33, 40);
+});
+
 Suggestion.pre('save', function(next) {
   this.increment();
   next();

@@ -1,6 +1,6 @@
 import SuggestionsClient from '../../../structures/client';
-import { GuildSchema, Promisified } from '../../../types';
-import { Guild } from 'eris';
+import { GuildSchema, Promisified, SuggestionSchema } from '../../../types';
+import { Guild, Message } from 'eris';
 
 export default class RedisHelpers {
   private _redis: Promisified;
@@ -14,13 +14,20 @@ export default class RedisHelpers {
     return guild instanceof Guild ? guild.id : guild;
   }
 
+  private static _getMessageType(message: Message|string): string {
+    return message instanceof Message ? message.id : message;
+  }
+
+  private static _formSuggestionKey(id: string, message: string): string {
+    return `suggestion:${id}:${message}`;
+  }
+
   public static getGuildKey(guild: Guild|string): string {
     return `guild:${RedisHelpers._getGuildType(guild)}:settings`;
   }
 
   public getCachedGuild(guild: Guild|string): Promise<GuildSchema> {
-    // @ts-expect-error override async-redis return type
-    return this._redis.get(RedisHelpers.getGuildKey(guild)).then((data: string) => JSON.parse(data) as GuildSchema);
+    return this._redis.get(RedisHelpers.getGuildKey(guild)).then((data: any) => JSON.parse(data) as GuildSchema);
   }
 
   public setCachedGuild(guild: Guild|string, data: GuildSchema): Promise<boolean> {
@@ -29,5 +36,23 @@ export default class RedisHelpers {
 
   public clearCachedGuild(guild: Guild|string): Promise<boolean> {
     return this._redis.del(RedisHelpers.getGuildKey(guild));
+  }
+
+  public getCachedSuggestion(id: string): Promise<SuggestionSchema> {
+    return this._redis.keys(`*${id}*`).then((data: any) => {
+      if (!data?.length) return;
+      return this._redis.get(data[0] as string).then((data: any) => JSON.parse(data) as SuggestionSchema);
+    });
+  }
+
+  public setCachedSuggestion(id: string, message: string, data: SuggestionSchema): Promise<boolean> {
+    return this._redis.set(RedisHelpers._formSuggestionKey(id, message), JSON.stringify(data));
+  }
+
+  public clearCachedSuggestion(id: string): Promise<boolean> {
+    return this._redis.keys(`*${id}*`).then((data: any) => {
+      if (!data?.length) return;
+      return this._redis.del(data[0] as string);
+    });
   }
 }

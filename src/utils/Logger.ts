@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import * as util from 'util';
+import { inspect } from 'util';
 
 export default class Logger {
   private static _forcePadding(padding: number): string {
@@ -18,35 +18,46 @@ export default class Logger {
     return `${month}.${day}.${year} ${hour}:${minute}:${second}`;
   }
 
+  private static _formMessage(...body: Array<any>): string {
+    const data = [];
+
+    for (const m of body) {
+      if (typeof m === 'object') data.push(inspect(m));
+      else data.push(m);
+    }
+
+    return data.join(' ');
+  }
+
   public static log(...body: Array<any>): void {
-    console.log(chalk.bold.white(`[ ${Logger._getCurrentTime()} ]`), ...body);
+    console.log(`${chalk.bold.white('[ LOG ] ') + Logger._formMessage(...body)}`);
   }
 
   public static success(title: string, ...body: Array<any>): void {
-    console.log(chalk.bold.green(`[ ${Logger._getCurrentTime()} ] [ $${title} ]`), ...body);
+    console.log(chalk.bold.green(`[ SUCCESS ] [ ${title} ] `) + Logger._formMessage(...body));
   }
 
   public static warning(title: string, ...body: Array<any>): void {
-    console.log(chalk.bold.yellow(`[ ${this._getCurrentTime()} ] [ ${title} ]`), ...body);
+    console.log(chalk.bold.yellow(`[ WARNING ] [ ${title} ] `) + Logger._formMessage(...body));
   }
 
   public static error(title: string, ...body: Array<any>): void {
-    console.log(chalk.bold.red(`[ ${this._getCurrentTime()} ] [ ${title} ]`), ...body);
+    console.log(chalk.bold.red(`[ ERROR ] [ ${title} ] `) + Logger._formMessage(...body));
   }
 
   public static debug(title: string, ...body: Array<any>): void {
-    console.log(chalk.bold.magenta(`[ ${this._getCurrentTime()} ] [ ${title} ]`), ...body);
+    console.log(chalk.bold.magenta(`[ DEBUG ] [ ${title} ] `) + Logger._formMessage(...body));
   }
 
   public static event(event: string, ...body: Array<any>): void {
-    console.log(chalk.bold.yellow(`[ ${this._getCurrentTime()} ] [ EVENT:${event.toUpperCase()} ]`), ...body);
+    console.log(chalk.bold.yellow(`[ EVENT ] [ ${event.toUpperCase()} ] `) + Logger._formMessage(...body));
   }
 
   public static command(command: string, ...body: Array<any>): void {
-    console.log(chalk.bold.green(`[ ${this._getCurrentTime()} ] [ COMMAND:${command.toUpperCase()} ]`), ...body);
+    console.log(chalk.bold.green(`[ COMMAND ] [ ${command.toUpperCase()} ] `) + Logger._formMessage(...body));
   }
 
   public static ready(...body: Array<any>): void {
-    console.log(chalk.bold.blue(`[ ${this._getCurrentTime()} ] [ READY ]`), ...body);
+    console.log(chalk.bold.blue('[ READY ] ') + Logger._formMessage(...body));
   }
 }

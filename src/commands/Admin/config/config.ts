@@ -16,8 +16,9 @@ export default class ConfigCommand extends Command {
       'config prefix [value]',
       'config channels [channel] [type]',
       'config roles [list, of, roles]',
-      'config emojis [id]',
+      'config emojis set <id>',
       'config emojis add <emoji1, emoji2>',
+      'config emojis delete <id>',
       'config responses [on|off] [all|response]',
       'config commands [list, of, commands]'
     ];
@@ -27,9 +28,10 @@ export default class ConfigCommand extends Command {
       'config channels #staff-review review',
       'config roles Admin',
       'config roles @Admin, @Mod',
-      'config emojis 5',
-      'config emojis :upvote:, :downvote:',
-      'config responses off rejectd',
+      'config emojis set 5',
+      'config emojis add :upvote:, :downvote:',
+      'config emojis delete 3',
+      'config responses off rejected',
       'config responses on approved',
       'config responses off all',
       'config commands approve, reject'
@@ -37,6 +39,7 @@ export default class ConfigCommand extends Command {
     this.adminOnly = true;
     this.botPermissions = ['manageMessages', 'externalEmojis'];
     this.guarded = true;
+    this.guildOnly = true;
   }
 
   public async run(message: SuggestionsMessage, args: Array<string>, settings: GuildSchema): Promise<any> {

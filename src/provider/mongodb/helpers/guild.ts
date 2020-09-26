@@ -1,6 +1,3 @@
-import mongoose from 'mongoose';
-import _ from 'lodash';
-import { oneLine } from 'common-tags';
 import { Guild } from 'eris';
 
 import GuildModel from '../models/guild';
@@ -52,8 +49,7 @@ export default class GuildHelpers {
     const data = await schema.save();
     await this.client.redis.helpers.setCachedGuild(guild, data);
 
-    Logger.log(oneLine`Guild settings saved for guild ID ${guildID}`);
-
+    Logger.log(`Guild settings saved for Guild ${guildID}`);
     return data;
   }
 }

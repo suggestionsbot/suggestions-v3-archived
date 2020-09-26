@@ -6,6 +6,7 @@ import SuggestionsClient from '../../../structures/client';
 import { CommandNextFunction, GuildSchema, SuggestionsMessage } from '../../../types';
 import Logger from '../../../utils/Logger';
 import MessageEmbed from '../../../utils/MessageEmbed';
+import MessageUtils from '../../../utils/MessageUtils';
 
 export default class ConfigPrefixCommand extends SubCommand {
   constructor(public client: SuggestionsClient) {
@@ -26,6 +27,7 @@ export default class ConfigPrefixCommand extends SubCommand {
     this.adminOnly = true;
     this.botPermissions = ['manageMessages', 'externalEmojis'];
     this.guarded = true;
+    this.guildOnly = true;
   }
 
   public async runPreconditions(message: Message, args: Array<string>, next: CommandNextFunction, settings: GuildSchema): Promise<any> {
@@ -41,21 +43,20 @@ export default class ConfigPrefixCommand extends SubCommand {
   public async run(message: SuggestionsMessage, args: Array<string>, settings: GuildSchema): Promise<any> {
     try {
       const docsRef = `${this.client.config.docs}/docs/configuration.html`;
-      const baseEmbed = new MessageEmbed()
+      const baseEmbed = MessageUtils.defaultEmbed()
         .setAuthor(message.guild.name, message.guild.iconURL)
-        .setColor(this.client.config.colors.main)
         .setFooter(`Guild: ${message.guildID}`)
         .setTimestamp();
 
       if (!args[0]) {
         let i = 1;
-        baseEmbed.setDescription(stripIndents`My prefixes in this guild are:
+        baseEmbed.setDescription(stripIndents`My prefixes ${message.guild ? 'in this guild' : ''} are:
 
         ${this.client.getPrefixes(false, settings).map(p => `**${i++})** ${p}`).join('\n')}
       `);
-        baseEmbed.addField('More Information', `[Link](${docsRef}#prefix)`, true);
         baseEmbed.addField('Usages', `\`${message.prefix + this.usages.join('\n')}\``, true);
         baseEmbed.addField('Examples', `\`${message.prefix + this.examples.join('\n')}\``, true);
+        baseEmbed.addField('More Information', `[Link](${docsRef}#prefix)`);
         return (message.channel as GuildTextableChannel).createMessage({ embed: baseEmbed });
       }
 

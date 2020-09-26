@@ -5,6 +5,7 @@ import SuggestionsClient from '../structures/client';
 import { Command, GuildSchema, SubCommand, SuggestionsMessage } from '../types';
 import Util from '../utils/Util';
 import Logger from '../utils/Logger';
+import MessageUtils from '../utils/MessageUtils';
 
 export default class CommandHandler {
   public minimumPermissions: Array<string|number>;
@@ -33,14 +34,22 @@ export default class CommandHandler {
     if (!cmd) return;
     // TODO eventually override Message#command with our own Command/SubCommand class
 
-    const staffCheck = this.client.isStaff(message.member, settings);
-    const adminCheck = this.client.isAdmin(message.member);
+    if (!message.guildID && cmd.guildOnly) {
+      return MessageUtils.error(
+        this.client,
+        message,
+        `The \`${subCmd?.friendly || mainCmd.name}\` command can only be used in a server!
+    `);
+    }
+
+    const staffCheck = message.guildID ? this.client.isStaff(message.member, settings): null;
+    const adminCheck = message.guildID ? this.client.isAdmin(message.member) : null;
     const ownerCheck = this.client.isOwner(message.author);
 
     if (message.guildID) message.guild = this.client.guilds.get(message.guildID);
 
-    if (cmd.staffOnly && !staffCheck) return message.channel.createMessage('This is a staff only command!');
-    if (cmd.adminOnly && !adminCheck) return message.channel.createMessage('This is an admin only command!');
+    if ((message.guildID !== undefined) && (cmd.staffOnly && !staffCheck)) return MessageUtils.error(this.client, message, 'This is a staff only command!');
+    if ((message.guildID !== undefined) && (cmd.adminOnly && !adminCheck)) return MessageUtils.error(this.client, message, 'This is an admin only command!');
     if (cmd.superOnly && !this.client.config.superSecretUsers.includes(message.author.id)) return;
     if (cmd.ownerOnly && !ownerCheck) return;
 
@@ -81,11 +90,9 @@ export default class CommandHandler {
     if (throttle && throttle.usages + 1 > cmd.throttling.usages) {
       const remaining = (throttle.start + (cmd.throttling.duration * 1000) - Date.now()) / 1000;
       // this.client.emit('commandBlocked', cmd, 'throttling');
-      await message.channel.createMessage(
+      return message.channel.createMessage(
         `You may not use the \`${cmd.name}\` command again for another \`${remaining.toFixed(1)}\` seconds.`
       );
-
-      return;
     }
 
     // run preconditions

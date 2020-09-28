@@ -2,9 +2,9 @@
 import { Permission, User, Message, Constants } from 'eris';
 
 import SuggestionsClient from './client';
-import { CommandThrottle, CommandThrottling, GuildSchema } from '../types';
+import { CommandThrottle, CommandThrottling, GuildSchema, Command as CommandClass } from '../types';
 
-export default abstract class Command {
+export default abstract class Command implements CommandClass {
   public active: boolean;
   public adminOnly: boolean;
   public aliases: Array<string>;

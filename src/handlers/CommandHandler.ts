@@ -48,8 +48,10 @@ export default class CommandHandler {
 
     if (message.guildID) message.guild = this.client.guilds.get(message.guildID);
 
-    if ((message.guildID !== undefined) && (cmd.staffOnly && !staffCheck)) return MessageUtils.error(this.client, message, 'This is a staff only command!');
-    if ((message.guildID !== undefined) && (cmd.adminOnly && !adminCheck)) return MessageUtils.error(this.client, message, 'This is an admin only command!');
+    if ((message.guildID !== undefined) && (cmd.staffOnly && !staffCheck))
+      return MessageUtils.error(this.client, message, 'This is a staff only command!');
+    if ((message.guildID !== undefined) && (cmd.adminOnly && !adminCheck))
+      return MessageUtils.error(this.client, message, 'This is an admin only command!');
     if (cmd.superOnly && !this.client.config.superSecretUsers.includes(message.author.id)) return;
     if (cmd.ownerOnly && !ownerCheck) return;
 

@@ -4,6 +4,16 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import Logger from './utils/Logger';
+import SuggestionsClient from './structures/client';
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace NodeJS {
+    interface Global {
+      __rootdir__: string;
+    }
+  }
+}
 
 export const main = async (): Promise<boolean> => {
   try {
@@ -15,18 +25,16 @@ export const main = async (): Promise<boolean> => {
       stats: false,
       debug: true,
       clusters: 1,
-      // TODO look into properly setting shards to 'auto': https://canary.discordapp.com/channels/364124474729037824/364132890788757514/759218710522232832
-      shards: 1,
       guildsPerShard: 1500,
       name: 'Suggestions',
       webhooks: {
         shard: {
-          id: '759222460234727465',
-          token: 'jBafo5oVcoKyWYPlCM7lryPv1BYyYJClpJC6XT5zaa7bjFeRircACHTmrM4iaPcwLbF_',
+          id: process.env.SHARD_WEBHOOK_ID,
+          token: process.env.SHARD_WEBHOOK_TOKEN,
         },
         cluster: {
-          id: '759222703831515148',
-          token: 'XRFEomcp7clM99BH-BQ4bLLFoPva0ezive-f1M88OO-N3_YtAzX4mOYYmKCKALAUoNI_'
+          id: process.env.CLUSTER_WEBHOOK_ID,
+          token: process.env.CLUSTER_WEBHOOK_TOKEN
         }
       },
       clientOptions: {
@@ -45,6 +53,8 @@ export const main = async (): Promise<boolean> => {
 };
 
 main();
+
+global.__rootdir__ = __dirname || process.cwd();
 
 process.on('unhandledRejection', err => {
   Logger.error('Unhandled Rejection', err);

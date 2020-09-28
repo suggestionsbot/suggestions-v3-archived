@@ -57,35 +57,37 @@ export interface VoteSite {
   voted: boolean;
 }
 
-export interface Command {
-  name: string;
-  description: string;
-  category: string;
-  subCommands: Array<string>;
-  usages: Array<string>;
-  examples: Array<string>;
-  aliases: Array<string>;
-  active: boolean;
-  guarded: boolean;
-  guildOnly: boolean;
-  staffOnly: boolean;
-  adminOnly: boolean;
-  ownerOnly: boolean;
-  superOnly: boolean;
-  botPermissions: Array<string|number>;
-  userPermissions: Array<string|number>;
-  throttles: Map<string, CommandThrottle>;
-  throttling: CommandThrottling;
-  run(message: Message, args: Array<string>, settings?: GuildSchema): Promise<void>;
-  runPreconditions(message: Message, args: Array<string>, next: CommandNextFunction, settings?: GuildSchema): Promise<void>;
-  runPostconditions(message: Message, args: Array<string>, next: CommandNextFunction, settings?: GuildSchema): Promise<void>;
-  throttle(user: User): CommandThrottle;
+export abstract class Command {
+  // public client: SuggestionsClient;
+  public name: string;
+  public description: string;
+  public category: string;
+  public subCommands: Array<string>;
+  public usages: Array<string>;
+  public examples: Array<string>;
+  public aliases: Array<string>;
+  public active: boolean;
+  public guarded: boolean;
+  public guildOnly: boolean;
+  public staffOnly: boolean;
+  public adminOnly: boolean;
+  public ownerOnly: boolean;
+  public superOnly: boolean;
+  public botPermissions: Array<string|number>;
+  public userPermissions: Array<string|number>;
+  public throttles: Map<string, CommandThrottle>;
+  public throttling: CommandThrottling;
+  protected constructor(public client: SuggestionsClient) {}
+  public abstract run(message: Message, args: Array<string>, settings?: GuildSchema): Promise<void>;
+  public runPreconditions?(message: Message, args: Array<string>, next: CommandNextFunction, settings?: GuildSchema): Promise<void>;
+  public runPostconditions?(message: Message, args: Array<string>, next: CommandNextFunction, settings?: GuildSchema): Promise<void>;
+  public throttle?(user: User): CommandThrottle;
 }
 
-export interface SubCommand extends Command {
-  parent: string;
-  arg: string;
-  friendly: string;
+export abstract class SubCommand extends Command {
+  public parent: string;
+  public arg: string;
+  public friendly: string;
 }
 
 export interface CommandThrottle {
@@ -101,13 +103,11 @@ export interface CommandThrottling {
 
 export type CommandNextFunction = () => void;
 
-export interface Event {
-  client?: SuggestionsClient;
-  name?: string;
-  options?: EventOptions;
-  type: string;
-  emitter: SuggestionsClient|string;
-  run(...args: Array<any>): Promise<any>;
+export abstract class Event {
+  public type: string;
+  public emitter: SuggestionsClient|string;
+  protected constructor(public client?: SuggestionsClient, public name?: string, public options: EventOptions = {}) {}
+  public abstract run(...args: Array<any>): Promise<any>;
 }
 
 export type EventConstructor<T> = new (...args: never[]) => T;

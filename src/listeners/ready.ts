@@ -22,9 +22,13 @@ export default class extends Event {
       `👂 Loaded (${this.client.events.size}) events!`
     ];
 
-    await this.client.database.init();
-    await this.client.redis.init();
-    for (const m of readyMessages) await Logger.ready(m);
-    this.client.updateBotPresence();
+    try {
+      await this.client.database.init();
+      await this.client.redis.init();
+      for (const m of readyMessages) await Logger.ready(m);
+      this.client.updateBotPresence();
+    } catch (e) {
+      Logger.error('READY EVENT', e);
+    }
   }
 }

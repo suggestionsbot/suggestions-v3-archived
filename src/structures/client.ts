@@ -12,8 +12,10 @@ import {
   User
 } from 'eris';
 import { inspect, promisify } from 'util';
-import dotenv from 'dotenv';
 import { Base } from 'eris-sharder';
+import Collection from '@discordjs/collection';
+import { stripIndents } from 'common-tags';
+import dotenv from 'dotenv';
 dotenv.config();
 
 import {
@@ -26,10 +28,8 @@ import {
   AwaitReply,
   AwaitReactionsOptions, GuildSchema, SuggestionsMessage
 } from '../types';
-import Collection from '@discordjs/collection';
 import CoreLoaders from '../utils/core';
 import config from '../config';
-import { stripIndents } from 'common-tags';
 import CommandHandler from '../handlers/CommandHandler';
 import MongoDB from '../provider/mongodb';
 import MessageCollector from '../utils/MessageCollector';
@@ -45,6 +45,7 @@ export default class SuggestionsClient extends Client {
   private _core: CoreLoaders;
   public readonly production: boolean;
   public base: Base;
+  public sentry: any;
   public commands: Collection<string, Command>;
   public aliases: Collection<string, string>;
   public subCommands: Collection<string, SubCommand>;
@@ -298,7 +299,9 @@ export default class SuggestionsClient extends Client {
       .replace(process.env.DISCORD_TOKEN, '-REDACTED-')
       .replace(process.env.REDIS_HOSTNAME, '-REDACTED-')
       .replace(process.env.REDIS_PASSWORD, '-REDACTED-')
-      .replace(process.env.REDIS_PORT, '-REDACTED-');
+      .replace(process.env.REDIS_PORT, '-REDACTED-')
+      .replace(process.env.SENTRY_DSN, '-REDACTED-')
+      .replace(process.env.SENTRY_TRACES_SAMPLERATE, '-REDACTED-');
 
     return text;
   }

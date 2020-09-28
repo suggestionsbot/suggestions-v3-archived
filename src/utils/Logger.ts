@@ -1,5 +1,7 @@
 import chalk from 'chalk';
 import { inspect } from 'util';
+import * as Sentry from '@sentry/node';
+import { Severity } from '@sentry/node';
 
 export default class Logger {
   private static _forcePadding(padding: number): string {
@@ -38,15 +40,19 @@ export default class Logger {
   }
 
   public static warning(title: string, ...body: Array<any>): void {
-    console.log(chalk.bold.yellow(`[ WARNING ] [ ${title} ] `) + Logger._formMessage(...body));
+    const formedMessage = Logger._formMessage(...body);
+    console.warn(chalk.bold.yellow(`[ WARNING ] [ ${title} ] `) + formedMessage);
+    Sentry.captureMessage(formedMessage, { level: Severity.Warning });
   }
 
   public static error(title: string, ...body: Array<any>): void {
-    console.log(chalk.bold.red(`[ ERROR ] [ ${title} ] `) + Logger._formMessage(...body));
+    const formedMessage = Logger._formMessage(...body);
+    console.error(chalk.bold.red(`[ ERROR ] [ ${title} ] `) + formedMessage);
+    Sentry.captureException(formedMessage, { level: Severity.Error });
   }
 
   public static debug(title: string, ...body: Array<any>): void {
-    console.log(chalk.bold.magenta(`[ DEBUG ] [ ${title} ] `) + Logger._formMessage(...body));
+    console.debug(chalk.bold.magenta(`[ DEBUG ] [ ${title} ] `) + Logger._formMessage(...body));
   }
 
   public static event(event: string, ...body: Array<any>): void {

@@ -1720,7 +1720,7 @@ eris-reactions@^0.1.3:
 
 "eris-sharder@https://github.com/suggestionsbot/eris-sharder.git":
   version "1.10.0"
-  resolved "https://github.com/suggestionsbot/eris-sharder.git#08ff6a45ec6672274ba71dbcfd6cc8c98665e278"
+  resolved "https://github.com/suggestionsbot/eris-sharder.git#a5fb8086fab456e5fff4add08058902489eb641e"
   dependencies:
     asciiart-logo "^0.2.6"
     colors "^1.1.2"

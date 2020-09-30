@@ -56,14 +56,14 @@ export default class CommandHandler {
     if (cmd.ownerOnly && !ownerCheck) return;
 
     // check bot permissions
-    if ((message.channel instanceof GuildChannel) && (message.channel as GuildTextableChannel) && cmd.botPermissions) {
+    if ((message.channel instanceof GuildChannel) && (<GuildTextableChannel>message.channel) && cmd.botPermissions) {
       const pendingPermissions = (!cmd.botPermissions) ? this.minimumPermissions : this.minimumPermissions.concat(cmd.botPermissions);
       const missingPermissions: Array<string> = [];
 
       // TODO eventually add in functionality to format permission numbewr
       for (const permission of pendingPermissions) {
-        if (!message.channel.permissionsOf(this.client.user.id).has(permission as string)) {
-          missingPermissions.push(Util.formatPermission(permission as string));
+        if (!message.channel.permissionsOf(this.client.user.id).has(<string>permission)) {
+          missingPermissions.push(Util.formatPermission(<string>permission));
         }
       }
 
@@ -72,7 +72,7 @@ export default class CommandHandler {
         try { // this.client.emit('commandBlocked', cmd, `botPermissions: ${missing.join(', ')}`);
           if (missingPermissions.length === 1) {
             return message.channel.createMessage(oneLine`I need the \`${missingPermissions[0]}\` permission for the
-              \`${(cmd as Command).name || (cmd as SubCommand).friendly}\` command to work.
+              \`${(<Command>cmd).name || (<SubCommand>cmd).friendly}\` command to work.
             `).then((msg: Message) => this.client.wait(msg.delete, 5000));
           }
           await message.channel.createMessage(oneLine`
@@ -98,22 +98,28 @@ export default class CommandHandler {
     }
 
     // run preconditions
-    const preConditionNext = async (): Promise<void> => {
-      if (throttle) throttle.usages++;
-      await cmd.run(message, args, settings);
-      if (cmd.runPostconditions) await cmd.runPostconditions(message, args, postConditionNext);
-      // TODO make sure to eventually set this to only run in production in the future
-      const guildKey = `guild:${message.guildID}:commands`;
-      const userKey = `guild:${message.guildID}:user:${message.author.id}:commands`;
+    const preConditionNext = async (): Promise<any> => {
+      try {
+        if (throttle) throttle.usages++;
+        await cmd.run(message, args, settings);
+        if (cmd.runPostconditions) await cmd.runPostconditions(message, args, postConditionNext);
+        // TODO make sure to eventually set this to only run in production in the future
+        const guildKey = `guild:${message.guildID}:commands`;
+        const userKey = `guild:${message.guildID}:user:${message.author.id}:commands`;
 
-      await Promise.all([
-        this.client.redis.redis.hincrby(userKey, cmd.name, 1),
-        this.client.redis.redis.hincrby(guildKey, cmd.name, 1)
-      ]);
+        await Promise.all([
+          this.client.redis.redis.hincrby(userKey, cmd.name, 1),
+          this.client.redis.redis.hincrby(guildKey, cmd.name, 1),
+          this.client.database.commandHelpers.createCommand(message, cmd.name)
+        ]);
+      } catch (e) {
+        Logger.error('COMMAND HANDLER', e);
+        return MessageUtils.error(this.client, message, e.message, true);
+      }
     };
 
     // run postconditions
-    const postConditionNext = async (): Promise<void> => {
+    const postConditionNext = async (): Promise<any> => {
       return;
     };
 

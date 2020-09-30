@@ -49,4 +49,4 @@ Suggestion.pre('save', function(next) {
   next();
 });
 
-export default model<SuggestionSchema>('Suggestion', Suggestion);
+export default model<SuggestionSchema>('Suggestion', Suggestion, 'suggestions');

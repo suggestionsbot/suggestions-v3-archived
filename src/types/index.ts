@@ -1,4 +1,4 @@
-import { Guild, Message, User } from 'eris';
+import { Guild, Member, Message, User } from 'eris';
 import SuggestionsClient from '../structures/client';
 import { Document } from 'mongoose';
 import { Commands, RedisClient } from 'redis';
@@ -249,7 +249,7 @@ export interface BlacklistSchema extends Document {
   guild: string;
   user: string;
   reason: string;
-  issuedBy: string;
+  issuer: string;
   time: number;
   status: boolean;
   case: number;
@@ -280,3 +280,17 @@ export interface Promisified<T = RedisClient>
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 type Omitted = Omit<RedisClient, keyof Commands<boolean>>;
+
+export type SuggestionUser = User|Member|string;
+export type SuggestionGuild = Guild|string;
+export type BlacklistQuery = [{ user: string }, { status: boolean }];
+
+interface BlacklistData {
+  status: boolean;
+  issuer: string;
+}
+
+export interface BlacklistQueryType {
+  query: BlacklistQuery;
+  data: BlacklistData;
+}

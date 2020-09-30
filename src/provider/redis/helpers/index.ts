@@ -1,6 +1,14 @@
 import SuggestionsClient from '../../../structures/client';
-import { GuildSchema, Promisified, SuggestionSchema } from '../../../types';
-import { Guild, Message } from 'eris';
+import {
+  BlacklistSchema,
+  GuildSchema,
+  Promisified,
+  SuggestionGuild,
+  SuggestionSchema,
+  SuggestionUser
+} from '../../../types';
+import Util from '../../../utils/Util';
+import Logger from '../../../utils/Logger';
 
 export default class RedisHelpers {
   private _redis: Promisified;
@@ -10,32 +18,51 @@ export default class RedisHelpers {
     this._redis = redis;
   }
 
-  private static _getGuildType(guild: Guild|string): string {
-    return guild instanceof Guild ? guild.id : guild;
-  }
-
-  private static _getMessageType(message: Message|string): string {
-    return message instanceof Message ? message.id : message;
-  }
-
   private static _formSuggestionKey(id: string, message: string): string {
     return `suggestion:${id}:${message}`;
   }
 
-  public static getGuildKey(guild: Guild|string): string {
-    return `guild:${RedisHelpers._getGuildType(guild)}:settings`;
+  private static _formGuildKey(guild: SuggestionGuild): string {
+    return `guild:${Util.getGuildID(guild)}:settings`;
   }
 
-  public getCachedGuild(guild: Guild|string): Promise<GuildSchema> {
-    return this._redis.get(RedisHelpers.getGuildKey(guild)).then((data: any) => JSON.parse(data) as GuildSchema);
+  private static _formGuildBlacklistKey(user: SuggestionUser, guild: SuggestionGuild): string {
+    if (guild) return `blacklist:${Util.getGuildID(guild)}:${Util.getUserID(user)}`;
+    else `blacklist:${Util.getUserID(user)}`;
   }
 
-  public setCachedGuild(guild: Guild|string, data: GuildSchema): Promise<boolean> {
-    return this._redis.set(RedisHelpers.getGuildKey(guild), JSON.stringify(data));
+  public getCachedGuild(guild: SuggestionGuild): Promise<GuildSchema> {
+    return this._redis.get(RedisHelpers._formGuildKey(guild))
+      .then((data: any) => JSON.parse(data) as GuildSchema);
   }
 
-  public clearCachedGuild(guild: Guild|string): Promise<boolean> {
-    return this._redis.del(RedisHelpers.getGuildKey(guild));
+  public getCachedBlacklist(user: SuggestionUser, guild: SuggestionGuild = null): Promise<BlacklistSchema> {
+    return this.redis.get(RedisHelpers._formGuildBlacklistKey(user, guild))
+      .then((data: any) => JSON.parse(data) as BlacklistSchema);
+  }
+
+  public setCachedBlacklist(user: SuggestionUser, data: BlacklistSchema, guild: SuggestionGuild = null): Promise<boolean> {
+    return this._redis.set(RedisHelpers._formGuildBlacklistKey(user, guild), JSON.stringify(data));
+  }
+
+  public clearCachedBlacklist(user: SuggestionUser, guild: SuggestionGuild): Promise<boolean> {
+    return this._redis.del(RedisHelpers._formGuildBlacklistKey(user, guild));
+  }
+
+  public setCachedGuild(guild: SuggestionGuild, data: GuildSchema): Promise<boolean> {
+    return this._redis.set(RedisHelpers._formGuildKey(guild), JSON.stringify(data));
+  }
+
+  public clearCachedGuild(guild: SuggestionGuild): Promise<boolean> {
+    return this._redis.del(RedisHelpers._formGuildKey(guild));
+  }
+
+  public clearCachedData(guild: SuggestionGuild): Promise<boolean> {
+    return this._redis.keys(`*${Util.getGuildID(guild)}*`).then((data: any) => {
+      if (!data?.length) return;
+      Logger.log(...data);
+      return this._redis.del(...data);
+    });
   }
 
   public getCachedSuggestion(id: string): Promise<SuggestionSchema> {

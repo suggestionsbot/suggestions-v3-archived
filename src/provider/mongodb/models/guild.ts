@@ -95,4 +95,4 @@ GuildSettings.pre('save', function(next) {
   next();
 });
 
-export default model<GuildSchema>('Settings', GuildSettings);
+export default model<GuildSchema>('Settings', GuildSettings, 'settings');

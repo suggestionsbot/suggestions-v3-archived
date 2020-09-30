@@ -15,4 +15,4 @@ Command.pre('save', function(next) {
   next();
 });
 
-export default model<CommandSchema>('Commands', Command);
+export default model<CommandSchema>('Commands', Command, 'commands');

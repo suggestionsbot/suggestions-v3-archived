@@ -2,8 +2,9 @@ import { Guild } from 'eris';
 
 import GuildModel from '../models/guild';
 import SuggestionsClient from '../../../structures/client';
-import { GuildSchema } from '../../../types';
+import { GuildSchema, SuggestionGuild } from '../../../types';
 import Logger from '../../../utils/Logger';
+import Util from '../../../utils/Util';
 
 /**
  * TODO look into TTL and how long data should be kept in cache (could keep only active guilds in cache longer than inactive)
@@ -14,12 +15,12 @@ export default class GuildHelpers {
     this.client = client;
   }
 
-  private static _getGuildID(guild: Guild|string): string {
+  private static _getGuildID(guild: SuggestionGuild): string {
     return guild instanceof Guild ? guild.id : guild;
   }
 
   // TODO make sure default data isn't be saved to database. only persist if a config value was changed
-  public async getGuild(guild: Guild|string, cached = true): Promise<GuildSchema> {
+  public async getGuild(guild: SuggestionGuild, cached = true): Promise<GuildSchema> {
     const guildID = GuildHelpers._getGuildID(guild);
     const defaultData = {
       guild: guildID,
@@ -42,7 +43,7 @@ export default class GuildHelpers {
     return data;
   }
 
-  public async createGuild(guild: Guild|string, newData = {}): Promise<GuildSchema> {
+  public async createGuild(guild: SuggestionGuild, newData = {}): Promise<GuildSchema> {
     const guildID = GuildHelpers._getGuildID(guild);
     const schema = new GuildModel(Object.assign({ guild: guildID }, newData));
 
@@ -51,5 +52,11 @@ export default class GuildHelpers {
 
     Logger.log(`Guild settings saved for Guild ${guildID}`);
     return data;
+  }
+
+  public async deleteGuild(guild: SuggestionGuild): Promise<boolean> {
+    await GuildModel.deleteMany({ guild: Util.getGuildID(guild) });
+    await this.client.redis.helpers.clearCachedGuild(guild);
+    return true;
   }
 }

@@ -2,10 +2,10 @@ import { Schema, model } from 'mongoose';
 import { BlacklistSchema } from '../../../types';
 
 export const Blacklist = new Schema({
-  guildID: { type: String },
-  userID: { type: String },
+  guild: { type: String },
+  user: { type: String },
   reason: { type: String },
-  issuedBy: { type: String, alias: 'issuerID' },
+  issuer: { type: String, alias: 'issuerID' },
   time: { type: Number, default: Date.now() },
   status: { type: Boolean },
   case: { type: Number },
@@ -21,4 +21,4 @@ Blacklist.pre('save', function(next) {
   next();
 });
 
-export default model<BlacklistSchema>('Blacklist', Blacklist);
+export default model<BlacklistSchema>('Blacklist', Blacklist, 'blacklists');

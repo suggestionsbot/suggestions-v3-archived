@@ -1,16 +1,13 @@
 import SuggestionsClient from '../../../structures/client';
 import { Guild } from 'eris';
-import { MessageLinkFormatter, SuggestionSchema, SuggestionsMessage } from '../../../types';
+import { SuggestionSchema, SuggestionsMessage } from '../../../types';
 import SuggestionModel from '../models/suggestion';
 import Logger from '../../../utils/Logger';
+import Util from '../../../utils/Util';
 
 export default class SuggestionHelpers {
   constructor(public client: SuggestionsClient) {
     this.client = client;
-  }
-
-  private static _getGuildID(guild: Guild|string): string {
-    return guild instanceof Guild ? guild.id : guild;
   }
 
   private static _querySuggestion(query: string): Array<Record<string, unknown>> {
@@ -30,7 +27,6 @@ export default class SuggestionHelpers {
   }
 
   public async getSuggestion(message: SuggestionsMessage, id: string, cached = true, guild = true): Promise<SuggestionSchema> {
-    let guildID: string;
     let data: SuggestionSchema;
     const inCache = await this.client.redis.helpers.getCachedSuggestion(id);
     if (inCache && cached) {
@@ -61,6 +57,11 @@ export default class SuggestionHelpers {
   public async deleteSuggestion(id: string): Promise<boolean> {
     const deleted = await SuggestionModel.deleteOne({ $or: SuggestionHelpers._querySuggestion(id) });
     await this.client.redis.helpers.clearCachedSuggestion(id);
+    return !!deleted.ok;
+  }
+
+  public async deleteSuggestions(guild: Guild|string): Promise<boolean> {
+    const deleted = await SuggestionModel.deleteMany({ guild: Util.getGuildID(guild) });
     return !!deleted.ok;
   }
 }

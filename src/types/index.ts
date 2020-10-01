@@ -2,6 +2,7 @@ import { Guild, Member, Message, User } from 'eris';
 import SuggestionsClient from '../structures/client';
 import { Document } from 'mongoose';
 import { Commands, RedisClient } from 'redis';
+import ShardClient from '../structures/shard';
 
 export interface SuggestionsMessage extends Message {
   guild?: Guild;
@@ -58,7 +59,6 @@ export interface VoteSite {
 }
 
 export abstract class Command {
-  // public client: SuggestionsClient;
   public name: string;
   public description: string;
   public category: string;
@@ -78,9 +78,9 @@ export abstract class Command {
   public throttles: Map<string, CommandThrottle>;
   public throttling: CommandThrottling;
   protected constructor(public client: SuggestionsClient) {}
-  public abstract run(message: Message, args: Array<string>, settings?: GuildSchema): Promise<void>;
-  public runPreconditions?(message: Message, args: Array<string>, next: CommandNextFunction, settings?: GuildSchema): Promise<void>;
-  public runPostconditions?(message: Message, args: Array<string>, next: CommandNextFunction, settings?: GuildSchema): Promise<void>;
+  public abstract async run(message: SuggestionsMessage, args: Array<string>, settings?: GuildSchema): Promise<any>;
+  public async runPreconditions?(message: SuggestionsMessage, args: Array<string>, next: CommandNextFunction, settings?: GuildSchema): Promise<any>;
+  public async runPostconditions?(message: SuggestionsMessage, args: Array<string>, next: CommandNextFunction, settings?: GuildSchema): Promise<any>;
   public throttle?(user: User): CommandThrottle;
 }
 
@@ -293,4 +293,33 @@ interface BlacklistData {
 export interface BlacklistQueryType {
   query: BlacklistQuery;
   data: BlacklistData;
+}
+
+export interface ShardStats {
+  guilds: number;
+  users: number;
+  totalRam: number;
+  voice: number;
+  exclusiveGuilds: number;
+  largeGuilds: number;
+  clusters: Array<ErisSharderCluster>;
+}
+
+export interface ErisSharderCluster {
+  cluster: number;
+  shards: number;
+  guilds: number;
+  ram: number;
+  voice: number;
+  uptime: number;
+  exclusiveGuilds: number;
+  largeGuilds: number;
+  shardsStats: Array<ErisSharderShard>;
+}
+
+export interface ErisSharderShard {
+  id: number;
+  ready: boolean;
+  latency: number;
+  status: string;
 }

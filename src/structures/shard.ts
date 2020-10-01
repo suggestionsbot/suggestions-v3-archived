@@ -1,8 +1,12 @@
 import * as Sentry from '@sentry/node';
 import { CaptureConsole, RewriteFrames } from '@sentry/integrations';
-import { version } from '../../package.json';
+import { Base } from 'eris-sharder';
 import dotenv from 'dotenv';
 dotenv.config();
+
+import SuggestionsClient from './client';
+import { version } from '../../package.json';
+import Logger from '../utils/Logger';
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -19,10 +23,6 @@ Sentry.init({
     })
   ]
 });
-
-import { Base } from 'eris-sharder';
-
-import SuggestionsClient from './client';
 
 export default class ShardClient extends Base {
   private _client: SuggestionsClient;
@@ -44,6 +44,17 @@ export default class ShardClient extends Base {
         type: status.type,
         url: status.url
       });
+    });
+
+    process.on('message', async data => {
+      try {
+        if (data.name === 'shardStats') {
+          Logger.log('Pushing updated stats...');
+          await this._client.redis.helpers.updateStats(data.data);
+        }
+      } catch (e) {
+        Logger.error('SHARD CLASS', e);
+      }
     });
   }
 }

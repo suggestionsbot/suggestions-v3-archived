@@ -1,10 +1,9 @@
-import { Master } from 'eris-sharder';
+import { Master, ErisSharderStats } from 'eris-sharder';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
 
 import Logger from './utils/Logger';
-import SuggestionsClient from './structures/client';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -22,7 +21,7 @@ export const main = async (): Promise<boolean> => {
       '/src/structures/shard.ts';
 
     const sharder = new Master(process.env.DISCORD_TOKEN, mainFile, {
-      stats: false,
+      stats: true,
       debug: true,
       clusters: 1,
       guildsPerShard: 1500,
@@ -43,7 +42,11 @@ export const main = async (): Promise<boolean> => {
       }
     });
 
-    sharder.on('stats', stats => Logger.log(stats));
+    if (sharder.isMaster()) {
+      sharder.on('stats', stats => {
+        sharder.broadcast(0, { name: 'shardStats', data: stats });
+      });
+    }
 
     return true;
   } catch (error) {

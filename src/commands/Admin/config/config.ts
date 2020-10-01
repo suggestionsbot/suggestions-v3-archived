@@ -1,7 +1,6 @@
 import Command from '../../../structures/command';
 import SuggestionsClient from '../../../structures/client';
 import { GuildSchema, SuggestionsMessage } from '../../../types';
-import { Embed, Message } from 'eris';
 
 export default class ConfigCommand extends Command {
   constructor(public client: SuggestionsClient) {

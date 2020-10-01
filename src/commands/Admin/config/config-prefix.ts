@@ -5,7 +5,6 @@ import SubCommand from '../../../structures/subcommand';
 import SuggestionsClient from '../../../structures/client';
 import { CommandNextFunction, GuildSchema, SuggestionsMessage } from '../../../types';
 import Logger from '../../../utils/Logger';
-import MessageEmbed from '../../../utils/MessageEmbed';
 import MessageUtils from '../../../utils/MessageUtils';
 
 export default class ConfigPrefixCommand extends SubCommand {

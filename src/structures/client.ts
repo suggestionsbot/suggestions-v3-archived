@@ -26,7 +26,9 @@ import {
   CollectorFilter,
   AwaitMessagesOptions,
   AwaitReply,
-  AwaitReactionsOptions, GuildSchema, SuggestionsMessage
+  AwaitReactionsOptions,
+  GuildSchema,
+  SuggestionsMessage
 } from '../types';
 import CoreLoaders from '../utils/core';
 import config from '../config';
@@ -298,10 +300,11 @@ export default class SuggestionsClient extends Client {
       .replace(process.env.MONGO_URI, '-REDACTED-')
       .replace(process.env.DISCORD_TOKEN, '-REDACTED-')
       .replace(process.env.REDIS_HOSTNAME, '-REDACTED-')
-      .replace(process.env.REDIS_PASSWORD, '-REDACTED-')
       .replace(process.env.REDIS_PORT, '-REDACTED-')
       .replace(process.env.SENTRY_DSN, '-REDACTED-')
       .replace(process.env.SENTRY_TRACES_SAMPLERATE, '-REDACTED-');
+
+    if (process.env.REDIS_PASSWORD) text = text.replace(process.env.REDIS_PASSWORD, '-REDACTED-');
 
     return text;
   }

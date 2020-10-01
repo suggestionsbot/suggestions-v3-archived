@@ -104,12 +104,12 @@ export default class CommandHandler {
         await cmd.run(message, args, settings);
         if (cmd.runPostconditions) await cmd.runPostconditions(message, args, postConditionNext);
         // TODO make sure to eventually set this to only run in production in the future
-        const guildKey = `guild:${message.guildID}:commands`;
-        const userKey = `guild:${message.guildID}:user:${message.author.id}:commands`;
 
         await Promise.all([
-          this.client.redis.redis.hincrby(userKey, cmd.name, 1),
-          this.client.redis.redis.hincrby(guildKey, cmd.name, 1),
+          this.client.redis.redis.hincrby(`guild:${message.guildID}:user:${message.author.id}:commands`, cmd.name, 1),
+          this.client.redis.redis.hincrby(`guild:${message.guildID}:commands`, cmd.name, 1),
+          this.client.redis.redis.incrby(`guild:${message.guildID}:commands:count`, 1),
+          this.client.redis.redis.incrby('global:commands', 1),
           this.client.database.commandHelpers.createCommand(message, cmd.name)
         ]);
       } catch (e) {

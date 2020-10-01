@@ -2,7 +2,7 @@ import SuggestionsClient from '../../../structures/client';
 import {
   BlacklistSchema,
   GuildSchema,
-  Promisified,
+  Promisified, ShardStats,
   SuggestionGuild,
   SuggestionSchema,
   SuggestionUser
@@ -31,14 +31,48 @@ export default class RedisHelpers {
     else `blacklist:${Util.getUserID(user)}`;
   }
 
+  public async getGlobalSuggestionCount(): Promise<number> {
+    return this._redis.get('global:suggestions:count').then((count: any) => +count);
+  }
+
+  public async getGuildSuggestionCount(guild: SuggestionGuild): Promise<number> {
+    return this._redis.get(`guild:${Util.getGuildID(guild)}:suggestions:count`).then((count: any) => +count);
+  }
+
+  public async getGlobalCommandCount(): Promise<number> {
+    return this._redis.get('global:commands:count').then((count: any) => +count);
+  }
+
+  public async getGuildCommandCount(guild: SuggestionGuild): Promise<number> {
+    return this._redis.get(`guild:${Util.getGuildID(guild)}:commands:count`).then((count: any) => +count);
+  }
+
+  public async getGlobalBlacklistCount(): Promise<number> {
+    return this._redis.get('global:blacklists:count').then((count: any) => +count);
+  }
+
+  public async getGuildBlacklistCount(guild: SuggestionGuild): Promise<number> {
+    return this._redis.get(`guild:${Util.getGuildID(guild)}:blacklists:count`).then((count: any) => +count);
+  }
+
+  public async getStats(): Promise<ShardStats> {
+    const data: any = await this._redis.hgetall('shardstats');
+    const field = Object.keys(data).sort((a, b) => +b - +a)[0];
+    return JSON.parse(data[field]);
+  }
+
+  public updateStats(data: ShardStats): Promise<boolean> {
+    return this._redis.hset('shardstats', Date.now().toString(), JSON.stringify(data));
+  }
+
   public getCachedGuild(guild: SuggestionGuild): Promise<GuildSchema> {
     return this._redis.get(RedisHelpers._formGuildKey(guild))
-      .then((data: any) => JSON.parse(data) as GuildSchema);
+      .then((data: any) => JSON.parse(data));
   }
 
   public getCachedBlacklist(user: SuggestionUser, guild: SuggestionGuild = null): Promise<BlacklistSchema> {
     return this.redis.get(RedisHelpers._formGuildBlacklistKey(user, guild))
-      .then((data: any) => JSON.parse(data) as BlacklistSchema);
+      .then((data: any) => JSON.parse(data));
   }
 
   public setCachedBlacklist(user: SuggestionUser, data: BlacklistSchema, guild: SuggestionGuild = null): Promise<boolean> {
@@ -68,7 +102,7 @@ export default class RedisHelpers {
   public getCachedSuggestion(id: string): Promise<SuggestionSchema> {
     return this._redis.keys(`*${id}*`).then((data: any) => {
       if (!data?.length) return;
-      return this._redis.get(data[0] as string).then((data: any) => JSON.parse(data) as SuggestionSchema);
+      return this._redis.get(data[0] as string).then((data: any) => JSON.parse(data));
     });
   }
 
@@ -79,7 +113,7 @@ export default class RedisHelpers {
   public clearCachedSuggestion(id: string): Promise<boolean> {
     return this._redis.keys(`*${id}*`).then((data: any) => {
       if (!data?.length) return;
-      return this._redis.del(data[0] as string);
+      return this._redis.del(data[0]);
     });
   }
 }

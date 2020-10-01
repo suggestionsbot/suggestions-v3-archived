@@ -42,4 +42,21 @@ export default class MessageUtils {
     return new MessageEmbed()
       .setColor(config.colors.main);
   }
+
+  public static delete(message: SuggestionsMessage, options: { timeout?: number, reason?: string } = {}): Promise<void> {
+    const { timeout = 0, reason } = options;
+    if (timeout <= 0) {
+      return message.delete(reason);
+    } else {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve(message.delete(reason));
+        }, timeout);
+      });
+    }
+  }
+
+  public static commandUsage(): Promise<void> {
+    return null;
+  }
 }

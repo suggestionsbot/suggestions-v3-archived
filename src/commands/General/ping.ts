@@ -1,9 +1,10 @@
-import { Message, GuildChannel } from 'eris';
+import { GuildChannel } from 'eris';
 import { oneLine } from 'common-tags';
 
 import Command from '../../structures/command';
 import SuggestionsClient from '../../structures/client';
 import Logger from '../../utils/Logger';
+import { SuggestionsMessage } from '../../types';
 
 export default class PingCommand extends Command {
   constructor(public client: SuggestionsClient) {
@@ -17,7 +18,7 @@ export default class PingCommand extends Command {
     this.guarded = true;
   }
 
-  public async run(message: Message, args: Array<string>): Promise<any> {
+  public async run(message: SuggestionsMessage, args: Array<string>): Promise<any> {
     try {
       const ping = message.channel instanceof GuildChannel ? message.channel.guild.shard.latency : this.client.shards.get(0).latency;
       const msg = await message.channel.createMessage('🏓 Ping!');
@@ -27,7 +28,7 @@ export default class PingCommand extends Command {
         API Latency is \`${Math.round(ping)}ms\`.
       `);
     } catch (error) {
-      Logger.error('CMD:' + this.name.toUpperCase(), error.stack);
+      Logger.error(`CMD:${this.name.toUpperCase()}`, error.stack);
     }
   }
 }

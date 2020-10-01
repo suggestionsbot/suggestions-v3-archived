@@ -1530,6 +1530,11 @@ data-urls@^2.0.0:
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
 
+dayjs@^1.9.1:
+  version "1.9.1"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.9.1.tgz#201a755f7db5103ed6de63ba93a984141c754541"
+  integrity sha512-01NCTBg8cuMJG1OQc6PR7T66+AFYiPwgDvdJmvJBn29NGzIG+DIFxPLNjHzwz3cpFIvG+NcwIjP9hSaPVoOaDg==
+
 dbots@^5.0.4:
   version "5.0.4"
   resolved "https://registry.yarnpkg.com/dbots/-/dbots-5.0.4.tgz#8f4b9ea43ded3ed19263a034faabf1e9fca40fa9"

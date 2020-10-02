@@ -15,7 +15,8 @@
     "outDir": "dist/lib",
     "noEmitOnError": true,
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "skipLibCheck": true
   },
   "include": [
     "src",

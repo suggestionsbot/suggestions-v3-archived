@@ -49,7 +49,6 @@ export default class ShardClient extends Base {
     process.on('message', async data => {
       try {
         if (data.name === 'shardStats') {
-          Logger.log('Pushing updated stats...');
           await this._client.redis.helpers.updateStats(data.data);
         }
       } catch (e) {

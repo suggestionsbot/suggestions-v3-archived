@@ -57,7 +57,7 @@ export default class RedisHelpers {
 
   public async getStats(): Promise<ShardStats> {
     const data: any = await this._redis.hgetall('shardstats');
-    const field = Object.keys(data).sort((a, b) => +b - +a)[0];
+    const field = Object.keys(data).sort((a, b) => +a - +b)[0];
     return JSON.parse(data[field]);
   }
 

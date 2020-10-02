@@ -37,8 +37,25 @@ export const main = async (): Promise<boolean> => {
         }
       },
       clientOptions: {
-        messageLimit: 150,
-        defaultImageFormat: 'png'
+        messageLimit: 0,
+        defaultImageFormat: 'jpg',
+        disableEvents: {
+          GUILD_BAN_ADD: true,
+          GUILD_BAN_REMOVE: true,
+          MESSAGE_DELETE_BULK: true,
+          TYPING_START: true,
+          VOICE_STATE_UPDATE: true,
+          PRESENCE_UPDATE: true
+        },
+        intents: [
+          'guilds',
+          'guildMessages',
+          'guildMessageReactions',
+          'directMessages',
+          'directMessageReactions'
+        ],
+        guildSubscriptions: false,
+        restMode: true
       }
     });
 

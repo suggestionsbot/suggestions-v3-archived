@@ -4,8 +4,8 @@ const config: BotConfig = {
   prefixes: [','],
   owners: ['158063324699951104'],
   discord: 'https://discord.gg/ntXkRan',
-  website: 'https://suggestionsbot.com',
-  docs: 'https://docs.suggestionsbot.com',
+  website: 'https://suggestions.gg',
+  docs: 'https://docs.suggestions.gg',
   invite: `https://discord.com/oauth2/authorize?client_id=${
     process.env.NODE_ENV === 'production' ? '474051954998509571' : '476928510573805568'
   }&scope=bot&permissions=355392`,
@@ -49,7 +49,8 @@ const config: BotConfig = {
     channels: {
       channel: 'suggestions',
       type: 'suggestions'
-    }
+    },
+    locale: 'en_US'
   }
 };
 

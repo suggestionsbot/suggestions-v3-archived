@@ -1,6 +1,6 @@
-import Command from '../../../structures/command';
-import SuggestionsClient from '../../../structures/client';
-import { GuildSchema, SuggestionsMessage } from '../../../types';
+import Command from '../../../structures/Command';
+import SuggestionsClient from '../../../structures/Client';
+import Context from '../../../structures/Context';
 
 export default class ConfigCommand extends Command {
   constructor(public client: SuggestionsClient) {
@@ -41,7 +41,7 @@ export default class ConfigCommand extends Command {
     this.guildOnly = true;
   }
 
-  public async run(message: SuggestionsMessage, args: Array<string>, settings: GuildSchema): Promise<any> {
+  public async run(ctx: Context): Promise<any> {
 
   }
 }

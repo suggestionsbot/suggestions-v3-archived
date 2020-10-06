@@ -13,7 +13,7 @@ import {
 } from 'eris';
 import { inspect, promisify } from 'util';
 import { Base } from 'eris-sharder';
-import Collection from '@discordjs/collection';
+import { Collection } from '@augu/immutable';
 import { stripIndents } from 'common-tags';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -28,9 +28,8 @@ import {
   AwaitReply,
   AwaitReactionsOptions,
   GuildSchema,
-  SuggestionsMessage
 } from '../types';
-import CoreLoaders from '../utils/core';
+import CoreLoaders from '../utils/Core';
 import config from '../config';
 import CommandHandler from '../handlers/CommandHandler';
 import MongoDB from '../provider/mongodb';
@@ -39,6 +38,7 @@ import ReactionCollector from '../utils/ReactionCollector';
 import Redis from '../provider/redis';
 import Logger from '../utils/Logger';
 import MessageUtils from '../utils/MessageUtils';
+import LocalizationManager from '../managers/Localization';
 
 /**
  * Rewrite all emoji search methods to support sharding/clustering
@@ -48,17 +48,18 @@ export default class SuggestionsClient extends Client {
   public readonly production: boolean;
   public base: Base;
   public sentry: any;
-  public commands: Collection<string, Command>;
-  public aliases: Collection<string, string>;
-  public subCommands: Collection<string, SubCommand>;
-  public subCommandAliases: Collection<string, string>;
-  public events: Collection<string, Event>;
+  public commands: Collection<Command>;
+  public aliases: Collection<string>;
+  public subCommands: Collection<SubCommand>;
+  public subCommandAliases: Collection<string>;
+  public events: Collection<Event>;
   public config: BotConfig;
   public commandHandler: CommandHandler;
   public wait: any;
   public database: MongoDB;
   public redis: Redis;
   public messageCollectors: Array<MessageCollector>;
+  public locales: LocalizationManager;
 
   constructor(public token: string, options?: ClientOptions) {
     super(token, options);
@@ -77,12 +78,14 @@ export default class SuggestionsClient extends Client {
     this.commandHandler = new CommandHandler(this);
     this.wait = promisify(setTimeout);
     this.messageCollectors = [];
+    this.locales = new LocalizationManager(this);
   }
 
   public start(): void {
     this._core.loadCommands();
     this._core.loadListeners();
     this._addEventListeners();
+    this.locales.init();
     super.connect();
   }
 
@@ -239,11 +242,11 @@ export default class SuggestionsClient extends Client {
     this.on('messageCreate', this._runMessageOperator);
   }
 
-  private _runMessageOperator(message: SuggestionsMessage): void {
+  private _runMessageOperator(message: Message): void {
     this._commandListener(message);
   }
 
-  private async _commandListener(message: SuggestionsMessage): Promise<void> {
+  private async _commandListener(message: Message): Promise<void> {
     try {
 
       if (message.author.bot) return;
@@ -257,6 +260,8 @@ export default class SuggestionsClient extends Client {
         } catch (e) {
           Logger.error('COMMAND HANDLER', e);
         }
+      } else {
+        settings = <GuildSchema><unknown>this.config.defaults;
       }
 
       const prefixes = this.getPrefixes(true, settings);

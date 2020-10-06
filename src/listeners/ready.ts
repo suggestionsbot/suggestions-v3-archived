@@ -1,6 +1,6 @@
-import Event from '../structures/event';
+import Event from '../structures/Event';
 
-import SuggestionsClient from '../structures/client';
+import SuggestionsClient from '../structures/Client';
 import { version } from '../../package.json';
 import Logger from '../utils/Logger';
 
@@ -19,7 +19,8 @@ export default class extends Event {
       `🤖 Logged in as ${this.client.user.username}#${this.client.user.discriminator} (${this.client.user.id}).`,
       `⚙ Loaded (${this.client.commands.size}) commands!`,
       `⚙ Loaded (${this.client.subCommands.size}) subcommands!`,
-      `👂 Loaded (${this.client.events.size}) events!`
+      `👂 Loaded (${this.client.events.size}) events!`,
+      `🌐 Loaded (${this.client.locales.size}) locales!`
     ];
 
     try {

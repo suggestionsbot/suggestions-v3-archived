@@ -1,15 +1,14 @@
-import { GuildChannel } from 'eris';
 import dayjs from 'dayjs';
 
-import Command from '../../structures/command';
-import SuggestionsClient from '../../structures/client';
+import Command from '../../structures/Command';
+import SuggestionsClient from '../../structures/Client';
 import MessageEmbed from '../../utils/MessageEmbed';
 import Logger from '../../utils/Logger';
 
 import { version, description } from '../../../package.json';
 import MessageUtils from '../../utils/MessageUtils';
-import { ShardStats, SuggestionsMessage } from '../../types';
-
+import { ShardStats } from '../../types';
+import Context from '../../structures/Context';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { version: erisVersion }  = require('../../../node_modules/eris/package.json');
@@ -26,14 +25,14 @@ export default class InfoCommand extends Command {
     this.guarded = true;
   }
 
-  public async run(message: SuggestionsMessage, args: Array<string>): Promise<any> {
+  public async run(ctx: Context): Promise<any> {
     const { colors: { main }, owners: ownerIDs } = this.client.config;
 
     try {
       const owners: Array<string> = ownerIDs.map(o => this.client.users.get(o).mention);
       const created = dayjs(this.client.user.createdAt).format('MM/DD/YYYY');
       const cluster = this.client.base.clusterID;
-      const shard = message.channel instanceof GuildChannel ? message.guild.shard.id : this.client.shards.get(0).id;
+      const shard = ctx.shard.id;
 
       const promises: [Promise<ShardStats>, Promise<number>, Promise<number>] = [
         this.client.redis.helpers?.getStats() ?? null,
@@ -70,10 +69,10 @@ export default class InfoCommand extends Command {
         ].join('\n'), true)
         .setFooter(`© 2020 Nerd Cave Development | PID ${process.pid} | Cluster ${cluster} | Shard ${shard}`);
 
-      await message.channel.createMessage({ embed });
+      await ctx.embed(embed);
     } catch (e) {
       Logger.error(`CMD:${this.name.toUpperCase()}`, e);
-      return MessageUtils.error(this.client, message, e.message, true);
+      return MessageUtils.error(this.client, ctx.message, e.message, true);
     }
   }
 }

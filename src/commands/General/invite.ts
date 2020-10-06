@@ -1,9 +1,9 @@
-import Command from '../../structures/command';
-import SuggestionsClient from '../../structures/client';
-import { GuildSchema, SuggestionsMessage } from '../../types';
+import Command from '../../structures/Command';
+import SuggestionsClient from '../../structures/Client';
 import MessageEmbed from '../../utils/MessageEmbed';
 import Logger from '../../utils/Logger';
 import MessageUtils from '../../utils/MessageUtils';
+import Context from '../../structures/Context';
 
 export default class InfoCommand extends Command {
   constructor(public client: SuggestionsClient) {
@@ -20,13 +20,13 @@ export default class InfoCommand extends Command {
     this.guarded = true;
   }
 
-  async run(message: SuggestionsMessage, args: Array<string>, settings?: GuildSchema): Promise<any> {
+  async run(ctx: Context): Promise<any> {
     const { colors: { main }, discord, invite, website } = this.client.config;
 
     try {
-      const dmEmbed = new MessageEmbed()
+      const embed = new MessageEmbed()
         .setAuthor('Bot Invite Information', this.client.user.avatarURL)
-        .setDescription(`Hello ${message.author.mention},
+        .setDescription(`Hello ${ctx.sender.mention},
         
           **Before inviting, you need the** \`MANAGE SERVER\` **or** \`ADMINISTRATOR\` **permissions to add bots to a server.** 
       
@@ -42,23 +42,26 @@ export default class InfoCommand extends Command {
         .setColor(main)
         .setTimestamp();
 
-      if (message.guildID && (args[0] !== 'here')) {
+      if (ctx.guild && (ctx.args[0] !== 'here')) {
         const promises: Array<Promise<any>> = [
-          message.addReaction('📩')
-            .then(() => MessageUtils.delete(message, { timeout: 2500 })),
-          message.author.getDMChannel().then(channel => channel.createMessage({ embed: dmEmbed }))
+          ctx.message.addReaction('📩')
+            .then(() => MessageUtils.delete(ctx.message, { timeout: 2500 })),
+          ctx.dm({
+            user: ctx.sender,
+            embed: embed
+          })
         ];
 
         await Promise.all(promises);
         return;
       } else {
-        await message.channel.createMessage({ embed: dmEmbed });
+        await ctx.embed(embed);
         return;
       }
     } catch (e) {
       if (e.message === 'Missing Access') return;
       Logger.error(`CMD:${this.name.toUpperCase()}`, e);
-      return MessageUtils.error(this.client, message, e.message, true);
+      return MessageUtils.error(this.client, ctx.message, e.message, true);
     }
   }
 }

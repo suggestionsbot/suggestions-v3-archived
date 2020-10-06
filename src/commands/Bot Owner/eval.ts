@@ -3,12 +3,13 @@ import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
 
-import { SuggestionsMessage, CommandNextFunction } from '../../types';
+import { CommandNextFunction } from '../../types';
 import MessageEmbed from '../../utils/MessageEmbed';
 import Command from '../../structures/command';
 import ExStaff from '../../structures/client';
 import MessageUtils from '../../utils/MessageUtils';
 import Logger from '../../utils/Logger';
+import CommandContext from '../../structures/Context';
 
 export default class EvalCommand extends Command {
   constructor(client: ExStaff) {
@@ -21,19 +22,19 @@ export default class EvalCommand extends Command {
     this.ownerOnly = true;
   }
 
-  public async runPreconditions(message: SuggestionsMessage, args: Array<string>, next: CommandNextFunction): Promise<any> {
-    if (!args[0]) return MessageUtils.error(this.client, message, 'You need to provide code to eval!');
+  public async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
+    if (!ctx.args[0]) return MessageUtils.error(this.client, ctx.message, 'You need to provide code to eval!');
     next();
   }
 
-  public async run(message: SuggestionsMessage, args: Array<string>): Promise<any> {
+  public async run(ctx: CommandContext): Promise<any> {
     const { colors: { main, suggestion: { rejected } } } = this.client.config;
 
-    const code = args.join(' ');
+    const code = ctx.args.join(' ');
 
     const embed = new MessageEmbed();
     const exceededEmbed = new MessageEmbed()
-        .setFooter(`ID: ${message.author.id}`);
+        .setFooter(`ID: ${ctx.sender.id}`);
 
     try {
       const start = Date.now();
@@ -50,12 +51,15 @@ export default class EvalCommand extends Command {
           extension: 'js'
         });
 
-        await message.author.getDMChannel().then(channel => channel.createMessage(`<${haste}>`))
+        await ctx.dm({
+          user: ctx.sender,
+          content: `<${haste}>`
+        });
 
         exceededEmbed.setColor(main);
         exceededEmbed.setDescription('📨 Output exceeded 1000 characters. DMing you the Hastebin.');
 
-        const msg = await message.channel.createMessage({ embed: exceededEmbed });
+        const msg = await ctx.embed(exceededEmbed);
         await msg.addReaction('📧');
         await MessageUtils.delete(msg,{ timeout: 2500 });
         return;
@@ -64,7 +68,7 @@ export default class EvalCommand extends Command {
       embed.setColor(main);
       embed.addField('Input 📥', `\`\`\`js\n${code}\`\`\``);
       embed.addField('Output 📤', `\`\`\`js\n${clean}\`\`\``);
-      embed.setFooter(`ID: ${message.author.id} | Duration: ${dayjs.duration(end - start).milliseconds()}ms`)
+      embed.setFooter(`ID: ${ctx.sender.id} | Duration: ${dayjs.duration(end - start).milliseconds()}ms`)
     } catch (err) {
       if (err.length > 2000) {
         const haste = await hastebin(Buffer.from(err).toString(), {
@@ -72,12 +76,15 @@ export default class EvalCommand extends Command {
           extension: 'js'
         });
 
-        await message.author.getDMChannel().then(channel => channel.createMessage(`<${haste}>`))
+        await ctx.dm({
+          user: ctx.sender,
+          content: `<${haste}>`
+        });
 
         exceededEmbed.setColor(rejected);
         exceededEmbed.setDescription('📨 Output exceeded 2000 characters. DMing you the Hastebin.');
 
-        const msg = await message.channel.createMessage({ embed: exceededEmbed });
+        const msg = await ctx.embed(exceededEmbed);
         await msg.addReaction('📧');
         await MessageUtils.delete(msg,{ timeout: 5000 });
         return;
@@ -87,6 +94,6 @@ export default class EvalCommand extends Command {
       embed.addField('Error ❗', `\`\`\`bash\n${err}\`\`\``);
     }
 
-    if (!code.startsWith('void')) return message.channel.createMessage({ embed });
+    if (!code.startsWith('void')) return ctx.embed(embed);
   }
 }

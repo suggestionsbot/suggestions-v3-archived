@@ -1,11 +1,12 @@
 import { GuildChannel, Message, GuildTextableChannel } from 'eris';
 import { oneLine } from 'common-tags';
 
-import SuggestionsClient from '../structures/client';
-import { Command, GuildSchema, SubCommand, SuggestionsMessage } from '../types';
+import SuggestionsClient from '../structures/Client';
+import { Command, GuildSchema, SubCommand } from '../types';
 import Util from '../utils/Util';
 import Logger from '../utils/Logger';
 import MessageUtils from '../utils/MessageUtils';
+import Context from '../structures/Context';
 
 export default class CommandHandler {
   public minimumPermissions: Array<string|number>;
@@ -15,14 +16,14 @@ export default class CommandHandler {
     this.minimumPermissions = ['readMessages', 'sendMessages'];
   }
 
-  public async handle(message: SuggestionsMessage, settings: GuildSchema): Promise<any> {
+  public async handle(message: Message, settings: GuildSchema): Promise<any> {
     let args = message.content.slice(message.prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
 
     let cmd: Command|SubCommand;
     const mainCmd: Command = this.client.commands.get(command) ||
         this.client.commands.get(this.client.aliases.get(command));
-    const subCmd: SubCommand = this.client.subCommands.filter(c => c.arg === args[0]).first() ||
+    const subCmd: SubCommand = this.client.subCommands.filter(c => c.arg === args[0])[0] ||
         this.client.subCommands.get(this.client.subCommandAliases.get(args[0]));
 
     if (mainCmd) cmd = mainCmd;
@@ -33,6 +34,9 @@ export default class CommandHandler {
 
     if (!cmd) return;
     // TODO eventually override Message#command with our own Command/SubCommand class
+
+    const locale = this.client.locales.get(settings.locale);
+    const ctx: Context = new Context(this.client, message, args, locale, settings);
 
     if (!message.guildID && cmd.guildOnly) {
       return MessageUtils.error(
@@ -45,8 +49,6 @@ export default class CommandHandler {
     const staffCheck = message.guildID ? this.client.isStaff(message.member, settings): null;
     const adminCheck = message.guildID ? this.client.isAdmin(message.member) : null;
     const ownerCheck = this.client.isOwner(message.author);
-
-    if (message.guildID) message.guild = this.client.guilds.get(message.guildID);
 
     if ((message.guildID !== undefined) && (cmd.staffOnly && !staffCheck))
       return MessageUtils.error(this.client, message, 'This is a staff only command!');
@@ -101,8 +103,8 @@ export default class CommandHandler {
     const preConditionNext = async (): Promise<any> => {
       try {
         if (throttle) throttle.usages++;
-        await cmd.run(message, args, settings);
-        if (cmd.runPostconditions) await cmd.runPostconditions(message, args, postConditionNext);
+        await cmd.run(ctx);
+        if (cmd.runPostconditions) await cmd.runPostconditions(ctx, postConditionNext);
         // TODO make sure to eventually set this to only run in production in the future
 
         if (this.client.redis.redis) {
@@ -128,7 +130,7 @@ export default class CommandHandler {
     try {
       if (cmd.runPreconditions) {
         if (throttle) throttle.usages++;
-        await cmd.runPreconditions(message, args, preConditionNext, settings);
+        await cmd.runPreconditions(ctx, preConditionNext);
       } else {
         await preConditionNext();
       }

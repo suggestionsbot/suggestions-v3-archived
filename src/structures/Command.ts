@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { User } from 'eris';
 
-import SuggestionsClient from './client';
-import { CommandThrottle, CommandThrottling, GuildSchema, Command as CommandClass, SuggestionsMessage } from '../types';
+import SuggestionsClient from './Client';
+import { CommandThrottle, CommandThrottling, Command as CommandClass } from '../types';
+import Context from './Context';
 
 export default abstract class Command implements CommandClass {
   public active: boolean;
@@ -36,7 +36,7 @@ export default abstract class Command implements CommandClass {
     this.subCommands = [];
   }
 
-  public async run(message: SuggestionsMessage, args: Array<string>, settings?: GuildSchema): Promise<any> {
+  public async run(ctx: Context): Promise<any> {
     throw new Error(`The command ${this.name} does not have the required "run" method!`);
   }
 

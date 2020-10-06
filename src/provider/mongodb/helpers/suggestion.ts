@@ -1,6 +1,6 @@
-import SuggestionsClient from '../../../structures/client';
-import { Guild } from 'eris';
-import { SuggestionSchema, SuggestionsMessage } from '../../../types';
+import SuggestionsClient from '../../../structures/Client';
+import { Guild, Message } from 'eris';
+import { SuggestionSchema } from '../../../types';
 import SuggestionModel from '../models/suggestion';
 import Logger from '../../../utils/Logger';
 import Util from '../../../utils/Util';
@@ -26,7 +26,7 @@ export default class SuggestionHelpers {
     else return ctx.id.slice(33, 40);
   }
 
-  public async getSuggestion(message: SuggestionsMessage, id: string, cached = true, guild = true): Promise<SuggestionSchema> {
+  public async getSuggestion(message: Message, id: string, cached = true, guild = true): Promise<SuggestionSchema> {
     let data: SuggestionSchema;
     const inCache = await this.client.redis.helpers.getCachedSuggestion(id);
     if (inCache && cached) {

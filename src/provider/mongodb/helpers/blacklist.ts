@@ -1,4 +1,4 @@
-import SuggestionsClient from '../../../structures/client';
+import SuggestionsClient from '../../../structures/Client';
 import Blacklist from '../models/blacklist';
 import Util from '../../../utils/Util';
 import { BlacklistQueryType, BlacklistSchema, SuggestionGuild, SuggestionUser } from '../../../types';

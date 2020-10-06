@@ -18,7 +18,7 @@ export const main = async (): Promise<boolean> => {
   try {
     const mainFile = process.env.NODE_ENV === 'production' ?
       '/dist/lib/src/structures/shard.js' :
-      '/src/structures/shard.ts';
+      '/src/structures/Shard.ts';
 
     const sharder = new Master(process.env.DISCORD_TOKEN, mainFile, {
       stats: true,

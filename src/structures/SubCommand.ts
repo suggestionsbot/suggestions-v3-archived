@@ -1,5 +1,5 @@
-import ExStaff from './client';
-import Command from './command';
+import ExStaff from './Client';
+import Command from './Command';
 
 import { SubCommand as SubCommandClass } from '../types';
 

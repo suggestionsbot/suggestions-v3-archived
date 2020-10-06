@@ -1,7 +1,7 @@
 import { Guild } from 'eris';
 
 import GuildModel from '../models/guild';
-import SuggestionsClient from '../../../structures/client';
+import SuggestionsClient from '../../../structures/Client';
 import { GuildSchema, SuggestionGuild } from '../../../types';
 import Logger from '../../../utils/Logger';
 import Util from '../../../utils/Util';

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import SuggestionsClient from './client';
+import SuggestionsClient from './Client';
 import { Event as EventClass, EventOptions } from '../types';
 
 export default abstract class Event implements EventClass {

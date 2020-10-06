@@ -1,4 +1,4 @@
-import SuggestionsClient from '../../../structures/client';
+import SuggestionsClient from '../../../structures/Client';
 import {
   BlacklistSchema,
   GuildSchema,

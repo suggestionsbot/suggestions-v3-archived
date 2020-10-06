@@ -1,7 +1,8 @@
-import SuggestionsClient from '../../../structures/client';
-import { User } from 'eris';
+import { Message, User } from 'eris';
+
+import SuggestionsClient from '../../../structures/Client';
 import Command from '../models/command';
-import { CommandSchema, SuggestionGuild, SuggestionsMessage } from '../../../types';
+import { CommandSchema, SuggestionGuild } from '../../../types';
 import Logger from '../../../utils/Logger';
 import Util from '../../../utils/Util';
 
@@ -48,7 +49,7 @@ export default class CommandHelpers {
     return arr;
   }
 
-  public async createCommand(message: SuggestionsMessage, command: string): Promise<CommandSchema> {
+  public async createCommand(message: Message, command: string): Promise<CommandSchema> {
     const document = new Command({});
     document.guild = message.guildID;
     document.channel = message.channel.id;

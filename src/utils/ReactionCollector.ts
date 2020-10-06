@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 
 import { continuousReactionStream } from 'eris-reactions';
 
-import SuggestionsClient from '../structures/client';
+import SuggestionsClient from '../structures/Client';
 import { AwaitReactionsOptions, CollectorFilter } from '../types';
 
 export default class ReactionCollector extends EventEmitter {

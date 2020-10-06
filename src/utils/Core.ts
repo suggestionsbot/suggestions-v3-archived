@@ -2,7 +2,7 @@ import path from 'path';
 import { promisify } from 'util';
 import globFunction from 'glob';
 
-import SuggestionsClient from '../structures/client';
+import SuggestionsClient from '../structures/Client';
 import { Event } from '../types';
 
 const glob = promisify(globFunction);

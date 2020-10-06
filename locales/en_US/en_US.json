@@ -1,3 +1,12 @@
 {
-  "COW": "{name}, you love cows!"
+  "translator": "anthony#8577",
+  "contributors": [],
+  "completion": "incomplete",
+  "aliases": ["en-us", "en", "english"],
+  "code": "en_US",
+  "flag": ":flag_us",
+  "friendly": "English (US)",
+  "strings": {
+    "COW": "**${name}**, you love cows!"
+  }
 }

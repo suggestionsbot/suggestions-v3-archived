@@ -36,9 +36,9 @@ export default class InfoCommand extends Command {
       const shard = message.channel instanceof GuildChannel ? message.guild.shard.id : this.client.shards.get(0).id;
 
       const promises: [Promise<ShardStats>, Promise<number>, Promise<number>] = [
-        this.client.redis.helpers.getStats(),
-        this.client.redis.helpers.getGlobalSuggestionCount(),
-        this.client.redis.helpers.getGlobalCommandCount(),
+        this.client.redis.helpers?.getStats() ?? null,
+        this.client.redis.helpers?.getGlobalSuggestionCount() ?? null,
+        this.client.redis.helpers?.getGlobalCommandCount() ?? null,
       ];
 
       const [stats, suggestions, commands] = await Promise.all(promises);
@@ -62,11 +62,11 @@ export default class InfoCommand extends Command {
           `**❯ Eris:** \`${erisVersion}\``,
         ].join('\n'), true)
         .addField('Statistics', [
-          `**❯ Guilds:** \`${stats.guilds}\``,
-          `**❯ Users:** \`${stats.users}\``,
-          `**❯ Suggestions:** \`${suggestions}\``,
-          `**❯ Commands:** \`${commands}\``,
-          `**❯ Memory:** \`${Math.round(stats.totalRam)} MB\``
+          `**❯ Guilds:** \`${stats?.guilds ?? 0}\``,
+          `**❯ Users:** \`${stats?.users ?? 0}\``,
+          `**❯ Suggestions:** \`${suggestions ?? 0}\``,
+          `**❯ Commands:** \`${commands ?? 0}\``,
+          `**❯ Memory:** \`${Math.round(stats?.totalRam ?? 0)} MB\``
         ].join('\n'), true)
         .setFooter(`© 2020 Nerd Cave Development | PID ${process.pid} | Cluster ${cluster} | Shard ${shard}`);
 

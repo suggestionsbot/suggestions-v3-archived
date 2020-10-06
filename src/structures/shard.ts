@@ -49,7 +49,7 @@ export default class ShardClient extends Base {
     process.on('message', async data => {
       try {
         if (data.name === 'shardStats') {
-          await this._client.redis.helpers.updateStats(data.data);
+          if (this._client.redis.redis) await this._client.redis.helpers.updateStats(data.data);
         }
       } catch (e) {
         Logger.error('SHARD CLASS', e);

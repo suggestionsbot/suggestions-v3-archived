@@ -22,7 +22,7 @@ export default class GuildHelpers {
   // TODO make sure default data isn't be saved to database. only persist if a config value was changed
   public async getGuild(guild: SuggestionGuild, cached = true): Promise<GuildSchema> {
     const guildID = GuildHelpers._getGuildID(guild);
-    const defaultData = {
+    const defaultData = <GuildSchema><unknown>{
       guild: guildID,
       ...this.client.config.defaults
     };
@@ -33,7 +33,7 @@ export default class GuildHelpers {
       data = inCache;
     } else {
       const fetched = await GuildModel.findOne({ guild: guildID });
-      if (!fetched) return defaultData as unknown as GuildSchema;
+      if (!fetched) return defaultData;
       await this.client.redis.helpers.setCachedGuild(guild, fetched);
       data = fetched;
     }

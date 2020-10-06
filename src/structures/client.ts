@@ -252,7 +252,8 @@ export default class SuggestionsClient extends Client {
       let settings: GuildSchema;
       if (message.guildID) {
         try {
-          settings = await this.database.guildHelpers.getGuild(message.guildID);
+          if (this.database.connection !== null) settings = await this.database.guildHelpers.getGuild(message.guildID);
+          else settings = <GuildSchema><unknown>{ ...this.config.defaults, guild: message.guildID };
         } catch (e) {
           Logger.error('COMMAND HANDLER', e);
         }

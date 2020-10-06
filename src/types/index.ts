@@ -1,12 +1,9 @@
-import { Guild, Member, Message, User } from 'eris';
-import SuggestionsClient from '../structures/client';
-import { Document } from 'mongoose';
+import { EmbedOptions, Guild, Member, Message, User } from 'eris';
 import { Commands, RedisClient } from 'redis';
-import ShardClient from '../structures/shard';
+import { Document } from 'mongoose';
 
-export interface SuggestionsMessage extends Message {
-  guild?: Guild;
-}
+import SuggestionsClient from '../structures/Client';
+import Context from '../structures/Context';
 
 export interface EmbedThumbnail {
   url: string;
@@ -48,7 +45,8 @@ export interface BotConfig {
     channels: {
       channel: string;
       type: string;
-    }
+    };
+    locale: string;
   }
 }
 
@@ -78,9 +76,9 @@ export abstract class Command {
   public throttles: Map<string, CommandThrottle>;
   public throttling: CommandThrottling;
   protected constructor(public client: SuggestionsClient) {}
-  public abstract async run(message: SuggestionsMessage, args: Array<string>, settings?: GuildSchema): Promise<any>;
-  public async runPreconditions?(message: SuggestionsMessage, args: Array<string>, next: CommandNextFunction, settings?: GuildSchema): Promise<any>;
-  public async runPostconditions?(message: SuggestionsMessage, args: Array<string>, next: CommandNextFunction, settings?: GuildSchema): Promise<any>;
+  public abstract async run(ctx: Context): Promise<any>;
+  public async runPreconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
+  public async runPostconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
   public throttle?(user: User): CommandThrottle;
 }
 
@@ -322,4 +320,33 @@ export interface ErisSharderShard {
   ready: boolean;
   latency: number;
   status: string;
+}
+
+export enum LanguageStatus {
+  INCOMPLETE = 'incomplete',
+  COMPLETED = 'completed',
+  MISSING = 'missing'
+}
+
+export interface LanguageInfo {
+  translator: string;
+  contributors: Array<string>;
+  completion: 'incomplete' | 'completed' | 'missing';
+  aliases?: Array<string>;
+  code: string;
+  flag: string;
+  friendly: string;
+  strings: {
+    [x: string]: string|Record<string, unknown>;
+  };
+}
+
+export class Translation {
+  constructor(public key: string, public args?: { [x: string]: any }|undefined) {}
+}
+
+export interface DMOptions {
+  user: User;
+  content?: string;
+  embed?: EmbedOptions;
 }

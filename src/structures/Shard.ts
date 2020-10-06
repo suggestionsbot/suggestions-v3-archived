@@ -1,12 +1,14 @@
 import * as Sentry from '@sentry/node';
 import { CaptureConsole, RewriteFrames } from '@sentry/integrations';
 import { Base } from 'eris-sharder';
+import { setDefaults } from 'wumpfetch';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import SuggestionsClient from './client';
+import SuggestionsClient from './Client';
 import { version } from '../../package.json';
 import Logger from '../utils/Logger';
+import config from '../config';
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -24,22 +26,28 @@ Sentry.init({
   ]
 });
 
+setDefaults({
+  headers: {
+    'User-Agent': `Suggestions/DiscordBot (v${version}, ${config.github})`
+  }
+});
+
 export default class ShardClient extends Base {
-  private _client: SuggestionsClient;
+  public client: SuggestionsClient;
 
   constructor(public bot: boolean) {
     super(bot);
 
-    this._client = new SuggestionsClient(process.env.DISCORD_TOKEN);
-    this._client.start();
+    this.client = new SuggestionsClient(process.env.DISCORD_TOKEN);
+    this.client.start();
   }
 
   public launch(): any {
-    this._client.base = this;
-    this._client.sentry = Sentry;
+    this.client.base = this;
+    this.client.sentry = Sentry;
 
     this.ipc.register('changeStatus', status => {
-      this._client.editStatus(status.status, {
+      this.client.editStatus(status.status, {
         name: status.name,
         type: status.type,
         url: status.url
@@ -49,7 +57,7 @@ export default class ShardClient extends Base {
     process.on('message', async data => {
       try {
         if (data.name === 'shardStats') {
-          if (this._client.redis.redis) await this._client.redis.helpers.updateStats(data.data);
+          if (this.client.redis.redis) await this.client.redis.helpers.updateStats(data.data);
         }
       } catch (e) {
         Logger.error('SHARD CLASS', e);

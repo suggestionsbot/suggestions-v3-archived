@@ -350,3 +350,10 @@ export interface DMOptions {
   content?: string;
   embed?: EmbedOptions;
 }
+
+export enum CommandCategory {
+  GENERAL = 'General',
+  STAFF = 'Staff',
+  ADMIN = 'Admin',
+  OWNER = 'Owner'
+}

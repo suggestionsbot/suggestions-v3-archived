@@ -20,20 +20,10 @@ export default class CommandHandler {
     let args = message.content.slice(message.prefix.length).trim().split(/ +/g);
     const command = args.shift().toLowerCase();
 
-    let cmd: Command|SubCommand;
-    const mainCmd: Command = this.client.commands.get(command) ||
-        this.client.commands.get(this.client.aliases.get(command));
-    const subCmd: SubCommand = this.client.subCommands.filter(c => c.arg === args[0])[0] ||
-        this.client.subCommands.get(this.client.subCommandAliases.get(args[0]));
-
-    if (mainCmd) cmd = mainCmd;
-    if (subCmd) {
-      cmd = subCmd;
-      args = args.slice(1);
-    }
+    const cmd = this.client.commands.getCommand(command, ...args);
+    if ('friendly' in cmd) args = args.slice(1);
 
     if (!cmd) return;
-    // TODO eventually override Message#command with our own Command/SubCommand class
 
     const locale = this.client.locales.get(settings.locale);
     const ctx: Context = new Context(this.client, message, args, locale, settings);
@@ -42,8 +32,8 @@ export default class CommandHandler {
       return MessageUtils.error(
         this.client,
         message,
-        `The \`${subCmd?.friendly || mainCmd.name}\` command can only be used in a server!
-    `);
+  		`The \`${'friendly' in cmd ? cmd.friendly : cmd.name}\` command can only be used in a server!`
+      );
     }
 
     const staffCheck = message.guildID ? this.client.isStaff(message.member, settings): null;
@@ -93,7 +83,6 @@ export default class CommandHandler {
     const throttle = cmd.throttle(message.author);
     if (throttle && throttle.usages + 1 > cmd.throttling.usages) {
       const remaining = (throttle.start + (cmd.throttling.duration * 1000) - Date.now()) / 1000;
-      // this.client.emit('commandBlocked', cmd, 'throttling');
       return message.channel.createMessage(
         `You may not use the \`${cmd.name}\` command again for another \`${remaining.toFixed(1)}\` seconds.`
       );

@@ -33,7 +33,7 @@ export default class ConfigPrefixCommand extends SubCommand {
     if (ctx.args[0] && (ctx.args[0].length > 5)) return ctx.send('The prefix must be **5** characters or less!');
 
     const prefixExists = ctx.settings.prefixes.includes(ctx.args[0]);
-    const cmdCheck = this.client.commands.get(ctx.args[0]) || this.client.commands.get(this.client.aliases.get(ctx.args[0]));
+    const cmdCheck = this.client.commands.getCommand(ctx.args[0]);
     if (ctx.args[0] && cmdCheck) return ctx.send(`The prefix \`${ctx.args[0]}\` cannot be set as it's a command!`);
     if (ctx.args[0] && prefixExists && (ctx.settings.prefixes.length === 1)) return ctx.send('You cannot remove any more prefixes!');
     next();

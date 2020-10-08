@@ -13,23 +13,18 @@ import {
 } from 'eris';
 import { inspect, promisify } from 'util';
 import { Base } from 'eris-sharder';
-import { Collection } from '@augu/immutable';
 import { stripIndents } from 'common-tags';
 import dotenv from 'dotenv';
 dotenv.config();
 
 import {
-  Command,
-  Event,
   BotConfig,
-  SubCommand,
   CollectorFilter,
   AwaitMessagesOptions,
   AwaitReply,
   AwaitReactionsOptions,
   GuildSchema,
 } from '../types';
-import CoreLoaders from '../utils/Core';
 import config from '../config';
 import CommandHandler from '../handlers/CommandHandler';
 import MongoDB from '../provider/mongodb';
@@ -38,39 +33,36 @@ import ReactionCollector from '../utils/ReactionCollector';
 import Redis from '../provider/redis';
 import Logger from '../utils/Logger';
 import MessageUtils from '../utils/MessageUtils';
-import LocalizationManager from '../managers/Localization';
+import LocalizationManager from '../managers/LocalizationManager';
+import { CommandManager, SubCommandManager } from '../managers/CommandManager';
+import ListenerManager from '../managers/ListenerManager';
 
 /**
- * Rewrite all emoji search methods to support sharding/clustering
+ * TODO Rewrite all emoji search methods to support sharding/clustering
  */
 export default class SuggestionsClient extends Client {
-  private _core: CoreLoaders;
   public readonly production: boolean;
   public base: Base;
   public sentry: any;
-  public commands: Collection<Command>;
-  public aliases: Collection<string>;
-  public subCommands: Collection<SubCommand>;
-  public subCommandAliases: Collection<string>;
-  public events: Collection<Event>;
+  public commands: CommandManager;
+  public subCommands: SubCommandManager;
+  public events: ListenerManager;
+  public locales: LocalizationManager;
   public config: BotConfig;
   public commandHandler: CommandHandler;
   public wait: any;
   public database: MongoDB;
   public redis: Redis;
   public messageCollectors: Array<MessageCollector>;
-  public locales: LocalizationManager;
 
   constructor(public token: string, options?: ClientOptions) {
     super(token, options);
 
-    this.commands = new Collection();
-    this.subCommands = new Collection();
-    this.aliases = new Collection();
-    this.subCommandAliases = new Collection();
-    this.events = new Collection();
+    this.commands = new CommandManager(this);
+    this.subCommands = new SubCommandManager(this);
+    this.events = new ListenerManager(this);
+    this.locales = new LocalizationManager(this);
 
-    this._core = new CoreLoaders(this);
     this.database = new MongoDB(this);
     this.redis = new Redis(this);
     this.production = (/true/i).test(process.env.NODE_ENV);
@@ -78,12 +70,11 @@ export default class SuggestionsClient extends Client {
     this.commandHandler = new CommandHandler(this);
     this.wait = promisify(setTimeout);
     this.messageCollectors = [];
-    this.locales = new LocalizationManager(this);
   }
 
   public start(): void {
-    this._core.loadCommands();
-    this._core.loadListeners();
+    this.commands.init();
+    this.events.init();
     this._addEventListeners();
     this.locales.init();
     super.connect();
@@ -91,14 +82,8 @@ export default class SuggestionsClient extends Client {
 
   public getPrefixes(regex = false, settings?: GuildSchema): ReadonlyArray<string> {
     const prefixes: Array<string> = settings ?
-      [
-        ...settings.prefixes,
-        this.user.mention
-      ] :
-      [
-        ...this.config.prefixes,
-        this.user.mention
-      ];
+      [...settings.prefixes, this.user.mention] :
+      [...this.config.prefixes, this.user.mention];
 
     const modified: Array<string> = prefixes.map((p, i) => {
       if (regex) {
@@ -114,7 +99,7 @@ export default class SuggestionsClient extends Client {
 
   public updateBotPresence(): void {
     const prefix = this.getPrefixes()[0];
-    const help = this.commands.get('help') || { name: 'help' };
+    const help = this.commands.getCommand('help') || { name: 'help' };
 
     if (this.production) {
       this.base.ipc.broadcast('changeStatus', {
@@ -148,7 +133,6 @@ export default class SuggestionsClient extends Client {
   public isStaff(member: Member, settings: GuildSchema): boolean {
     let staffCheck: boolean;
     const adminCheck = this.isAdmin(member) || this.isOwner(member);
-    // TODO implement proper staff role usage
     const staffRoles = settings.staffRoles;
     if (staffRoles) staffCheck = member.roles.some(r => staffRoles.includes(r)) || adminCheck;
     else staffCheck = adminCheck;

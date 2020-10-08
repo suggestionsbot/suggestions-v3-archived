@@ -1,4 +1,3 @@
-// import { readdirSync } from 'fs';
 import globFunction from 'glob';
 import { promisify } from 'util';
 import { Collection } from '@augu/immutable';
@@ -31,7 +30,6 @@ export default class LocalizationManager extends Collection<Language> {
 
       for (const file of files) {
         const lang: Language = await import(file);
-        Logger.success('LANGUAGE FOUND', `Found language ${lang.code}!`);
         const locale = new Language(lang);
         this.addLanguage(locale);
       }

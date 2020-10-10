@@ -36,6 +36,7 @@ import MessageUtils from '../utils/MessageUtils';
 import LocalizationManager from '../managers/LocalizationManager';
 import { CommandManager, SubCommandManager } from '../managers/CommandManager';
 import ListenerManager from '../managers/ListenerManager';
+import BotListManager from '../managers/BotListManager';
 
 /**
  * TODO Rewrite all emoji search methods to support sharding/clustering
@@ -48,6 +49,7 @@ export default class SuggestionsClient extends Client {
   public subCommands: SubCommandManager;
   public events: ListenerManager;
   public locales: LocalizationManager;
+  public botlists: BotListManager;
   public config: BotConfig;
   public commandHandler: CommandHandler;
   public wait: any;
@@ -62,6 +64,7 @@ export default class SuggestionsClient extends Client {
     this.subCommands = new SubCommandManager(this);
     this.events = new ListenerManager(this);
     this.locales = new LocalizationManager(this);
+    this.botlists = new BotListManager(this);
 
     this.database = new MongoDB(this);
     this.redis = new Redis(this);

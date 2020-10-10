@@ -61,6 +61,16 @@ export default class RedisHelpers {
     return JSON.parse(data[field]);
   }
 
+  public async getGuildCount(): Promise<number> {
+    const data = await this.getStats();
+    return data.guilds;
+  }
+
+  public async getUserCount(): Promise<number> {
+    const data = await this.getStats();
+    return data.users;
+  }
+
   public updateStats(data: ShardStats): Promise<boolean> {
     return this._redis.hset('shardstats', Date.now().toString(), JSON.stringify(data));
   }

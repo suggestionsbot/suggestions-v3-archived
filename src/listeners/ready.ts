@@ -7,11 +7,9 @@ import Util from '../utils/Util';
 
 export default class extends Event {
   constructor(public client: SuggestionsClient, public name: string) {
-    super(client, name, {
-      once: true
-    });
+    super(client, name);
 
-    this.name = 'ready';
+    this.options.once = true;
   }
 
   public async run(): Promise<any> {
@@ -29,6 +27,10 @@ export default class extends Event {
       for (const m of readyMessages) await Logger.event(this.name, m);
       Logger.ready(`🤖 Logged in as ${Util.formatUserTag(this.client.user)} (${this.client.user.id}).`);
       this.client.updateBotPresence();
+      if (this.client.production) {
+        this.client.botlists.init();
+        this.client.botlists.start();
+      }
     } catch (e) {
       Logger.error('READY EVENT', e);
     }

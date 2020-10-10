@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@anishshobith/deeptype@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@anishshobith/deeptype/-/deeptype-1.0.0.tgz#722595ceba25126e3a43e1bd410628581b9663d1"
+  integrity sha512-pTSQn6LXGszxRKkBk0qs/sQjf7Q/3gBSIUu/vUwlzoIaBFt7a04EwqTMANgKybaBmi8KsCTjY/+kaut45HxkcQ==
+
 "@augu/immutable@^0.5.0":
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/@augu/immutable/-/immutable-0.5.0.tgz#f7be0d0041c378a796b06caf2793901ed0364055"
@@ -1511,10 +1516,10 @@ dayjs@^1.9.1:
   resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.9.1.tgz#201a755f7db5103ed6de63ba93a984141c754541"
   integrity sha512-01NCTBg8cuMJG1OQc6PR7T66+AFYiPwgDvdJmvJBn29NGzIG+DIFxPLNjHzwz3cpFIvG+NcwIjP9hSaPVoOaDg==
 
-dbots@^5.0.4:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/dbots/-/dbots-5.1.0.tgz#b879d646a5afa3ebb3acdd63c7b7a5e23c60bc28"
-  integrity sha512-pkOeUNrsTuSb+w8FEBj/I19OjQV4t4EXLpKYnaGZN53gGuy/dIzoG1Y+ePwNxNvcyvtSirARz9rWJCEG7f7+Ig==
+dbots@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/dbots/-/dbots-5.2.0.tgz#56cc2efc818dba30c96b7bdd88ca4b5e61d3b8c3"
+  integrity sha512-gwEwzhkaKeZgv/9T0r/U/5i6FB/Ug+KMBaH9sRc2gr8pw+FKLFEsBiaAbjRZqP7IGo91lyeWHpq8akTVjhpREA==
   dependencies:
     axios "^0.20.0"
     promise.allsettled "^1.0.2"

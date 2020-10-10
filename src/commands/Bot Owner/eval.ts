@@ -1,4 +1,5 @@
 import hastebin from 'hastebin-gen';
+import { Type } from '@anishshobith/deeptype';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
@@ -20,6 +21,7 @@ export default class EvalCommand extends Command {
     this.description = 'Run raw JavaScript code via the bot.';
     this.usages = ['eval <code>'];
     this.ownerOnly = true;
+    this.botPermissions = ['embedLinks', 'manageMessages']
   }
 
   public async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
@@ -67,6 +69,7 @@ export default class EvalCommand extends Command {
 
       embed.setColor(main);
       embed.addField('Input 📥', `\`\`\`js\n${code}\`\`\``);
+      embed.addField('Type 🔖', `\`\`\`ts\n${new Type(evaled).is}\n\`\`\``);
       embed.addField('Output 📤', `\`\`\`js\n${clean}\`\`\``);
       embed.setFooter(`ID: ${ctx.sender.id} | Duration: ${dayjs.duration(end - start).milliseconds()}ms`)
     } catch (err) {

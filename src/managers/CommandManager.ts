@@ -17,7 +17,7 @@ abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> 
   }
 
   private static get _directory(): string {
-    return `${path.dirname(require.main.filename)}${path.sep}/commands/**/*.{js,ts}`;
+    return `${path.join(path.dirname(require.main.filename), 'commands', '**', '*.{ts,js}')}`;
   }
 
   public addCommand(name: string, command: T): void {

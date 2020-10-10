@@ -17,7 +17,7 @@ export default class ListenerManager extends Collection<Event> {
   }
 
   private static get _directory(): string {
-    return `${path.dirname(require.main.filename)}${path.sep}/listeners/**/*.{js,ts}`;
+    return `${path.join(path.dirname(require.main.filename), 'listeners', '**', '*.{ts,js}')}`;
   }
 
   public addEvent(name: string, event: Event): void {

@@ -17,7 +17,7 @@ export default class LocalizationManager extends Collection<Language> {
   }
 
   private static get _directory(): string {
-    return process.cwd() + path.sep;
+    return `${path.join(process.cwd(), 'locales', '**', '*.json')}`;
   }
 
   public addLanguage(locale: Language): void {
@@ -25,7 +25,7 @@ export default class LocalizationManager extends Collection<Language> {
   }
 
   public async init(): Promise<void> {
-    return glob(`${LocalizationManager._directory}locales/**/*.json`).then(async (files: any) => {
+    return glob(LocalizationManager._directory).then(async (files: any) => {
       if (!files.length) return Logger.warning('LOCALIZATION', 'Couldn\'t find any localization files!');
 
       for (const file of files) {

@@ -19,13 +19,7 @@ export default class Context {
     public args: Array<string>,
     public locale: Language|undefined,
     public settings: GuildSchema|undefined
-  ) {
-    this.client = client;
-    this.message = message;
-    this.args = args;
-    this.locale = locale;
-    this.settings = settings;
-  }
+  ) {}
 
   public send(content: string): Promise<Message> {
     return this.message.channel.createMessage({
@@ -53,8 +47,7 @@ export default class Context {
 
   public get guild(): Guild {
     return (this.message.channel instanceof TextChannel) ?
-      (this.message.channel as GuildTextableChannel).guild :
-      undefined;
+      this.message.channel.guild : undefined;
   }
 
   public get channel(): TextableChannel {

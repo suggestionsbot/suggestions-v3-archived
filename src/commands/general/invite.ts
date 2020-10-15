@@ -10,14 +10,13 @@ export default class InfoCommand extends Command {
     super(client);
 
     this.name = 'invite';
-    this.category = 'General';
+    this.category = 'general';
     this.description = 'Receive a DM with information on inviting the bot to your server.';
     this.usages = [
       'invite [here]'
     ];
     this.aliases = ['botinvite', 'getthebot'];
     this.guildOnly = false;
-    this.guarded = true;
   }
 
   async run(ctx: Context): Promise<any> {

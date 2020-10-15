@@ -10,11 +10,10 @@ export default class PingCommand extends Command {
     super(client);
 
     this.name = 'ping';
-    this.category = 'General';
+    this.category = 'general';
     this.description = 'View the latency of the bot and it\'s connection to the Discord API.';
     this.aliases = ['pong'];
     this.guildOnly = false;
-    this.guarded = true;
   }
 
   public async run(ctx: Context): Promise<any> {

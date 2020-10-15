@@ -18,11 +18,10 @@ export default class InfoCommand extends Command {
     super(client);
 
     this.name = 'info';
-    this.category = 'General';
+    this.category = 'general';
     this.description = 'View information about the bot and it\'s global statistics.';
     this.aliases = ['botinfo'];
     this.guildOnly = false;
-    this.guarded = true;
   }
 
   public async run(ctx: Context): Promise<any> {

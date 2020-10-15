@@ -34,6 +34,8 @@ export default abstract class Command implements CommandClass {
     this.active = true;
     this.aliases = [];
     this.subCommands = [];
+    this.guarded = true;
+    this.guildOnly = true;
   }
 
   public async run(ctx: Context): Promise<any> {
@@ -56,5 +58,4 @@ export default abstract class Command implements CommandClass {
     }
     return throttle;
   }
-
 }

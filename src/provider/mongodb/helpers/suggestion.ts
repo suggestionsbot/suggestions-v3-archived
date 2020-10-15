@@ -49,6 +49,8 @@ export default class SuggestionHelpers {
     const schema = new SuggestionModel(suggestion);
     const data = await schema.save();
     await this.client.redis.helpers.setCachedSuggestion(data.id, data.message, data);
+    this.client.redis.redis.incrby(`guild:${data.guild}:member:${data.user}:suggestions:count`, 1);
+    this.client.redis.redis.incrby(`guild:${data.guild}:suggestions:count`, 1);
 
     Logger.log(`Suggestion ${data.getSuggestionID(false)} created in the database.`);
     return data;

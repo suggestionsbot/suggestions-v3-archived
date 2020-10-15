@@ -83,15 +83,18 @@ export default class SuggestionsClient extends Client {
     super.connect();
   }
 
-  public getPrefixes(regex = false, settings?: GuildSchema): ReadonlyArray<string> {
+  public getPrefixes(regex = false, formatted = false, settings?: GuildSchema): ReadonlyArray<string> {
     const prefixes: Array<string> = settings ?
-      [...settings.prefixes, this.user.mention] :
-      [...this.config.prefixes, this.user.mention];
+      [...settings.prefixes, 'mention'] :
+      [...this.config.prefixes, 'mention'];
 
     const modified: Array<string> = prefixes.map((p, i) => {
       if (regex) {
-        if (i === (prefixes.length - 1)) return `^<@!?${this.user.id}> `;
+        if (p === 'mention') return `^<@!?${this.user.id}> `;
         else return `\\${p}`;
+      } else if (formatted) {
+        if (p === 'mention') return this.user.mention;
+        else return `\`${p}\``;
       } else {
         return p;
       }
@@ -251,7 +254,7 @@ export default class SuggestionsClient extends Client {
         settings = <GuildSchema><unknown>this.config.defaults;
       }
 
-      const prefixes = this.getPrefixes(true, settings);
+      const prefixes = this.getPrefixes(true, false, settings);
       const prefixRegex = new RegExp(`(${prefixes.join('|')})`);
       const prefix = message.content.match(prefixRegex) ? message.content.match(prefixRegex)[0] : null;
 
@@ -261,7 +264,7 @@ export default class SuggestionsClient extends Client {
         const embed = MessageUtils.defaultEmbed()
           .setDescription(stripIndents`My prefixes ${message.guildID ? 'in this guild' : ''} are:
 
-          ${this.getPrefixes(false, settings).map(p => `**${i++})** ${p}`).join('\n')}
+          ${this.getPrefixes(false, false, settings).map(p => `**${i++})** ${p}`).join('\n')}
         `);
         await (message.channel as GuildTextableChannel).createMessage({ embed });
         return;

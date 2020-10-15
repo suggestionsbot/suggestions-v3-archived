@@ -202,6 +202,7 @@ export interface SuggestionSchema extends Document {
   user: string;
   suggestion: string;
   id: string;
+  type: SuggestionType;
   time: number;
   results: ResultEmoji;
   statusUpdates: Array<StatusUpdates>;
@@ -241,6 +242,11 @@ export interface ResultEmoji extends Document {
 export interface VoteResult extends Document {
   emoji: string;
   voted: Array<string>;
+}
+
+export enum SuggestionType {
+  REGULAR = 'regular',
+  STAFF = 'staff'
 }
 
 export interface BlacklistSchema extends Document {

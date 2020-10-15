@@ -9,6 +9,7 @@ export const Suggestion = new Schema({
   suggestion: { type: String },
   id: { type: String },
   time: { type: Number, default: Date.now() },
+  type: { type: String, enum: ['regular', 'staff'] },
   statusUpdates: {
     type: [{
       status: { type: String },

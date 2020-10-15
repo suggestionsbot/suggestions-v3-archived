@@ -15,18 +15,12 @@ export default class ConfigPrefixCommand extends SubCommand {
     this.arg = 'prefix';
     this.name = 'config-prefix';
     this.friendly = 'config prefix';
-    this.category = 'Admin';
+    this.category = 'admin';
     this.description = 'Update the bot\'ts prefixes in the guild.';
-    this.usages = [
-      'config prefix [value]'
-    ];
-    this.examples = [
-      'config prefix ^'
-    ];
+    this.usages = ['config prefix [value]'];
+    this.examples = ['config prefix ^'];
     this.adminOnly = true;
     this.botPermissions = ['manageMessages', 'externalEmojis'];
-    this.guarded = true;
-    this.guildOnly = true;
   }
 
   public async runPreconditions(ctx: Context, next: CommandNextFunction): Promise<any> {
@@ -51,7 +45,7 @@ export default class ConfigPrefixCommand extends SubCommand {
         let i = 1;
         baseEmbed.setDescription(stripIndents`My prefixes ${ctx.guild ? 'in this guild' : ''} are:
 
-        ${this.client.getPrefixes(false, ctx.settings).map(p => `**${i++})** ${p}`).join('\n')}
+        ${this.client.getPrefixes(false, true, ctx.settings).map(p => `**${i++}** ${p}`).join('\n')}
       `);
         baseEmbed.addField('Usages', `\`${ctx.prefix + this.usages.join('\n')}\``, true);
         baseEmbed.addField('Examples', `\`${ctx.prefix + this.examples.join('\n')}\``, true);

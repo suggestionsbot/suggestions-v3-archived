@@ -8,7 +8,7 @@ export default class ConfigCommand extends Command {
 
     this.name = 'config';
     this.subCommands = ['prefix', 'channels', 'roles', 'emojis', 'responses', 'commands'];
-    this.category = 'Admin';
+    this.category = 'admin';
     this.description = 'View and update various configurable values of the bot';
     this.aliases = ['conf', 'settings', 'configure'];
     this.usages = [
@@ -37,8 +37,6 @@ export default class ConfigCommand extends Command {
     ];
     this.adminOnly = true;
     this.botPermissions = ['manageMessages', 'externalEmojis'];
-    this.guarded = true;
-    this.guildOnly = true;
   }
 
   public async run(ctx: Context): Promise<any> {

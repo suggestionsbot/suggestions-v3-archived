@@ -32,7 +32,7 @@ setDefaults({
   }
 });
 
-export default class ShardClient extends Base {
+export default class Bot extends Base {
   public client: SuggestionsClient;
 
   constructor(public bot: boolean) {
@@ -44,7 +44,6 @@ export default class ShardClient extends Base {
 
   public launch(): any {
     this.client.base = this;
-    this.client.sentry = Sentry;
 
     this.ipc.register('changeStatus', status => {
       this.client.editStatus(status.status, {

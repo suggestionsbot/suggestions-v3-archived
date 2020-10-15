@@ -7,9 +7,7 @@ import Logger from '../../../utils/Logger';
 import Util from '../../../utils/Util';
 
 export default class CommandHelpers {
-  constructor(public client: SuggestionsClient) {
-    this.client = client;
-  }
+  constructor(public client: SuggestionsClient) {}
 
   public async deleteCommands(guild: SuggestionGuild): Promise<boolean> {
     await Command.deleteMany({ guild: Util.getGuildID(guild) });

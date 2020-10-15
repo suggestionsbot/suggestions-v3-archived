@@ -15,7 +15,6 @@ export default class RedisHelpers {
   private _redis: Promisified;
 
   constructor(public client: SuggestionsClient, public redis: Promisified) {
-    this.client = client;
     this._redis = redis;
   }
 

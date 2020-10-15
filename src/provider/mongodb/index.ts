@@ -16,7 +16,6 @@ export default class MongoDB {
   public blacklistHelpers: BlacklistHelpers;
 
   constructor(public client: SuggestionsClient) {
-    this.client = client;
     this.connection = null;
   }
 

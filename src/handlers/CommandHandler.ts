@@ -12,7 +12,6 @@ export default class CommandHandler {
   public minimumPermissions: Array<string|number>;
 
   constructor(public client: SuggestionsClient) {
-    this.client = client;
     this.minimumPermissions = ['readMessages', 'sendMessages'];
   }
 

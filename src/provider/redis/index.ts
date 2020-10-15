@@ -12,7 +12,6 @@ export default class Redis {
   public helpers: RedisHelpers;
 
   constructor(public client: SuggestionsClient) {
-    this.client = client;
     this.redis = null;
   }
 

@@ -25,7 +25,6 @@ export default abstract class Command implements CommandClass {
   public userPermissions: Array<string|number>;
 
   protected constructor(public client: SuggestionsClient) {
-    this.client = client;
     this.throttles = new Map();
     this.throttling = {
       usages: 2,

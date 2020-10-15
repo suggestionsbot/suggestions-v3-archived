@@ -19,11 +19,6 @@ export default class ReactionCollector extends EventEmitter {
     public options: AwaitReactionsOptions = {})
   {
     super();
-    this.client = client;
-    this.filter = filter;
-    this.message = message;
-    this.options = options;
-
     this.collected = [];
     this.running = false;
   }

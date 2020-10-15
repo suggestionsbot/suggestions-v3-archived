@@ -4,9 +4,7 @@ import { Poster } from 'dbots';
 export default class BotListManager {
   public poster: Poster;
 
-  constructor(public client: SuggestionsClient) {
-    this.client = client;
-  }
+  constructor(public client: SuggestionsClient) {}
 
   public init(): void {
     this.poster = new Poster({

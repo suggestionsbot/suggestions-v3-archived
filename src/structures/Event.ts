@@ -7,8 +7,6 @@ export default abstract class Event implements EventClass {
   public emitter: SuggestionsClient|string;
 
   protected constructor(public client?: SuggestionsClient, public name?: string, public options: EventOptions = {}) {
-    this.client = client;
-    this.name = name;
     this.type = options.once ? 'once' : 'on';
     this.emitter = (typeof options.emitter === 'string' ? this.client[options.emitter] : options.emitter) || this.client;
   }

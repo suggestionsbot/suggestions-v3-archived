@@ -16,10 +16,6 @@ export default class MessageCollector extends EventEmitter {
     public options: AwaitMessagesOptions = {})
   {
     super();
-    this.client = client;
-    this.filter = filter;
-    this.channel = channel;
-    this.options = options;
     this.collected = new Collection(Message);
     this.running = false;
 

@@ -1,5 +1,5 @@
 import { Collection } from '@augu/immutable';
-import path from "path";
+import path from 'path';
 import globFunction from 'glob';
 import { promisify } from 'util';
 
@@ -12,8 +12,6 @@ const glob = promisify(globFunction);
 export default class ListenerManager extends Collection<Event> {
   constructor(public client: SuggestionsClient) {
     super();
-
-    this.client = client;
   }
 
   private static get _directory(): string {

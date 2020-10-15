@@ -5,9 +5,7 @@ import { BlacklistQueryType, BlacklistSchema, SuggestionGuild, SuggestionUser } 
 import Logger from '../../../utils/Logger';
 
 export default class BlacklistHelpers {
-  constructor(public client: SuggestionsClient) {
-    this.client = client;
-  }
+  constructor(public client: SuggestionsClient) {}
 
   public async addBlacklist(blacklist: Record<string, unknown>): Promise<BlacklistSchema> {
     const document = new Blacklist(blacklist);

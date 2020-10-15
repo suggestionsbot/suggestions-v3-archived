@@ -1,7 +1,6 @@
 import {
   EmbedOptions,
   Guild,
-  GuildTextableChannel,
   Member, Message, Shard,
   TextableChannel,
   TextChannel,

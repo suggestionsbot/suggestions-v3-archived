@@ -6,9 +6,7 @@ import Logger from '../../../utils/Logger';
 import Util from '../../../utils/Util';
 
 export default class SuggestionHelpers {
-  constructor(public client: SuggestionsClient) {
-    this.client = client;
-  }
+  constructor(public client: SuggestionsClient) {}
 
   private static _querySuggestion(query: string): Array<Record<string, unknown>> {
     return [

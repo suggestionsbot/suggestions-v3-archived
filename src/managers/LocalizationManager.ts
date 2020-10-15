@@ -12,8 +12,6 @@ const glob = promisify(globFunction);
 export default class LocalizationManager extends Collection<Language> {
   constructor(public client: SuggestionsClient) {
     super();
-
-    this.client = client;
   }
 
   private static get _directory(): string {

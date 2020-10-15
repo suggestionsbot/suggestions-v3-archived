@@ -11,9 +11,7 @@ import Util from '../../../utils/Util';
  *
  */
 export default class GuildHelpers {
-  constructor(public client: SuggestionsClient) {
-    this.client = client;
-  }
+  constructor(public client: SuggestionsClient) {}
 
   private static _getGuildID(guild: SuggestionGuild): string {
     return guild instanceof Guild ? guild.id : guild;

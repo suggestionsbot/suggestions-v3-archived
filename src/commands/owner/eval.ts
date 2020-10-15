@@ -9,7 +9,6 @@ import MessageEmbed from '../../utils/MessageEmbed';
 import Command from '../../structures/command';
 import ExStaff from '../../structures/client';
 import MessageUtils from '../../utils/MessageUtils';
-import Logger from '../../utils/Logger';
 import CommandContext from '../../structures/Context';
 
 export default class EvalCommand extends Command {
@@ -21,7 +20,8 @@ export default class EvalCommand extends Command {
     this.description = 'Run raw JavaScript code via the bot.';
     this.usages = ['eval <code>'];
     this.ownerOnly = true;
-    this.botPermissions = ['embedLinks', 'manageMessages']
+    this.botPermissions = ['embedLinks', 'manageMessages'];
+    this.guildOnly = false;
   }
 
   public async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
@@ -36,7 +36,7 @@ export default class EvalCommand extends Command {
 
     const embed = new MessageEmbed();
     const exceededEmbed = new MessageEmbed()
-        .setFooter(`ID: ${ctx.sender.id}`);
+      .setFooter(`ID: ${ctx.sender.id}`);
 
     try {
       const start = Date.now();
@@ -71,7 +71,7 @@ export default class EvalCommand extends Command {
       embed.addField('Input 📥', `\`\`\`js\n${code}\`\`\``);
       embed.addField('Type 🔖', `\`\`\`ts\n${new Type(evaled).is}\n\`\`\``);
       embed.addField('Output 📤', `\`\`\`js\n${clean}\`\`\``);
-      embed.setFooter(`ID: ${ctx.sender.id} | Duration: ${dayjs.duration(end - start).milliseconds()}ms`)
+      embed.setFooter(`ID: ${ctx.sender.id} | Duration: ${dayjs.duration(end - start).milliseconds()}ms`);
     } catch (err) {
       if (err.length > 2000) {
         const haste = await hastebin(Buffer.from(err).toString(), {

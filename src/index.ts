@@ -1,4 +1,4 @@
-import { Master, ErisSharderStats } from 'eris-sharder';
+import { Master } from 'eris-sharder';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -17,8 +17,8 @@ declare global {
 export const main = async (): Promise<boolean> => {
   try {
     const mainFile = process.env.NODE_ENV === 'production' ?
-      '/dist/lib/src/structures/shard.js' :
-      '/src/structures/Shard.ts';
+      '/dist/lib/src/structures/Bot.js' :
+      '/src/structures/Bot.ts';
 
     const sharder = new Master(process.env.DISCORD_TOKEN, mainFile, {
       stats: true,

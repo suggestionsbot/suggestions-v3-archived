@@ -21,7 +21,7 @@ export default class CommandHandler {
     const command = args.shift().toLowerCase();
 
     const cmd = this.client.commands.getCommand(command, ...args);
-    if ('friendly' in cmd) args = args.slice(1);
+    if (cmd && ('friendly' in cmd)) args = args.slice(1);
 
     if (!cmd) return;
 
@@ -32,7 +32,7 @@ export default class CommandHandler {
       return MessageUtils.error(
         this.client,
         message,
-  		`The \`${'friendly' in cmd ? cmd.friendly : cmd.name}\` command can only be used in a server!`
+        `The \`${'friendly' in cmd ? cmd.friendly : cmd.name}\` command can only be used in a server!`
       );
     }
 
@@ -98,7 +98,7 @@ export default class CommandHandler {
 
         if (this.client.redis.redis) {
           await Promise.all([
-            this.client.redis.redis.hincrby(`guild:${message.guildID}:user:${message.author.id}:commands`, cmd.name, 1),
+            this.client.redis.redis.hincrby(`guild:${message.guildID}:member:${message.author.id}:commands`, cmd.name, 1),
             this.client.redis.redis.hincrby(`guild:${message.guildID}:commands`, cmd.name, 1),
             this.client.redis.redis.incrby(`guild:${message.guildID}:commands:count`, 1),
             this.client.redis.redis.incrby('global:commands', 1),

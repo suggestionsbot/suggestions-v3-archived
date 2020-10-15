@@ -9,6 +9,7 @@ import {
 } from '../../../types';
 import Util from '../../../utils/Util';
 import Logger from '../../../utils/Logger';
+import { Member } from 'eris';
 
 export default class RedisHelpers {
   private _redis: Promisified;
@@ -39,12 +40,20 @@ export default class RedisHelpers {
     return this._redis.get(`guild:${Util.getGuildID(guild)}:suggestions:count`).then((count: any) => +count);
   }
 
+  public async getMemberSuggestionCount(member: Member): Promise<number> {
+    return this._redis.get(`guild:${member.guild.id}:member:${member.id}:suggestions:count`).then((count: any) => +count);
+  }
+
   public async getGlobalCommandCount(): Promise<number> {
     return this._redis.get('global:commands:count').then((count: any) => +count);
   }
 
   public async getGuildCommandCount(guild: SuggestionGuild): Promise<number> {
     return this._redis.get(`guild:${Util.getGuildID(guild)}:commands:count`).then((count: any) => +count);
+  }
+
+  public async getMemberCommandCount(member: Member): Promise<number> {
+    return this._redis.get(`guild:${member.guild.id}:member:${member.id}:commands:count`).then((count: any) => +count);
   }
 
   public async getGlobalBlacklistCount(): Promise<number> {

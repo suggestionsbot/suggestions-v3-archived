@@ -1,6 +1,7 @@
 import { Message } from 'eris';
 import { EventEmitter } from 'events';
 
+// @ts-expect-error no typings exist for package
 import { continuousReactionStream } from 'eris-reactions';
 
 import SuggestionsClient from '../structures/Client';
@@ -10,7 +11,7 @@ export default class ReactionCollector extends EventEmitter {
   public collected: Array<any>;
   public running: boolean;
   public handler: continuousReactionStream;
-  public ended: boolean;
+  public ended?: boolean;
 
   constructor(
     public client: SuggestionsClient,
@@ -32,11 +33,11 @@ export default class ReactionCollector extends EventEmitter {
       this.handler.client.setMaxListeners(this.handler.client.getMaxListeners() + 1);
       this.handler.setMaxListeners(this.handler.getMaxListeners() + 1);
 
-      this.handler.on('reacted', x => {
+      this.handler.on('reacted', (x: any) => {
         this.emit('collect', x);
         this.collected.push(x);
       });
-      this.handler.once('end', collected => {
+      this.handler.once('end', (collected: Array<any>) => {
         this.collected = collected;
         this.stop();
         res(this);

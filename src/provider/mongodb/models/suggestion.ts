@@ -36,11 +36,11 @@ export const Suggestion = new Schema({
   }
 });
 
-Suggestion.method('getMessageLink', function(args: MessageLinkFormatter): string {
+Suggestion.method('getMessageLink', function(this: SuggestionSchema, args: MessageLinkFormatter): string {
   return `https://discord.com/channels/${args[0]}/${args[1]}/${args[2]}`;
 });
 
-Suggestion.method('getSuggestionID', function(long = false): string {
+Suggestion.method('getSuggestionID', function(this: SuggestionSchema, long = false): string {
   if (long) return this.id;
   else return this.id.slice(33, 40);
 });

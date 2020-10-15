@@ -21,11 +21,11 @@ export default class Util {
     if (user instanceof Member) data = user.id;
     if (typeof user === 'string') data = user;
 
-    return data;
+    return data!;
   }
 
   public static escapeMarkdown(
-    text,
+    text: string,
     {
       codeBlock = true,
       inlineCode = true,

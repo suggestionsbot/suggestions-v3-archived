@@ -45,7 +45,7 @@ export default class SuggestCommand extends Command {
     const id = crypto.randomBytes(20).toString('hex');
     const shortID = id.slice(33, 40);
 
-    const channel = <GuildTextableChannel>ctx.guild.channels.get('737167291656962060');
+    const channel = <GuildTextableChannel>ctx.guild!.channels.get('737167291656962060');
 
     const embed = MessageUtils.defaultEmbed()
       .setDescription(stripIndents`
@@ -62,14 +62,14 @@ export default class SuggestCommand extends Command {
     if (imageCheck) embed.setImage(imageCheck[0]);
 
     const dmEmbed = MessageUtils.defaultEmbed()
-      .setAuthor(ctx.guild.name, ctx.guild.iconURL)
+      .setAuthor(ctx.guild!.name, ctx.guild!.iconURL)
       .setDescription(stripIndents`Hey, ${ctx.sender.mention}. Your suggestion has been sent to the ${channel.mention} to be voted on!
       
       Please wait until it gets approved or rejected by a staff member.
       
       Your suggestion ID (sID) for reference is **${shortID}**.
       `)
-      .setFooter(`Guild ID: ${ctx.guild.id} | sID: ${shortID}`)
+      .setFooter(`Guild ID: ${ctx.guild!.id} | sID: ${shortID}`)
       .setTimestamp();
 
     const emojis = ['✅', '❎'];
@@ -89,7 +89,7 @@ export default class SuggestCommand extends Command {
 
     try {
       await this.client.database.suggestionHelpers.createSuggestion({
-        guild: ctx.guild.id,
+        guild: ctx.guild!.id,
         user: ctx.sender.id,
         channel: channel.id,
         message: submitted.id,

@@ -14,10 +14,10 @@ export default class CommandHelpers {
     return true;
   }
 
-  public async getCommand(user: User, guild: SuggestionGuild = null, command: string): Promise<{ command: string; count: number }> {
+  public async getCommand(command: string, user: User, guild?: SuggestionGuild): Promise<{ command: string; count: number }> {
     const documents = await Command.find({
       user: user.id,
-      guild: guild ? Util.getGuildID(guild) : null,
+      guild: Util.getGuildID(guild!),
       command
     });
 
@@ -27,8 +27,8 @@ export default class CommandHelpers {
     };
   }
 
-  public async getCommands(user: User, guild: SuggestionGuild = null): Promise<Array<{ command: string; count: number; }>> {
-    const documents = await Command.find({ user: user.id, guild: guild ? Util.getGuildID(guild) : null });
+  public async getCommands(user: User, guild?: SuggestionGuild): Promise<Array<{ command: string; count: number; }>> {
+    const documents = await Command.find({ user: user.id, guild: Util.getGuildID(guild!) });
     const commands = documents.map(d => d.command);
     const unique = [...new Set(commands)];
 
@@ -38,7 +38,7 @@ export default class CommandHelpers {
       for (const d of commands) {
         if (d === c) {
           const filter = (data: { command: string; count: number; }): boolean => data.command === c;
-          if (arr.map(a => a.command).includes(c)) arr.find(filter).count++;
+          if (arr.map(a => a.command).includes(c)) arr.find(filter)!.count++;
           else arr.push({ command: c, count: 1 });
         }
       }
@@ -49,7 +49,7 @@ export default class CommandHelpers {
 
   public async createCommand(message: Message, command: string): Promise<CommandSchema> {
     const document = new Command({});
-    document.guild = message.guildID;
+    document.guild = message.guildID!;
     document.channel = message.channel.id;
     document.message = message.id;
     document.command = command;

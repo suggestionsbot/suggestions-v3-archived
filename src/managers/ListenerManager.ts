@@ -4,8 +4,9 @@ import globFunction from 'glob';
 import { promisify } from 'util';
 
 import SuggestionsClient from '../structures/Client';
-import Event from '../structures/Event';
+// import Event from '../structures/Event';
 import Logger from '../utils/Logger';
+import { Event } from '../types';
 
 const glob = promisify(globFunction);
 
@@ -15,7 +16,7 @@ export default class ListenerManager extends Collection<Event> {
   }
 
   private static get _directory(): string {
-    return `${path.join(path.dirname(require.main.filename), 'listeners', '**', '*.{ts,js}')}`;
+    return `${path.join(path.dirname(require.main!.filename), 'listeners', '**', '*.{ts,js}')}`;
   }
 
   public addEvent(name: string, event: Event): void {
@@ -29,9 +30,9 @@ export default class ListenerManager extends Collection<Event> {
       for (const file of files) {
         const { name } = path.parse(file);
         const { default: EventFile } = await import(file);
-        const event = new EventFile(this.client, name);
+        const event: Event = new EventFile(this.client, name);
         this.addEvent(event.name ?? name, event);
-        this.client[event.type](event.name ?? name, (...args: Array<any>) => event.run(...args));
+        this.client.on(event.name ?? name, (...args: Array<any>) => event.run(...args));
         delete require.cache[require.resolve(file)];
       }
     });

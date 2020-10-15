@@ -4,15 +4,15 @@ import { EmbedThumbnail } from '../types';
 export default class MessageEmbed {
   private readonly _HEX_REGEX: RegExp = /^#?([a-fA-F0-9]{6})$/;
   private readonly _URL_REGEX: RegExp = /^http(s)?:\/\/[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
-  public title: string;
-  public description: string;
-  public url: string;
-  public timestamp: Date|string;
-  public color: number;
-  public footer: EmbedFooter;
-  public image: EmbedImage;
-  public thumbnail: EmbedThumbnail;
-  public author: EmbedAuthor;
+  public title?: string;
+  public description?: string;
+  public url?: string;
+  public timestamp?: Date|string;
+  public color?: number;
+  public footer?: EmbedFooter;
+  public image?: EmbedImage;
+  public thumbnail?: EmbedThumbnail;
+  public author?: EmbedAuthor;
   public fields: Array<EmbedField>;
 
   constructor(public data: any = {}) {

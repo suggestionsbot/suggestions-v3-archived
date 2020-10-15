@@ -43,19 +43,19 @@ export const GuildSettings = new Schema({
   }]
 });
 
-GuildSettings.method('setEmojis', function(id: string) {
+GuildSettings.method('setEmojis', function(this: GuildSchema, id: string) {
   this.voteEmojis = id;
 });
 
-GuildSettings.method('setGuild', function(guild: Guild|string) {
+GuildSettings.method('setGuild', function(this: GuildSchema, guild: Guild|string) {
   this.locale = guild instanceof Guild ? guild.id : guild;
 });
 
-GuildSettings.method('setLocale', function(locale: string) {
+GuildSettings.method('setLocale', function(this: GuildSchema, locale: string) {
   this.locale = locale;
 });
 
-GuildSettings.method('updatePrefixes', function(prefix: string) {
+GuildSettings.method('updatePrefixes', function(this: GuildSchema, prefix: string) {
   if (this.prefixes.includes(prefix)) {
     this.prefixes = this.prefixes.filter(p => p !== prefix);
   } else {
@@ -63,8 +63,8 @@ GuildSettings.method('updatePrefixes', function(prefix: string) {
   }
 });
 
-GuildSettings.method('updateChannels', function({ channel }: SuggestionChannel) {
-  const channelInArray = this.channels.find((c: SuggestionChannel) => c.channel === channel);
+GuildSettings.method('updateChannels', function(this: GuildSchema, { channel }: SuggestionChannel) {
+  const channelInArray = this.channels.find((c: SuggestionChannel) => c.channel === channel)!;
   if (channelInArray) {
     this.channels = this.channels.filter((c: SuggestionChannel) => c !== channelInArray);
   } else {
@@ -72,16 +72,16 @@ GuildSettings.method('updateChannels', function({ channel }: SuggestionChannel) 
   }
 });
 
-GuildSettings.method('updateCommands', function({ command }: DisabledCommand) {
-  const commandInArray = this.disabledCommand.find((c: DisabledCommand) => c.command === command);
+GuildSettings.method('updateCommands', function(this: GuildSchema, { command }: DisabledCommand) {
+  const commandInArray = this.disabledCommands.find((c: DisabledCommand) => c.command === command)!;
   if (commandInArray) {
-    this.channels = this.disabledCommands.filter((c: DisabledCommand) => c !== commandInArray);
+    this.disabledCommands = this.disabledCommands.filter((c: DisabledCommand) => c !== commandInArray);
   } else {
-    this.channels = [...this.disabledCommands, commandInArray];
+    this.disabledCommands = [...this.disabledCommands, commandInArray];
   }
 });
 
-GuildSettings.method('updateStaffRoles', function(role: string) {
+GuildSettings.method('updateStaffRoles', function(this: GuildSchema, role: string) {
   const roleInArray = this.staffRoles.includes(role);
   if (roleInArray) {
     this.staffRoles = this.staffRoles.filter((r: string) => r !== role);

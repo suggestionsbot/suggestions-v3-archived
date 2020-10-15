@@ -20,7 +20,7 @@ export const main = async (): Promise<boolean> => {
       '/dist/lib/src/structures/Bot.js' :
       '/src/structures/Bot.ts';
 
-    const sharder = new Master(process.env.DISCORD_TOKEN, mainFile, {
+    const sharder = new Master(process.env.DISCORD_TOKEN!, mainFile, {
       stats: true,
       debug: true,
       clusters: 1,
@@ -28,12 +28,12 @@ export const main = async (): Promise<boolean> => {
       name: 'Suggestions',
       webhooks: {
         shard: {
-          id: process.env.SHARD_WEBHOOK_ID,
-          token: process.env.SHARD_WEBHOOK_TOKEN,
+          id: process.env.SHARD_WEBHOOK_ID!,
+          token: process.env.SHARD_WEBHOOK_TOKEN!,
         },
         cluster: {
-          id: process.env.CLUSTER_WEBHOOK_ID,
-          token: process.env.CLUSTER_WEBHOOK_TOKEN
+          id: process.env.CLUSTER_WEBHOOK_ID!,
+          token: process.env.CLUSTER_WEBHOOK_TOKEN!
         }
       },
       clientOptions: {

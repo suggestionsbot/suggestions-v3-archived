@@ -9,11 +9,11 @@ import BlacklistHelpers from './helpers/blacklist';
 dotenv.config();
 
 export default class MongoDB {
-  public connection: mongoose.Connection;
-  public guildHelpers: GuildHelpers;
-  public suggestionHelpers: SuggestionHelpers;
-  public commandHelpers: CommandHelpers;
-  public blacklistHelpers: BlacklistHelpers;
+  public connection: mongoose.Connection|null;
+  public guildHelpers!: GuildHelpers;
+  public suggestionHelpers!: SuggestionHelpers;
+  public commandHelpers!: CommandHelpers;
+  public blacklistHelpers!: BlacklistHelpers;
 
   constructor(public client: SuggestionsClient) {
     this.connection = null;
@@ -33,7 +33,7 @@ export default class MongoDB {
       useUnifiedTopology: true
     };
 
-    const connected = await mongoose.connect(process.env.MONGO_URI, dbOptions);
+    const connected = await mongoose.connect(process.env.MONGO_URI!, dbOptions);
     mongoose.set('useFindAndModify', false);
     if (connected) this.connection = connected.connection;
   }

@@ -1,4 +1,4 @@
-import { EmbedOptions, Guild, Member, Message, User } from 'eris';
+import { BotActivityType, EmbedOptions, Guild, Member, Message, User } from 'eris';
 import { Commands, RedisClient } from 'redis';
 import { Document } from 'mongoose';
 
@@ -57,35 +57,36 @@ export interface VoteSite {
 }
 
 export abstract class Command {
-  public name: string;
-  public description: string;
-  public category: string;
-  public subCommands: Array<string>;
-  public usages: Array<string>;
-  public examples: Array<string>;
-  public aliases: Array<string>;
-  public active: boolean;
-  public guarded: boolean;
-  public guildOnly: boolean;
-  public staffOnly: boolean;
-  public adminOnly: boolean;
-  public ownerOnly: boolean;
-  public superOnly: boolean;
-  public botPermissions: Array<string|number>;
-  public userPermissions: Array<string|number>;
-  public throttles: Map<string, CommandThrottle>;
-  public throttling: CommandThrottling;
+  public name!: string;
+  public description!: string;
+  public category!: string;
+  public checks?: Array<string>;
+  public subCommands?: Array<string>;
+  public usages?: Array<string>;
+  public examples?: Array<string>;
+  public aliases?: Array<string>;
+  public active?: boolean;
+  public guarded?: boolean;
+  public guildOnly!: boolean;
+  public staffOnly?: boolean;
+  public adminOnly?: boolean;
+  public ownerOnly?: boolean;
+  public superOnly?: boolean;
+  public botPermissions?: Array<string|number>;
+  public userPermissions?: Array<string|number>;
+  public throttles?: Map<string, CommandThrottle>;
+  public throttling?: CommandThrottling;
   protected constructor(public client: SuggestionsClient) {}
   public abstract async run(ctx: Context): Promise<any>;
   public async runPreconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
   public async runPostconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
-  public throttle?(user: User): CommandThrottle;
+  public throttle?(user: User): CommandThrottle|void;
 }
 
 export abstract class SubCommand extends Command {
-  public parent: string;
-  public arg: string;
-  public friendly: string;
+  public parent!: string;
+  public arg!: string;
+  public friendly!: string;
 }
 
 export interface CommandThrottle {
@@ -102,8 +103,6 @@ export interface CommandThrottling {
 export type CommandNextFunction = () => void;
 
 export abstract class Event {
-  public type: string;
-  public emitter: SuggestionsClient|string;
   protected constructor(public client?: SuggestionsClient, public name?: string, public options: EventOptions = {}) {}
   public abstract run(...args: Array<any>): Promise<any>;
 }
@@ -337,7 +336,7 @@ export enum LanguageStatus {
 export interface LanguageInfo {
   translator: string;
   contributors: Array<string>;
-  completion: 'incomplete' | 'completed' | 'missing';
+  completion: LanguageStatus;
   aliases?: Array<string>;
   code: string;
   flag: string;
@@ -362,4 +361,11 @@ export enum CommandCategory {
   STAFF = 'Staff',
   ADMIN = 'Admin',
   OWNER = 'Owner'
+}
+
+export interface StatusEvent {
+  status:  'online'|'idle'|'dnd'|'offline'|undefined;
+  name: string;
+  type: BotActivityType;
+  url: string|undefined;
 }

@@ -28,7 +28,7 @@ export default class RedisHelpers {
 
   private static _formGuildBlacklistKey(user: SuggestionUser, guild: SuggestionGuild): string {
     if (guild) return `blacklist:${Util.getGuildID(guild)}:${Util.getUserID(user)}`;
-    else `blacklist:${Util.getUserID(user)}`;
+    else return `blacklist:${Util.getUserID(user)}`;
   }
 
   public async getGlobalSuggestionCount(): Promise<number> {
@@ -88,13 +88,13 @@ export default class RedisHelpers {
       .then((data: any) => JSON.parse(data));
   }
 
-  public getCachedBlacklist(user: SuggestionUser, guild: SuggestionGuild = null): Promise<BlacklistSchema> {
-    return this.redis.get(RedisHelpers._formGuildBlacklistKey(user, guild))
+  public getCachedBlacklist(user: SuggestionUser, guild?: SuggestionGuild): Promise<BlacklistSchema> {
+    return this.redis.get(RedisHelpers._formGuildBlacklistKey(user, guild!))
       .then((data: any) => JSON.parse(data));
   }
 
-  public setCachedBlacklist(user: SuggestionUser, data: BlacklistSchema, guild: SuggestionGuild = null): Promise<boolean> {
-    return this._redis.set(RedisHelpers._formGuildBlacklistKey(user, guild), JSON.stringify(data));
+  public setCachedBlacklist(user: SuggestionUser, data: BlacklistSchema, guild?: SuggestionGuild): Promise<boolean> {
+    return this._redis.set(RedisHelpers._formGuildBlacklistKey(user, guild!), JSON.stringify(data));
   }
 
   public clearCachedBlacklist(user: SuggestionUser, guild: SuggestionGuild): Promise<boolean> {
@@ -111,7 +111,7 @@ export default class RedisHelpers {
 
   public clearCachedData(guild: SuggestionGuild): Promise<boolean> {
     return this._redis.keys(`*${Util.getGuildID(guild)}*`).then((data: any) => {
-      if (!data?.length) return;
+      if (!data?.length) return false;
       Logger.log(...data);
       return this._redis.del(...data);
     });
@@ -130,7 +130,7 @@ export default class RedisHelpers {
 
   public clearCachedSuggestion(id: string): Promise<boolean> {
     return this._redis.keys(`*${id}*`).then((data: any) => {
-      if (!data?.length) return;
+      if (!data?.length) return false;
       return this._redis.del(data[0]);
     });
   }

@@ -18,27 +18,30 @@ export default class GuildHelpers {
   }
 
   // TODO make sure default data isn't be saved to database. only persist if a config value was changed
-  public async getGuild(guild: SuggestionGuild, cached = true): Promise<GuildSchema> {
+  public async getGuild(guild: SuggestionGuild, cached = true, newGuild = false): Promise<GuildSchema> {
     const guildID = GuildHelpers._getGuildID(guild);
+    let data;
     const defaultData = <GuildSchema><unknown>{
       guild: guildID,
+      default: true,
       ...this.client.config.defaults
     };
-    let data: GuildSchema;
+
+    if (newGuild) data = await this.createGuild(guild, defaultData);
 
     const inCache = await this.client.redis.helpers.getCachedGuild(guild);
     if (inCache && cached) {
       data = inCache;
     } else {
       const fetched = await GuildModel.findOne({ guild: guildID });
-      if (!fetched) return defaultData;
+      if (!fetched) return this.getGuild(guild, false, true);
       await this.client.redis.helpers.setCachedGuild(guild, fetched);
       data = fetched;
     }
 
     if (!cached) data = await GuildModel.findOne({ guild: guildID });
 
-    return data;
+    return <GuildSchema>data;
   }
 
   public async createGuild(guild: SuggestionGuild, newData = {}): Promise<GuildSchema> {

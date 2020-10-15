@@ -13,7 +13,7 @@ export default class Language {
   constructor(public info: LanguageInfo) {
     this.translator = info.translator;
     this.contributors = info.contributors;
-    this.completion = LanguageStatus[info.completion];
+    this.completion = info.completion;
     this.aliases = info.aliases || [];
     this.strings = info.strings;
     this.code = info.code;

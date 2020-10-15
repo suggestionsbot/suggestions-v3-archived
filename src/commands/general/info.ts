@@ -28,10 +28,10 @@ export default class InfoCommand extends Command {
     const { colors: { main }, owners: ownerIDs } = this.client.config;
 
     try {
-      const owners: Array<string> = ownerIDs.map(o => this.client.users.get(o).mention);
+      const owners: Array<string> = ownerIDs.map(o => `<@${o}>`);
       const created = dayjs(this.client.user.createdAt).format('MM/DD/YYYY');
-      const cluster = this.client.base.clusterID;
-      const shard = ctx.shard.id;
+      const cluster = this.client.base!.clusterID;
+      const shard = ctx.shard!.id;
 
       const promises: [Promise<ShardStats>, Promise<number>, Promise<number>] = [
         this.client.redis.helpers?.getStats() ?? null,

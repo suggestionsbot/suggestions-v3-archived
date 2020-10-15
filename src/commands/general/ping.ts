@@ -22,7 +22,7 @@ export default class PingCommand extends Command {
       return msg.edit(oneLine`
         Pong! 
         Latency is \`${msg.timestamp - ctx.message.timestamp}ms\`.
-        API Latency is \`${Math.round(ctx.shard.latency)}ms\`.
+        API Latency is \`${Math.round(ctx.shard!.latency)}ms\`.
       `);
     } catch (error) {
       Logger.error(`CMD:${this.name.toUpperCase()}`, error.stack);

@@ -35,6 +35,6 @@ export default class LocalizationManager extends Collection<Language> {
   }
 
   public getLocale(code: string): Language {
-    return this.find(x => x.code === code || x.aliases.includes(code));
+    return this.find(x => x.code === code || x.aliases.includes(code))!;
   }
 }

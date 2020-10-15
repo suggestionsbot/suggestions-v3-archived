@@ -9,10 +9,11 @@ import SuggestionsClient from './Client';
 import { version } from '../../package.json';
 import Logger from '../utils/Logger';
 import config from '../config';
+import { StatusEvent } from '../types';
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
-  tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_SAMPLERATE),
+  tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_SAMPLERATE!),
   release: version,
   environment: process.env.NODE_ENV,
   maxBreadcrumbs: 30,
@@ -38,14 +39,14 @@ export default class Bot extends Base {
   constructor(public bot: boolean) {
     super(bot);
 
-    this.client = new SuggestionsClient(process.env.DISCORD_TOKEN);
+    this.client = new SuggestionsClient(process.env.DISCORD_TOKEN!);
     this.client.start();
   }
 
   public launch(): any {
     this.client.base = this;
 
-    this.ipc.register('changeStatus', status => {
+    this.ipc.register('changeStatus', (status: StatusEvent) => {
       this.client.editStatus(status.status, {
         name: status.name,
         type: status.type,

@@ -8,7 +8,7 @@ import CommandContext from '../../structures/Context';
 import Util from '../../utils/Util';
 import Context from '../../structures/Context';
 
-const Permissions = Constants.Permissions;
+const Permissions: { [key: string]: number } = Constants.Permissions;
 
 export default class PermsCommand extends Command {
   constructor(public client: SuggestionsClient) {
@@ -27,8 +27,8 @@ export default class PermsCommand extends Command {
     if (ctx.args[0]) {
       Logger.log(1);
       if (
-        ctx.guild.channels.has(ctx.args[0]) ||
-          ctx.guild.channels.find(c => c.name.toLowerCase() !== ctx.args[0].toLowerCase())
+        ctx.guild!.channels.has(ctx.args[0]) ||
+          ctx.guild!.channels.find(c => c.name.toLowerCase() !== ctx.args[0].toLowerCase())
       ) {
         next();
       } else if (!ctx.args[0] && (ctx.message.channelMentions.length > 0)) {
@@ -45,38 +45,38 @@ export default class PermsCommand extends Command {
     try {
       let channel: GuildTextableChannel = <GuildTextableChannel>ctx.channel;
       if (ctx.args[0] || (ctx.message.channelMentions.length > 0)) {
-        channel = <GuildTextableChannel>ctx.guild.channels.get(ctx.args[0]) ||
-            <GuildTextableChannel>ctx.guild.channels.get(ctx.message.channelMentions[0]) ||
-            <GuildTextableChannel>ctx.guild.channels.find(c => c.name.toLowerCase() === ctx.args[0].toLowerCase());
+        channel = <GuildTextableChannel>ctx.guild!.channels.get(ctx.args[0]) ||
+            <GuildTextableChannel>ctx.guild!.channels.get(ctx.message.channelMentions[0]) ||
+            <GuildTextableChannel>ctx.guild!.channels.find(c => c.name.toLowerCase() === ctx.args[0].toLowerCase());
       }
 
-      let permissionOverwrites: PermissionOverwrite|Array<PermissionOverwrite>;
-      const guildManagedRoles = ctx.guild.roles.filter(r => r.managed);
-      const botManagedRoles = guildManagedRoles.filter(r => ctx.me.roles.includes(r.id));
+      let permissionOverwrites: PermissionOverwrite|Array<PermissionOverwrite>|undefined;
+      const guildManagedRoles = ctx.guild!.roles.filter(r => r.managed);
+      const botManagedRoles = guildManagedRoles.filter(r => ctx.me!.roles.includes(r.id));
       const botChannelPermissions = channel.permissionsOf(ctx.client.user.id);
 
-      if (botManagedRoles && !ctx.me.roles)
+      if (botManagedRoles && !ctx.me!.roles)
         permissionOverwrites = channel.permissionOverwrites.get(botManagedRoles[0].id);
-      if (botManagedRoles && ctx.me.roles)
-        permissionOverwrites = channel.permissionOverwrites.filter(po => ctx.me.roles.includes(po.id));
-      if (!botManagedRoles && ctx.me.roles)
-        permissionOverwrites = channel.permissionOverwrites.filter(po => ctx.me.roles.includes(po.id));
-      if (!botManagedRoles && !ctx.me.roles)
+      if (botManagedRoles && ctx.me!.roles)
+        permissionOverwrites = channel.permissionOverwrites.filter(po => ctx.me!.roles.includes(po.id));
+      if (!botManagedRoles && ctx.me!.roles)
+        permissionOverwrites = channel.permissionOverwrites.filter(po => ctx.me!.roles.includes(po.id));
+      if (!botManagedRoles && !ctx.me!.roles)
         permissionOverwrites = channel.permissionOverwrites.get(ctx.client.user.id);
 
-      const finalChannelPermissions = permissionOverwrites instanceof Array ?
+      const finalChannelPermissions: { [x: string]: boolean } = permissionOverwrites instanceof Array ?
         Object.assign(botChannelPermissions.json, ...permissionOverwrites.map(po => po.json)) :
-        Object.assign(botChannelPermissions.json, permissionOverwrites.json);
+        Object.assign(botChannelPermissions.json, permissionOverwrites!.json);
 
       const getObjectKeys = (obj: any): Array<string> => Object.keys(obj);
       const getObjectValues = (obj: any): Array<unknown> => Object.values(obj);
 
-      const botPermKeys = Object.keys(ctx.me.permission.json);
-      const botPermValues = Object.values(ctx.me.permission.json);
+      const botPermKeys = Object.keys(ctx.me!.permission.json);
+      const botPermValues = Object.values(ctx.me!.permission.json);
 
       const channelPerms = Object.keys(finalChannelPermissions)
-        .sort((a, b) => Permissions[a] - Permissions[b])
-        .reduce((acc, key) => {
+        .sort((a: string , b: string) => Permissions[a] - Permissions[b])
+        .reduce((acc: { [x: string]: boolean }, key) => {
           acc[key] = finalChannelPermissions[key];
           return acc;
         }, {});
@@ -94,20 +94,20 @@ export default class PermsCommand extends Command {
       embed.addField('Server Information', [
         `Channel Name:\n \`${channel.name}\``,
         `Channel ID:\n \`${channel.id}\``,
-        `Server Name:\n \`${ctx.guild.name}\``,
-        `Server ID:\n \`${ctx.guild.id}\``
+        `Server Name:\n \`${ctx.guild!.name}\``,
+        `Server ID:\n \`${ctx.guild!.id}\``
       ].join('\n'), true);
       embed.addField('User Information', [
         `Username:\n \`${Util.formatUserTag(ctx.sender)}\``,
         `User ID:\n \`${ctx.sender.id}\``,
-        `Staff Member:\n \`${this.client.isStaff(ctx.member, ctx.settings) ? 'Yes' : 'No'}\``,
-        `Server Admin:\n \`${this.client.isAdmin(ctx.member) ? 'Yes' : 'No'}\``
+        `Staff Member:\n \`${this.client.isStaff(ctx.member!, ctx.settings!) ? 'Yes' : 'No'}\``,
+        `Server Admin:\n \`${this.client.isAdmin(ctx.member!) ? 'Yes' : 'No'}\``
       ].join('\n'), true);
       embed.addField('Bot Information', [
         `Prefixes:\n ${ctx.client.getPrefixes(false, true, ctx.settings).join(', ')}`,
-        `Shard:\n \`${ctx.shard.id}\``,
-        `Cluster:\n \`${ctx.client.base.clusterID}\``,
-        `API Latency: \n \`${Math.round(ctx.shard.latency)}\``
+        `Shard:\n \`${ctx.shard!.id}\``,
+        `Cluster:\n \`${ctx.client.base!.clusterID}\``,
+        `API Latency: \n \`${Math.round(ctx.shard!.latency)}\``
       ].join('\n'), true);
       embed.addField('\u200b', '\u200b', true);
       embed.setFooter('If this information was requested by a support team member, please send them this message link.');

@@ -16,8 +16,8 @@ export default class CommandHandler {
   }
 
   public async handle(message: Message, settings: GuildSchema): Promise<any> {
-    let args = message.content.slice(message.prefix.length).trim().split(/ +/g);
-    const command = args.shift().toLowerCase();
+    let args = message.content.slice(message.prefix!.length).trim().split(/ +/g);
+    const command = args.shift()!.toLowerCase();
 
     const cmd = this.client.commands.getCommand(command, ...args);
     if (cmd && ('friendly' in cmd)) args = args.slice(1);
@@ -35,8 +35,8 @@ export default class CommandHandler {
       );
     }
 
-    const staffCheck = message.guildID ? this.client.isStaff(message.member, settings): null;
-    const adminCheck = message.guildID ? this.client.isAdmin(message.member) : null;
+    const staffCheck = message.guildID ? this.client.isStaff(message.member!, settings): null;
+    const adminCheck = message.guildID ? this.client.isAdmin(message.member!) : null;
     const ownerCheck = this.client.isOwner(message.author);
 
     if ((message.guildID !== undefined) && (cmd.staffOnly && !staffCheck))
@@ -79,12 +79,23 @@ export default class CommandHandler {
     }
 
     // rate limiting
-    const throttle = cmd.throttle(message.author);
-    if (throttle && throttle.usages + 1 > cmd.throttling.usages) {
-      const remaining = (throttle.start + (cmd.throttling.duration * 1000) - Date.now()) / 1000;
+    const throttle = cmd.throttle!(message.author);
+    if (throttle && throttle.usages + 1 > cmd.throttling!.usages) {
+      const remaining = (throttle.start + (cmd.throttling!.duration * 1000) - Date.now()) / 1000;
       return message.channel.createMessage(
         `You may not use the \`${cmd.name}\` command again for another \`${remaining.toFixed(1)}\` seconds.`
       );
+    }
+
+    if (cmd.checks) {
+      for (const name of cmd.checks) {
+        const check = this.client.checks.get(name) ?? null;
+        try {
+          await check!.run(ctx);
+        } catch (e) {
+          return MessageUtils.error(this.client, message, e);
+        }
+      }
     }
 
     // run preconditions

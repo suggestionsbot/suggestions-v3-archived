@@ -8,13 +8,11 @@ import Util from '../utils/Util';
 export default class extends Event {
   constructor(public client: SuggestionsClient, public name: string) {
     super(client, name);
-
-    this.options.once = true;
   }
 
   public async run(): Promise<any> {
     const readyMessages: Array<string> = [
-      `🔖 Version ${version} of the bot loaded in ${process.env.NODE_ENV.toUpperCase().trim()}.`,
+      `🔖 Version ${version} of the bot loaded in ${process.env.NODE_ENV!.toUpperCase().trim()}.`,
       `⚙ Loaded (${this.client.commands.size}) commands!`,
       `⚙ Loaded (${this.client.subCommands.size}) subcommands!`,
       `👂 Loaded (${this.client.events.size}) events!`,

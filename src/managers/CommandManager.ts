@@ -15,7 +15,7 @@ abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> 
   }
 
   private static get _directory(): string {
-    return `${path.join(path.dirname(require.main.filename), 'commands', '**', '*.{ts,js}')}`;
+    return `${path.join(path.dirname(require.main!.filename), 'commands', '**', '*.{ts,js}')}`;
   }
 
   public addCommand(name: string, command: T): void {
@@ -25,14 +25,14 @@ abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> 
   public getCommand(command: string, ...args: Array<string>): Command|SubCommand {
     let cmd: Command|SubCommand;
     const mainCmd: Command = this.client.commands.get(command) ||
-        this.client.commands.filter(c => c.aliases.includes(command))[0];
+        this.client.commands.filter(c => c.aliases!.includes(command))[0];
     const subCmd: SubCommand = this.client.subCommands.filter(c => c.arg === args[0])[0] ||
-        this.client.subCommands.filter(c => c.aliases.includes(command))[0];
+        this.client.subCommands.filter(c => c.aliases!.includes(command))[0];
 
     if (mainCmd) cmd = mainCmd;
     if (subCmd) cmd = subCmd;
 
-    return cmd;
+    return cmd!;
   }
 
   public async init(): Promise<void> {

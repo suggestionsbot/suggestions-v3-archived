@@ -1,4 +1,4 @@
-export default {
+export default <{ [key: string]: string }>{
   'administrator': 'Administrator',
   'createInstantInvite': 'Create Instant Invite',
   'kickMembers': 'Kick Members',

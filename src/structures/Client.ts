@@ -37,19 +37,20 @@ import LocalizationManager from '../managers/LocalizationManager';
 import { CommandManager, SubCommandManager } from '../managers/CommandManager';
 import ListenerManager from '../managers/ListenerManager';
 import BotListManager from '../managers/BotListManager';
+import ChecksManager from '../managers/ChecksManager';
 
 /**
  * TODO Rewrite all emoji search methods to support sharding/clustering
  */
 export default class SuggestionsClient extends Client {
   public readonly production: boolean;
-  public base: Base;
-  public sentry: any;
+  public base: Base|undefined;
   public commands: CommandManager;
   public subCommands: SubCommandManager;
   public events: ListenerManager;
   public locales: LocalizationManager;
   public botlists: BotListManager;
+  public checks: ChecksManager;
   public config: BotConfig;
   public commandHandler: CommandHandler;
   public wait: any;
@@ -65,10 +66,11 @@ export default class SuggestionsClient extends Client {
     this.events = new ListenerManager(this);
     this.locales = new LocalizationManager(this);
     this.botlists = new BotListManager(this);
+    this.checks = new ChecksManager(this);
 
     this.database = new MongoDB(this);
     this.redis = new Redis(this);
-    this.production = (/true/i).test(process.env.NODE_ENV);
+    this.production = (/true/i).test(process.env.NODE_ENV!);
     this.config = config;
     this.commandHandler = new CommandHandler(this);
     this.wait = promisify(setTimeout);
@@ -80,6 +82,7 @@ export default class SuggestionsClient extends Client {
     this.events.init();
     this._addEventListeners();
     this.locales.init();
+    this.checks.init();
     super.connect();
   }
 
@@ -108,32 +111,30 @@ export default class SuggestionsClient extends Client {
     const help = this.commands.getCommand('help') || { name: 'help' };
 
     if (this.production) {
-      this.base.ipc.broadcast('changeStatus', {
+      this.base!.ipc.broadcast('changeStatus', {
         status: 'online',
         name: `your suggestions | ${prefix + help.name}`,
-        type: 2,
-        url: null
+        type: 2
       });
     } else {
-      this.base.ipc.broadcast('changeStatus', {
+      this.base!.ipc.broadcast('changeStatus', {
         status: 'dnd',
         name: 'in code land...',
-        type: 0,
-        url: null
+        type: 0
       });
     }
   }
 
   public findEmojiByName(name: string, guild: Guild): Emoji {
-    return guild.emojis.find((r: Emoji) => r.name === name);
+    return guild.emojis.find((r: Emoji) => r.name === name)!;
   }
 
   public findEmojiByID(id: string, guild: Guild): Emoji {
-    return guild.emojis[id];
+    return guild.emojis.find((r: Emoji) => r.id === id)!;
   }
 
   public findEmojiByString(str: string, guild: Guild): Emoji {
-    return guild.emojis.find((r: Emoji) => r.toString() === str);
+    return guild.emojis.find((r: Emoji) => r.toString() === str)!;
   }
 
   public isStaff(member: Member, settings: GuildSchema): boolean {
@@ -171,17 +172,17 @@ export default class SuggestionsClient extends Client {
   public async awaitReply(
     message: Message,
     channel: TextableChannel,
-    question: string,
-    embed: Embed,
+    question: string|undefined,
+    embed: Embed|undefined,
     limit?: number
-  ): Promise<AwaitReply> {
+  ): Promise<AwaitReply|void> {
     const filter = (msg: Message): boolean => msg.author.id === message.author.id;
     channel = channel || message.channel;
 
     try {
       const originMsg: Message = await channel.createMessage({
-        content: question || null,
-        embed: embed || null
+        content: question,
+        embed: embed
       });
       const { collected } = await this.awaitChannelMessages(channel, filter, {
         max: 1,
@@ -191,7 +192,7 @@ export default class SuggestionsClient extends Client {
 
       return {
         originMsg,
-        reply: collected.get(collected.keys().next().value)
+        reply: collected.get(collected.keys().next().value)!
       };
     } catch (e) {
       return;
@@ -201,18 +202,18 @@ export default class SuggestionsClient extends Client {
   public async awaitReactions(
     user: User,
     channel: TextableChannel,
-    question: string,
+    question: string|undefined,
     reactions: Array<any>,
-    embed: Embed,
+    embed: Embed|undefined,
     limit?: number
   ): Promise<any> {
     const filter = (userID: string): boolean => userID === user.id;
 
-    let msg: Message;
+    let msg!: Message;
     try {
       msg = await channel.createMessage({
-        content: question || null,
-        embed: embed || null
+        content: question,
+        embed: embed
       });
       for (const r of reactions) await msg.addReaction(r);
 
@@ -242,7 +243,7 @@ export default class SuggestionsClient extends Client {
       if (message.author.bot) return;
       if ((message.channel instanceof GuildChannel) && !message.channel.permissionsOf(this.user.id).has('sendMessages')) return;
 
-      let settings: GuildSchema;
+      let settings!: GuildSchema;
       if (message.guildID) {
         try {
           if (this.database.connection !== null) settings = await this.database.guildHelpers.getGuild(message.guildID);
@@ -256,7 +257,7 @@ export default class SuggestionsClient extends Client {
 
       const prefixes = this.getPrefixes(true, false, settings);
       const prefixRegex = new RegExp(`(${prefixes.join('|')})`);
-      const prefix = message.content.match(prefixRegex) ? message.content.match(prefixRegex)[0] : null;
+      const prefix = message.content.match(prefixRegex) ? message.content.match(prefixRegex)![0] : null;
 
       const getPrefix = new RegExp(`^<@!?${this.user.id}>( |)$`);
       if (message.content.match(getPrefix)) {
@@ -264,7 +265,7 @@ export default class SuggestionsClient extends Client {
         const embed = MessageUtils.defaultEmbed()
           .setDescription(stripIndents`My prefixes ${message.guildID ? 'in this guild' : ''} are:
 
-          ${this.getPrefixes(false, false, settings).map(p => `**${i++})** ${p}`).join('\n')}
+          ${this.getPrefixes(false, true, settings).map(p => `**${i++})** ${p}`).join('\n')}
         `);
         await (message.channel as GuildTextableChannel).createMessage({ embed });
         return;

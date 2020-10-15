@@ -12,6 +12,7 @@ import { DMOptions, GuildSchema, Promisified } from '../types';
 import Language from './Language';
 
 export default class Context {
+  // TODO look into make the client param a getter
   constructor(
     public client: SuggestionsClient,
     public message: Message,
@@ -41,10 +42,10 @@ export default class Context {
   }
 
   public get prefix(): string {
-    return this.message.prefix;
+    return this.message.prefix!;
   }
 
-  public get guild(): Guild {
+  public get guild(): Guild|undefined {
     return (this.message.channel instanceof TextChannel) ?
       this.message.channel.guild : undefined;
   }
@@ -57,15 +58,15 @@ export default class Context {
     return this.message.author;
   }
 
-  public get member(): Member {
+  public get member(): Member|undefined {
     return this.guild ? this.guild.members.get(this.sender.id) : undefined;
   }
 
-  public get me(): Member {
+  public get me(): Member|undefined {
     return this.guild ? this.guild.members.get(this.client.user.id) : undefined;
   }
 
-  public getSettings(): Promise<GuildSchema> {
+  public getSettings(): Promise<GuildSchema>|null {
     return this.guild ? this.client.database.guildHelpers.getGuild(this.guild.id) : null;
   }
 
@@ -77,7 +78,7 @@ export default class Context {
     return this.send(this.translate(key, args));
   }
 
-  public get redis(): Promisified {
+  public get redis(): Promisified|null {
     return this.client.redis.redis;
   }
 
@@ -89,7 +90,7 @@ export default class Context {
     });
   }
 
-  public get shard(): Shard {
+  public get shard(): Shard|undefined {
     return this.guild ? this.guild.shard : this.client.shards.get(0);
   }
 }

@@ -31,7 +31,7 @@ export default class CommandHandler {
       return MessageUtils.error(
         this.client,
         message,
-        `The \`${cmd instanceof SubCommand ? cmd.friendly : cmd.name}\` command can only be used in a server!`
+        `The \`${'friendly' in cmd ? cmd.friendly : cmd.name}\` command can only be used in a server!`
       );
     }
 

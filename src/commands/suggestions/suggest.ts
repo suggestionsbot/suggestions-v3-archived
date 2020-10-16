@@ -14,7 +14,7 @@ export default class SuggestCommand extends Command {
     super(client);
 
     this.name = 'suggest';
-    this.category = 'Suggestions';
+    this.category = 'suggestions';
     this.description = 'Submit a new suggestion in a suggestion channel.';
     this.usages = [
       'suggest <suggestion>',

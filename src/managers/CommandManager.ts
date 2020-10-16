@@ -42,7 +42,7 @@ abstract class BaseCommandManager<T = SubCommand> extends Collection<T> {
       for (const file of files) {
         const { default: CommandFile } = await import(file);
         const command: SuggestionsCommand = new CommandFile(this.client);
-        if (command instanceof SubCommand) this.client.subCommands.addCommand(command.name, command);
+        if ('friendly' in command) this.client.subCommands.addCommand(command.name, command);
         else this.client.commands.addCommand(command.name, command);
         delete require.cache[file];
       }

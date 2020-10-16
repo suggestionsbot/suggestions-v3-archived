@@ -28,7 +28,7 @@ export default class ChecksManager extends Collection<Check> {
 
   public async init(): Promise<void> {
     return glob(ChecksManager._directory).then(async (files: any) => {
-      if (!files.length) return Logger.error('CHECKS', 'Couldn\'t find any command checks files!');
+      if (!files.length) return Logger.warning('CHECKS', 'Couldn\'t find any command checks files!');
 
       for (const file of files) {
         const { default: CheckFile } = await import(file);

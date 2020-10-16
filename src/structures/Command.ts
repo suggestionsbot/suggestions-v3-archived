@@ -3,6 +3,8 @@ import { User } from 'eris';
 import SuggestionsClient from './Client';
 import { CommandThrottle, CommandThrottling, Command as CommandClass } from '../types';
 import Context from './Context';
+import { Collection } from '@augu/immutable';
+import Ratelimit from './Ratelimit';
 
 export default abstract class Command implements CommandClass {
   public active: boolean;
@@ -42,20 +44,7 @@ export default abstract class Command implements CommandClass {
     throw new Error(`The command ${this.name} does not have the required "run" method!`);
   }
 
-  public throttle(user: User): CommandThrottle|void {
-    if (!this.throttling || this.client.isOwner(user)) return;
-
-    let throttle = this.throttles.get(user.id);
-    if (!throttle) {
-      throttle = {
-        start: Date.now(),
-        usages: 0,
-        timeout: setTimeout(() => {
-          this.throttles.delete(user.id);
-        }, this.throttling.duration * 1000)
-      };
-      this.throttles.set(user.id, throttle);
-    }
-    return throttle;
+  public get ratelimiter(): Collection<Ratelimit> {
+    return this.client.ratelimiters.getBucket(this.name)!;
   }
 }

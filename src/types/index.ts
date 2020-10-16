@@ -4,6 +4,8 @@ import { Document } from 'mongoose';
 
 import SuggestionsClient from '../structures/Client';
 import Context from '../structures/Context';
+import { Collection } from '@augu/immutable';
+import Ratelimit from '../structures/Ratelimit';
 
 export interface EmbedThumbnail {
   url: string;
@@ -76,11 +78,11 @@ export abstract class Command {
   public userPermissions?: Array<string|number>;
   public throttles?: Map<string, CommandThrottle>;
   public throttling?: CommandThrottling;
+  public ratelimiter?: Collection<Ratelimit>;
   protected constructor(public client: SuggestionsClient) {}
   public abstract async run(ctx: Context): Promise<any>;
   public async runPreconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
   public async runPostconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
-  public throttle?(user: User): CommandThrottle|void;
 }
 
 export abstract class SubCommand extends Command {
@@ -88,6 +90,8 @@ export abstract class SubCommand extends Command {
   public arg!: string;
   public friendly!: string;
 }
+
+export type SuggestionsCommand = Command|SubCommand;
 
 export interface CommandThrottle {
   start: number;

@@ -20,7 +20,7 @@ export default class CommandHandler {
     const command = args.shift()!.toLowerCase();
 
     const cmd = this.client.commands.getCommand(command, ...args);
-    if (cmd && ('friendly' in cmd)) args = args.slice(1);
+    if (cmd && cmd instanceof SubCommand) args = args.slice(1);
 
     if (!cmd) return;
 
@@ -31,7 +31,7 @@ export default class CommandHandler {
       return MessageUtils.error(
         this.client,
         message,
-        `The \`${'friendly' in cmd ? cmd.friendly : cmd.name}\` command can only be used in a server!`
+        `The \`${cmd instanceof SubCommand ? cmd.friendly : cmd.name}\` command can only be used in a server!`
       );
     }
 
@@ -79,14 +79,16 @@ export default class CommandHandler {
     }
 
     // rate limiting
-    const throttle = cmd.throttle!(message.author);
-    if (throttle && throttle.usages + 1 > cmd.throttling!.usages) {
-      const remaining = (throttle.start + (cmd.throttling!.duration * 1000) - Date.now()) / 1000;
-      return message.channel.createMessage(
-        `You may not use the \`${cmd.name}\` command again for another \`${remaining.toFixed(1)}\` seconds.`
-      );
+    if (cmd.ratelimiter) {
+      const ratelimiter = this.client.ratelimiters;
+      if (ratelimiter.isRatelimited(cmd.name, message.author.id)) {
+        return ratelimiter.handle(cmd, message.author.id, message.channel);
+      } else {
+        ratelimiter.setRatelimited(cmd, message.author.id);
+      }
     }
 
+    // grouped command checks
     if (cmd.checks) {
       for (const name of cmd.checks) {
         const check = this.client.checks.get(name) ?? null;
@@ -101,7 +103,6 @@ export default class CommandHandler {
     // run preconditions
     const preConditionNext = async (): Promise<any> => {
       try {
-        if (throttle) throttle.usages++;
         await cmd.run(ctx);
         if (cmd.runPostconditions) await cmd.runPostconditions(ctx, postConditionNext);
         // TODO make sure to eventually set this to only run in production in the future
@@ -128,7 +129,6 @@ export default class CommandHandler {
 
     try {
       if (cmd.runPreconditions) {
-        if (throttle) throttle.usages++;
         await cmd.runPreconditions(ctx, preConditionNext);
       } else {
         await preConditionNext();

@@ -38,6 +38,7 @@ import { CommandManager, SubCommandManager } from '../managers/CommandManager';
 import ListenerManager from '../managers/ListenerManager';
 import BotListManager from '../managers/BotListManager';
 import ChecksManager from '../managers/ChecksManager';
+import RatelimitManager from '../managers/RatelimitManager';
 
 /**
  * TODO Rewrite all emoji search methods to support sharding/clustering
@@ -51,6 +52,7 @@ export default class SuggestionsClient extends Client {
   public locales: LocalizationManager;
   public botlists: BotListManager;
   public checks: ChecksManager;
+  public ratelimiters: RatelimitManager;
   public config: BotConfig;
   public commandHandler: CommandHandler;
   public wait: any;
@@ -67,6 +69,7 @@ export default class SuggestionsClient extends Client {
     this.locales = new LocalizationManager(this);
     this.botlists = new BotListManager(this);
     this.checks = new ChecksManager(this);
+    this.ratelimiters = new RatelimitManager(this);
 
     this.database = new MongoDB(this);
     this.redis = new Redis(this);
@@ -157,8 +160,8 @@ export default class SuggestionsClient extends Client {
     return hasPerm;
   }
 
-  public isOwner(user: User|Member): boolean {
-    return this.config.owners.includes(user.id);
+  public isOwner(user: User|Member|string): boolean {
+    return this.config.owners.includes(typeof user === 'object' ? user.id : user);
   }
 
   public async awaitChannelMessages(channel: TextableChannel, filter: CollectorFilter<Message>, options: AwaitMessagesOptions): Promise<MessageCollector> {

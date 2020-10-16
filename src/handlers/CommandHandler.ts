@@ -20,7 +20,7 @@ export default class CommandHandler {
     const command = args.shift()!.toLowerCase();
 
     const cmd = this.client.commands.getCommand(command, ...args);
-    if (cmd && cmd instanceof SubCommand) args = args.slice(1);
+    if (cmd && 'friendly' in cmd) args = args.slice(1);
 
     if (!cmd) return;
 

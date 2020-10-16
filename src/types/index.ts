@@ -362,6 +362,7 @@ export interface DMOptions {
 
 export enum CommandCategory {
   GENERAL = 'General',
+  SUGGESTIONS = 'Suggestions',
   STAFF = 'Staff',
   ADMIN = 'Admin',
   OWNER = 'Owner'

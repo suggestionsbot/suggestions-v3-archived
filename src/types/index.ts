@@ -164,6 +164,7 @@ export interface GuildSchema extends Document {
   setGuild(guild: Guild|string): void;
   setLocale(locale: string): void;
   updatePrefixes(prefix: string): void;
+  updateChannel(channel: string, data: Record<string, unknown>): void;
   updateChannels(channel: SuggestionChannel): void;
   updateCommands(command: DisabledCommand): void;
   updateStaffRoles(role: string): void;
@@ -172,6 +173,7 @@ export interface GuildSchema extends Document {
 export interface SuggestionChannel extends Document {
   channel: string;
   type: SuggestionChannelType;
+  locked: boolean;
   added: number;
   addedBy: string;
 }

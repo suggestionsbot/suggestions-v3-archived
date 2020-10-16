@@ -17,6 +17,7 @@ export const GuildSettings = new Schema({
         type: String,
         enum: ['suggestions', 'logs', 'approved', 'rejected', 'staff']
       },
+      locked: { type: Boolean, default: false },
       added: { type: Number, default: Date.now() },
       addedBy: String
     }]
@@ -63,13 +64,21 @@ GuildSettings.method('updatePrefixes', function(this: GuildSchema, prefix: strin
   }
 });
 
-GuildSettings.method('updateChannels', function(this: GuildSchema, { channel }: SuggestionChannel) {
-  const channelInArray = this.channels.find((c: SuggestionChannel) => c.channel === channel)!;
+GuildSettings.method('updateChannels', function(this: GuildSchema, channel: SuggestionChannel) {
+  const channelInArray = this.channels.find((c: SuggestionChannel) => c.channel === channel.channel)!;
   if (channelInArray) {
     this.channels = this.channels.filter((c: SuggestionChannel) => c !== channelInArray);
   } else {
-    this.channels = [...this.channels, channelInArray];
+    this.channels = [...this.channels, channel];
   }
+});
+
+GuildSettings.method('updateChannel', function(this: GuildSchema, channel: string, data: Record<string, unknown>) {
+  this.channels = this.channels.map(chn => {
+    if (chn.channel !== channel) return chn;
+    return <SuggestionChannel>{ ...chn, ...data };
+  });
+
 });
 
 GuildSettings.method('updateCommands', function(this: GuildSchema, { command }: DisabledCommand) {

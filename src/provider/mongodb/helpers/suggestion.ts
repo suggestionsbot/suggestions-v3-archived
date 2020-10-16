@@ -1,6 +1,6 @@
 import SuggestionsClient from '../../../structures/Client';
 import { Guild, Message } from 'eris';
-import { SuggestionSchema } from '../../../types';
+import { SuggestionGuild, SuggestionSchema } from '../../../types';
 import SuggestionModel from '../models/suggestion';
 import Logger from '../../../utils/Logger';
 import Util from '../../../utils/Util';
@@ -24,14 +24,27 @@ export default class SuggestionHelpers {
     else return ctx.id.slice(33, 40);
   }
 
-  public async getSuggestion(message: Message, id: string, cached = true, guild = true): Promise<SuggestionSchema> {
+  public async getSuggestions(guild: SuggestionGuild, cached = true): Promise<Array<SuggestionSchema>|undefined> {
+    let data: Array<SuggestionSchema>;
+
+    const suggestions = await this.client.redis.helpers.getCachedSuggestions(guild);
+    if (cached && suggestions) {
+      data = suggestions;
+    } else {
+      const fetched = await SuggestionModel.find({ guild: Util.getGuildID(guild) });
+      if (!fetched) throw new Error('SuggestionsNotFound');
+      data = fetched;
+    }
+
+    return data;
+  }
+
+  public async getSuggestion(message: Message, id: string, cached = true, guild = true): Promise<SuggestionSchema|undefined> {
     let data: SuggestionSchema;
     const inCache = await this.client.redis.helpers.getCachedSuggestion(id);
     if (inCache && cached) {
       data = inCache;
-    }
-
-    if (!inCache && cached) {
+    } else {
       const fetched = await SuggestionModel.findOne({ $or: SuggestionHelpers._querySuggestion(id) });
       if (!fetched) throw new Error('SuggestionNotFound');
       await this.client.redis.helpers.setCachedSuggestion(fetched.id, fetched.message, fetched);
@@ -40,7 +53,7 @@ export default class SuggestionHelpers {
 
     if (guild && (data!.guild !== message.guildID)) throw new Error('GuildScope');
 
-    return data!;
+    return data;
   }
 
   public async createSuggestion(suggestion: Record<string, unknown>): Promise<SuggestionSchema> {

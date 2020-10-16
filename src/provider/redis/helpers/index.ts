@@ -18,8 +18,9 @@ export default class RedisHelpers {
     this._redis = redis;
   }
 
-  private static _formSuggestionKey(id: string, message: string): string {
-    return `suggestion:${id}:${message}`;
+  private static _formSuggestionKey(id: string, guild: string, message: string): string {
+    // return `suggestion:${id}:${message}`;
+    return `suggestion:${guild}:${message}:${id}`;
   }
 
   private static _formGuildKey(guild: SuggestionGuild): string {
@@ -125,13 +126,28 @@ export default class RedisHelpers {
   }
 
   public setCachedSuggestion(id: string, message: string, data: SuggestionSchema): Promise<boolean> {
-    return this._redis.set(RedisHelpers._formSuggestionKey(id, message), JSON.stringify(data));
+    return this._redis.set(RedisHelpers._formSuggestionKey(id, data.guild, message), JSON.stringify(data));
   }
 
   public clearCachedSuggestion(id: string): Promise<boolean> {
     return this._redis.keys(`*${id}*`).then((data: any) => {
       if (!data?.length) return false;
       return this._redis.del(data[0]);
+    });
+  }
+
+  public getCachedSuggestions(guild: SuggestionGuild): Promise<Array<SuggestionSchema>|undefined> {
+    return this._redis.keys(`suggestion:${Util.getGuildID(guild)}:*`).then((data: any) => {
+      if (!data?.length) return;
+      return this._redis.mget(data).then((data: any) => {
+        const suggestions: Array<SuggestionSchema> = [];
+        for (const s of data) {
+          const suggestion = JSON.parse(s) as SuggestionSchema;
+          suggestions.push(suggestion);
+        }
+
+        return suggestions;
+      });
     });
   }
 }

@@ -80,11 +80,12 @@ export default class CommandHandler {
 
     // rate limiting
     if (cmd.ratelimiter) {
-      const ratelimiter = this.client.ratelimiters;
-      if (ratelimiter.isRatelimited(cmd.name, message.author.id)) {
-        return ratelimiter.handle(cmd, message.author.id, message.channel);
+      const ratelimit = cmd.ratelimiter.get(message.author.id);
+      if (ratelimit && ratelimit.manager.isRatelimited(ratelimit)) {
+        const data = ratelimit.manager.handle(cmd, message.author.id, message.channel);
+        if (data) return;
       } else {
-        ratelimiter.setRatelimited(cmd, message.author.id);
+        this.client.ratelimiters.setRatelimited(cmd, message.author.id);
       }
     }
 

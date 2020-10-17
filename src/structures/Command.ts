@@ -1,10 +1,7 @@
-import { User } from 'eris';
-
 import SuggestionsClient from './Client';
 import { CommandThrottle, CommandThrottling, Command as CommandClass } from '../types';
 import Context from './Context';
-import { Collection } from '@augu/immutable';
-import Ratelimit from './Ratelimit';
+import { RatelimitBucket } from '../managers/RatelimitManager';
 
 export default abstract class Command implements CommandClass {
   public active: boolean;
@@ -22,15 +19,14 @@ export default abstract class Command implements CommandClass {
   public staffOnly: boolean|undefined;
   public subCommands: Array<string>;
   public superOnly: boolean|undefined;
-  public throttles: Map<string, CommandThrottle>;
-  public throttling: CommandThrottling;
+  public throttles: CommandThrottling;
   public usages: Array<string>|undefined;
   public userPermissions: Array<string|number>|undefined;
 
   protected constructor(public client: SuggestionsClient) {
-    this.throttles = new Map();
-    this.throttling = {
+    this.throttles = {
       usages: 2,
+      max: 4,
       duration: 5
     };
     this.active = true;
@@ -44,7 +40,7 @@ export default abstract class Command implements CommandClass {
     throw new Error(`The command ${this.name} does not have the required "run" method!`);
   }
 
-  public get ratelimiter(): Collection<Ratelimit> {
-    return this.client.ratelimiters.getBucket(this.name)!;
+  public get ratelimiter(): RatelimitBucket|undefined {
+    return this.client.ratelimiters.getBucket(this.name);
   }
 }

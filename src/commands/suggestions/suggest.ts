@@ -23,8 +23,9 @@ export default class SuggestCommand extends Command {
       'suggest can we add more colorful roles?',
       'suggest #video-ideas can you do a video on how to water cool?',
     ];
-    this.throttling = {
+    this.throttles = {
       usages: 3,
+      max: 5,
       duration: 60
     };
     this.botPermissions = ['manageMessages', 'embedLinks', 'addReactions', 'externalEmojis'];

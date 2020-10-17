@@ -76,8 +76,7 @@ export abstract class Command {
   public superOnly?: boolean;
   public botPermissions?: Array<string|number>;
   public userPermissions?: Array<string|number>;
-  public throttles?: Map<string, CommandThrottle>;
-  public throttling?: CommandThrottling;
+  public throttles!: CommandThrottling;
   public ratelimiter?: Collection<Ratelimit>;
   protected constructor(public client: SuggestionsClient) {}
   public abstract async run(ctx: Context): Promise<any>;
@@ -101,6 +100,7 @@ export interface CommandThrottle {
 
 export interface CommandThrottling {
   usages: number;
+  max: number;
   duration: number;
 }
 

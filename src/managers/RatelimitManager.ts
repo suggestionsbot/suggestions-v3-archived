@@ -10,7 +10,7 @@ import Ratelimit from '../structures/Ratelimit';
 import SuggestionsClient from '../structures/Client';
 import { SuggestionsCommand } from '../types';
 
-export default class RatelimitManager extends Collection<Collection<Ratelimit>> {
+export default class RatelimitManager extends Collection<RatelimitBucket> {
   private readonly _increasingRate: number;
 
   constructor(public client: SuggestionsClient) {
@@ -19,16 +19,13 @@ export default class RatelimitManager extends Collection<Collection<Ratelimit>> 
     this._increasingRate = 30;
   }
 
-  public getBucket(command: string): Collection<Ratelimit> {
+  public getBucket(command: string): RatelimitBucket|undefined {
     return this._initialize(command);
   }
 
-  public isRatelimited(command: string, user: string): boolean {
-    const ratelimit = this._getRatelimitedUser(command, user);
-    if (!ratelimit) return false;
-
+  public isRatelimited(ratelimit: Ratelimit): boolean {
     if (ratelimit.ignored) {
-      this._ignoreOnce(command, user);
+      this._ignoreOnce(ratelimit);
       return false;
     }
 
@@ -38,49 +35,58 @@ export default class RatelimitManager extends Collection<Collection<Ratelimit>> 
   public setRatelimited(command: SuggestionsCommand, user: string): void {
     if (this.client.isOwner(user)) return;
 
-    const finishAt = (command.throttling!.duration * 1000) + Date.now();
+    const finishAt = (command.throttles.duration * 1000) + Date.now();
     let ratelimit = this._getRatelimitedUser(command.name, user);
 
     if (!ratelimit) {
-      ratelimit = new Ratelimit(finishAt, command.throttling!.duration * 1000);
+      ratelimit = new Ratelimit(this.client, finishAt, command.throttles.duration * 1000);
       this._setRatelimitedUser(command.name, user, ratelimit);
     }
 
     if (ratelimit.ignored) {
-      this._ignoreOnce(command.name, user);
+      this._ignoreOnce(ratelimit);
       return;
     }
 
-    ratelimit.updateRatelimit(finishAt, command.throttling!.duration * 1000);
+    ratelimit.updateRatelimit(finishAt, command.throttles.duration * 1000);
   }
 
-  public handle(command: SuggestionsCommand, user: string, channel: TextableChannel): void {
+  public handle(command: SuggestionsCommand, user: string, channel: TextableChannel): boolean {
     const ratelimit = this._getRatelimitedUser(command.name, user)!;
     ratelimit.singleUsages++;
-    if (ratelimit.singleUsages >= command.throttling!.usages) ratelimit.increateRatelimit();
-    let time = ratelimit.finishAt - Date.now();
-    if (time < 1000) time = 1000;
-    channel.createMessage(`You can use the \`${command.name}\` command **${dayjs.duration(time).humanize(true)}**.`);
+    if (ratelimit.singleUsages >= command.throttles.usages) {
+      if (ratelimit.singleUsages >= command.throttles.max) ratelimit.increateRatelimit();
+      let time = ratelimit.finishAt - Date.now();
+      if (time < 1000) time = 1000;
+      channel.createMessage(`Slown down! You can use the \`${command.name}\` command again **${dayjs.duration(time).humanize(true)}**.`);
+      return true;
+    } else {
+      return false;
+    }
   }
 
-  private _initialize(command: string): Collection<Ratelimit> {
-    if (!this.has(command)) this.set(command, new Collection());
-    return this.get(command)!;
+  private _initialize(command: string): RatelimitBucket|undefined {
+    if (!this.has(command)) this.set(command, new RatelimitBucket());
+    return this.get(command);
   }
 
   private _getRatelimitedUser(command: string, user: string): Ratelimit|undefined {
-    return this.getBucket(command).get(user);
+    return this.getBucket(command)?.get(user);
   }
 
-  private _setRatelimitedUser(command: string, user: string, ratelimit: Ratelimit): Ratelimit {
-    return this.getBucket(command).set(user, ratelimit).get(user)!;
+  private _setRatelimitedUser(command: string, user: string, ratelimit: Ratelimit): Ratelimit|undefined {
+    return this.getBucket(command)?.set(user, ratelimit).get(user);
   }
 
 
-  private _ignoreOnce(command: string, user: string): void {
-    const ratelimit = this._getRatelimitedUser(command, user)!;
+  private _ignoreOnce(ratelimit: Ratelimit): void {
     const invalidate = !ratelimit.ignored;
     ratelimit.ignoreOnce(invalidate);
   }
+}
 
+export class RatelimitBucket extends Collection<Ratelimit> {
+  constructor() {
+    super();
+  }
 }

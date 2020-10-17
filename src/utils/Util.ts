@@ -1,6 +1,7 @@
 import Permissions from './Permissions';
-import { Guild, Member, User } from 'eris';
+import { Guild, Member, Role, TextChannel, User } from 'eris';
 import { SuggestionGuild, SuggestionUser } from '../types';
+import CommandContext from '../structures/Context';
 
 export default class Util {
   public static formatPermission(permission: string): string {
@@ -122,7 +123,32 @@ export default class Util {
     return text.replace(/~~/g, '\\~\\~');
   }
 
-  static escapeSpoiler(text: string): string {
+  public static escapeSpoiler(text: string): string {
     return text.replace(/\|\|/g, '\\|\\|');
+  }
+
+  public static getChannel(s: string, guild: Guild): TextChannel|undefined {
+    if (/^[0-9]+$/.test(s)) {
+      const channel = guild.channels.get(s);
+      if (!channel || [1, 2, 3, 4].includes(channel.type)) return;
+      return (channel as TextChannel);
+    } else if (/^<#[0-9]+>$/.test(s)) {
+      const id = s.substring(2, s.length - 1);
+      const channel = guild.channels.get(id);
+      if (!channel || [1, 2, 3, 4].includes(channel.type)) return;
+      return (channel as TextChannel);
+    }
+
+    return guild.channels.find(x => x.type === 0 && x.name.toLowerCase() === s) as TextChannel | undefined;
+  }
+
+  public static getRole(s: string, ctx: CommandContext): Role|undefined {
+    if (/^[0-9]+$/.test(s)) return ctx.guild!.roles.get(s);
+    else if (/^<@&[0-9]+>$/.test(s)) {
+      const id = s.substring(3, s.length - 1);
+      return ctx.guild!.roles.get(id);
+    }
+
+    return ctx.guild!.roles.find(x => x.name.toLowerCase() === s);
   }
 }

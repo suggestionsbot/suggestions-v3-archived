@@ -168,12 +168,16 @@ export interface GuildSchema extends Document {
   updateChannels(channel: SuggestionChannel): void;
   updateCommands(command: DisabledCommand): void;
   updateStaffRoles(role: string): void;
+  updateChannelRoles(channel: string, role: string, type: 'allowed'|'blocked'): void;
 }
 
 export interface SuggestionChannel extends Document {
   channel: string;
   type: SuggestionChannelType;
+  allowed: Array<string>;
+  blocked: Array<string>;
   locked: boolean;
+  reviewMode: boolean;
   added: number;
   addedBy: string;
 }

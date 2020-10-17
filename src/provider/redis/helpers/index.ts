@@ -18,9 +18,9 @@ export default class RedisHelpers {
     this._redis = redis;
   }
 
-  private static _formSuggestionKey(id: string, guild: string, message: string): string {
+  private static _formSuggestionKey(id: string, guild: string, channel: string, message: string): string {
     // return `suggestion:${id}:${message}`;
-    return `suggestion:${guild}:${message}:${id}`;
+    return `suggestion:${guild}:${channel}:${message}:${id}`;
   }
 
   private static _formGuildKey(guild: SuggestionGuild): string {
@@ -125,8 +125,8 @@ export default class RedisHelpers {
     });
   }
 
-  public setCachedSuggestion(id: string, message: string, data: SuggestionSchema): Promise<boolean> {
-    return this._redis.set(RedisHelpers._formSuggestionKey(id, data.guild, message), JSON.stringify(data));
+  public setCachedSuggestion(data: SuggestionSchema): Promise<boolean> {
+    return this._redis.set(RedisHelpers._formSuggestionKey(data.id, data.guild, data.channel, data.message), JSON.stringify(data));
   }
 
   public clearCachedSuggestion(id: string): Promise<boolean> {
@@ -136,8 +136,9 @@ export default class RedisHelpers {
     });
   }
 
-  public getCachedSuggestions(guild: SuggestionGuild): Promise<Array<SuggestionSchema>|undefined> {
-    return this._redis.keys(`suggestion:${Util.getGuildID(guild)}:*`).then((data: any) => {
+  public getCachedSuggestions(guild: SuggestionGuild, channel?: string): Promise<Array<SuggestionSchema>|undefined> {
+    const key = `suggestion:${Util.getGuildID(guild)}:${channel ? channel : ''}:*`;
+    return this._redis.keys(key).then((data: any) => {
       if (!data?.length) return;
       return this._redis.mget(data).then((data: any) => {
         const suggestions: Array<SuggestionSchema> = [];

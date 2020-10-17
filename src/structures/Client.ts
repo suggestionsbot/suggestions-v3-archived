@@ -39,6 +39,7 @@ import ListenerManager from '../managers/ListenerManager';
 import BotListManager from '../managers/BotListManager';
 import ChecksManager from '../managers/ChecksManager';
 import RatelimitManager from '../managers/RatelimitManager';
+import ChannelManager from '../managers/ChannelManager';
 
 /**
  * TODO Rewrite all emoji search methods to support sharding/clustering
@@ -53,6 +54,7 @@ export default class SuggestionsClient extends Client {
   public botlists: BotListManager;
   public checks: ChecksManager;
   public ratelimiters: RatelimitManager;
+  public suggestionChannels: ChannelManager;
   public config: BotConfig;
   public commandHandler: CommandHandler;
   public wait: any;
@@ -70,6 +72,7 @@ export default class SuggestionsClient extends Client {
     this.botlists = new BotListManager(this);
     this.checks = new ChecksManager(this);
     this.ratelimiters = new RatelimitManager(this);
+    this.suggestionChannels = new ChannelManager(this);
 
     this.database = new MongoDB(this);
     this.redis = new Redis(this);
@@ -94,7 +97,7 @@ export default class SuggestionsClient extends Client {
       [...settings.prefixes, 'mention'] :
       [...this.config.prefixes, 'mention'];
 
-    const modified: Array<string> = prefixes.map((p, i) => {
+    const modified: Array<string> = prefixes.map(p => {
       if (regex) {
         if (p === 'mention') return `^<@!?${this.user.id}> `;
         else return `\\${p}`;

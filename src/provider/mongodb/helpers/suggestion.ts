@@ -39,7 +39,7 @@ export default class SuggestionHelpers {
     return data;
   }
 
-  public async getSuggestion(message: Message, id: string, cached = true, guild = true): Promise<SuggestionSchema|undefined> {
+  public async getSuggestion(guildID: string, id: string, cached = true, guild = true): Promise<SuggestionSchema|undefined> {
     let data: SuggestionSchema;
     const inCache = await this.client.redis.helpers.getCachedSuggestion(id);
     if (inCache && cached) {
@@ -47,11 +47,11 @@ export default class SuggestionHelpers {
     } else {
       const fetched = await SuggestionModel.findOne({ $or: SuggestionHelpers._querySuggestion(id) });
       if (!fetched) throw new Error('SuggestionNotFound');
-      await this.client.redis.helpers.setCachedSuggestion(fetched.id, fetched.message, fetched);
+      await this.client.redis.helpers.setCachedSuggestion(fetched);
       data = fetched;
     }
 
-    if (guild && (data!.guild !== message.guildID)) throw new Error('GuildScope');
+    if (guild && (data!.guild !== guildID)) throw new Error('GuildScope');
 
     return data;
   }
@@ -59,9 +59,11 @@ export default class SuggestionHelpers {
   public async createSuggestion(suggestion: Record<string, unknown>): Promise<SuggestionSchema> {
     const schema = new SuggestionModel(suggestion);
     const data = await schema.save();
-    await this.client.redis.helpers.setCachedSuggestion(data.id, data.message, data);
+    await this.client.redis.helpers.setCachedSuggestion(data);
     this.client.redis.redis!.incrby(`guild:${data.guild}:member:${data.user}:suggestions:count`, 1);
+    this.client.redis.redis!.incrby(`user:${data.user}:suggestions:count`, 1);
     this.client.redis.redis!.incrby(`guild:${data.guild}:suggestions:count`, 1);
+    this.client.redis.redis!.incrby('global:suggestions', 1);
 
     Logger.log(`Suggestion ${data.getSuggestionID(false)} created in the database.`);
     return data;
@@ -76,5 +78,12 @@ export default class SuggestionHelpers {
   public async deleteSuggestions(guild: Guild|string): Promise<boolean> {
     const deleted = await SuggestionModel.deleteMany({ guild: Util.getGuildID(guild) });
     return !!deleted.ok;
+  }
+
+  public async cacheAllGuildSuggestions(guild: SuggestionGuild): Promise<void> {
+    return SuggestionModel.find({ guild: Util.getGuildID(guild) }).then(async documents => {
+      if (!documents) return;
+      for (const document of documents) await this.client.redis.helpers.setCachedSuggestion(document);
+    });
   }
 }

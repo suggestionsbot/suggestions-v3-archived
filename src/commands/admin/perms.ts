@@ -1,12 +1,13 @@
-import { GuildTextableChannel, PermissionOverwrite, Constants } from 'eris';
+import { Constants, GuildTextableChannel, PermissionOverwrite } from 'eris';
 import Command from '../../structures/command';
 import SuggestionsClient from '../../structures/client';
 import { CommandNextFunction } from '../../types';
 import Logger from '../../utils/Logger';
 import MessageUtils from '../../utils/MessageUtils';
 import CommandContext from '../../structures/Context';
-import Util from '../../utils/Util';
 import Context from '../../structures/Context';
+import Util from '../../utils/Util';
+import { stripIndents } from 'common-tags';
 
 const Permissions: { [key: string]: number } = Constants.Permissions;
 
@@ -24,18 +25,9 @@ export default class PermsCommand extends Command {
   }
 
   async runPreconditions(ctx: Context, next: CommandNextFunction): Promise<any> {
-    if (ctx.args[0]) {
-      Logger.log(1);
-      if (
-        ctx.guild!.channels.has(ctx.args[0]) ||
-          ctx.guild!.channels.find(c => c.name.toLowerCase() !== ctx.args[0].toLowerCase())
-      ) {
-        next();
-      } else if (!ctx.args[0] && (ctx.message.channelMentions.length > 0)) {
-        next();
-      } else {
-        return MessageUtils.error(ctx.client, ctx.message, `\`${ctx.args.join(' ')}\` does not resolve to a valid channel!`);
-      }
+    const channel = Util.getChannel(ctx.args[0] || ctx.channel.id, ctx.guild!);
+    if (!channel) {
+      return MessageUtils.error(ctx.client, ctx.message, `\`${ctx.args[0]}\` does not resolve to a valid channel!`);
     } else {
       next();
     }
@@ -43,12 +35,7 @@ export default class PermsCommand extends Command {
 
   public async run(ctx: CommandContext): Promise<any> {
     try {
-      let channel: GuildTextableChannel = <GuildTextableChannel>ctx.channel;
-      if (ctx.args[0] || (ctx.message.channelMentions.length > 0)) {
-        channel = <GuildTextableChannel>ctx.guild!.channels.get(ctx.args[0]) ||
-            <GuildTextableChannel>ctx.guild!.channels.get(ctx.message.channelMentions[0]) ||
-            <GuildTextableChannel>ctx.guild!.channels.find(c => c.name.toLowerCase() === ctx.args[0].toLowerCase());
-      }
+      const channel = <GuildTextableChannel>Util.getChannel(ctx.args[0] || ctx.channel.id, ctx.guild!);
 
       let permissionOverwrites: PermissionOverwrite|Array<PermissionOverwrite>|undefined;
       const guildManagedRoles = ctx.guild!.roles.filter(r => r.managed);
@@ -104,12 +91,27 @@ export default class PermsCommand extends Command {
         `Server Admin:\n \`${this.client.isAdmin(ctx.member!) ? 'Yes' : 'No'}\``
       ].join('\n'), true);
       embed.addField('Bot Information', [
-        `Prefixes:\n ${ctx.client.getPrefixes(false, true, ctx.settings).join(', ')}`,
+        `Prefixes:\n ${ctx.client.getPrefixes(false, true, ctx.settings).join(' | ')}`,
         `Shard:\n \`${ctx.shard!.id}\``,
         `Cluster:\n \`${ctx.client.base!.clusterID}\``,
-        `API Latency: \n \`${Math.round(ctx.shard!.latency)}\``
+        `API Latency:\n \`${Math.round(ctx.shard!.latency)}\``
       ].join('\n'), true);
-      embed.addField('\u200b', '\u200b', true);
+      if (this.client.suggestionChannels.has(channel.id)) {
+        const data = this.client.suggestionChannels.get(channel.id)!;
+        // TODO Add emojis, cooldown, etc. Other useful information for myself and support staff to help resolve any sort of issues
+        embed.addField('Suggestions', [
+          `Type:\n \`${data.type}\``,
+          stripIndents`Roles: 
+           ✅ ${data.allowed.size > 0 ? data.allowed.map(r => r.mention).join(' ') : 'All'}
+           ❌ ${data.blocked.size > 0 ? data.blocked.map(r => r.mention).join(' ') : 'None'}
+          `,
+          `Locked:\n \`${data.locked ? 'Yes' : 'No'}\``,
+          `Review Mode:\n \`${data.reviewMode ? 'Enabled' : 'Disabled'}\``
+        ].join('\n'), true);
+      } else {
+        embed.addField('\u200b', '\u200b', true);
+      }
+
       embed.setFooter('If this information was requested by a support team member, please send them this message link.');
 
       ctx.embed(embed);

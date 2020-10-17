@@ -9,7 +9,7 @@ import Logger from '../utils/Logger';
 
 const glob = promisify(globFunction);
 
-abstract class BaseCommandManager<T = SubCommand> extends Collection<T> {
+abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> {
   protected constructor(public client: SuggestionsClient) {
     super();
   }

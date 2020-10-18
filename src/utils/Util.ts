@@ -151,4 +151,8 @@ export default class Util {
 
     return ctx.guild!.roles.find(x => x.name.toLowerCase() === s);
   }
+
+  public static toProperCase(s: string): string {
+    return s.replace(/([^\W_]+[^\s-]*) */g, function(txt) {return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+  }
 }

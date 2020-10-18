@@ -4,7 +4,7 @@ import globFunction from 'glob';
 import { promisify } from 'util';
 
 import SuggestionsClient from '../structures/Client';
-import { Command, SubCommand, SuggestionsCommand } from '../types';
+import { Command, CommandCategory, SubCommand, SuggestionsCommand } from '../types';
 import Logger from '../utils/Logger';
 
 const glob = promisify(globFunction);
@@ -55,8 +55,18 @@ export class CommandManager extends BaseCommandManager<Command> {
     super(client);
   }
 
-  public getCategory(category: string): Array<Command> {
-    return this.filter(c => c.category.toLowerCase() === category.trim().toLowerCase());
+  public getCategory(category: CommandCategory, options?: {
+    namesOnly?: boolean,
+    formatted?: boolean,
+  }): Array<Command|string> {
+    if (options?.namesOnly) {
+      let cmds = this.filter(c => c.category.toLowerCase() === category.toLowerCase()).map(c => c.name);
+      if (options.formatted) cmds = cmds.map(name => options.formatted ? `\`${name}\`` : name);
+
+      return cmds;
+    } else {
+      return this.filter(c => c.category.toLowerCase() === category.toLowerCase());
+    }
   }
 }
 

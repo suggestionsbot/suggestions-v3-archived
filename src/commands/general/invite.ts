@@ -4,13 +4,15 @@ import MessageEmbed from '../../utils/MessageEmbed';
 import Logger from '../../utils/Logger';
 import MessageUtils from '../../utils/MessageUtils';
 import Context from '../../structures/Context';
+import { CommandCategory } from '../../types';
+import { oneLine } from 'common-tags';
 
 export default class InfoCommand extends Command {
   constructor(public client: SuggestionsClient) {
     super(client);
 
     this.name = 'invite';
-    this.category = 'general';
+    this.category = CommandCategory.GENERAL;
     this.description = 'Receive a DM with information on inviting the bot to your server.';
     this.usages = [
       'invite [here]'
@@ -42,23 +44,22 @@ export default class InfoCommand extends Command {
         .setTimestamp();
 
       if (ctx.guild && (ctx.args[0] !== 'here')) {
-        const promises: Array<Promise<any>> = [
-          ctx.message.addReaction('📩')
-            .then(() => MessageUtils.delete(ctx.message, { timeout: 2500 })),
-          ctx.dm({
-            user: ctx.sender,
-            embed: embed
-          })
-        ];
-
-        await Promise.all(promises);
-        return;
+        await ctx.dm({
+          user: ctx.sender,
+          embed: embed
+        });
+        await ctx.message.addReaction('📩')
+          .then(() => MessageUtils.delete(ctx.message, { timeout: 2500 }));
       } else {
         await ctx.embed(embed);
         return;
       }
     } catch (e) {
-      if (e.message === 'Missing Access') return;
+      if (e.code === 50007) return MessageUtils.error(this.client, ctx.message,
+        oneLine`Cannot DM you the invite information! Please enable your DMs for this server or do \`${ctx.prefix + this.name} here\`
+          to get the invite information.
+        `
+      );
       Logger.error(`CMD:${this.name.toUpperCase()}`, e);
       return MessageUtils.error(this.client, ctx.message, e.message, true);
     }

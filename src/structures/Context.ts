@@ -10,6 +10,7 @@ import {
 import SuggestionsClient from './Client';
 import { DMOptions, GuildSchema, Promisified } from '../types';
 import Language from './Language';
+import Util from '../utils/Util';
 
 export default class Context {
   // TODO look into make the client param a getter
@@ -42,7 +43,10 @@ export default class Context {
   }
 
   public get prefix(): string {
-    return this.message.prefix!;
+    const mentionCheck = this.guild ? this.me!.mention : this.client.user.mention;
+    return this.message.prefix!.trim() === mentionCheck.trim() ?
+      `@${Util.formatUserTag(this.client.user)} ` :
+      this.message.prefix!;
   }
 
   public get guild(): Guild|undefined {

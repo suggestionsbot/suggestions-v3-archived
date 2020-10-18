@@ -11,16 +11,22 @@ import SuggestionsClient from './Client';
 import { DMOptions, GuildSchema, Promisified } from '../types';
 import Language from './Language';
 import Util from '../utils/Util';
+import ArgumentParser from './parsers/ArgumentParser';
+import FlagParser from './parsers/FlagParser';
 
-export default class Context {
-  // TODO look into make the client param a getter
+export default class CommandContext {
+  public args: ArgumentParser;
+  public flags: FlagParser;
+
   constructor(
-    public client: SuggestionsClient,
     public message: Message,
-    public args: Array<string>,
+    args: Array<string>,
     public locale: Language|undefined,
     public settings: GuildSchema|undefined
-  ) {}
+  ) {
+    this.args = new ArgumentParser(args);
+    this.flags = new FlagParser(args);
+  }
 
   public send(content: string): Promise<Message> {
     return this.message.channel.createMessage({
@@ -47,6 +53,10 @@ export default class Context {
     return this.message.prefix!.trim() === mentionCheck.trim() ?
       `@${Util.formatUserTag(this.client.user)} ` :
       this.message.prefix!;
+  }
+
+  public get client(): SuggestionsClient {
+    return <SuggestionsClient>this.channel.client;
   }
 
   public get guild(): Guild|undefined {

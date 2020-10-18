@@ -25,7 +25,7 @@ export default class CommandHandler {
     if (!cmd) return;
 
     const locale = this.client.locales.get(settings.locale);
-    const ctx: Context = new Context(this.client, message, args, locale, settings);
+    const ctx: Context = new Context(message, args, locale, settings);
 
     if (!message.guildID && cmd.guildOnly) {
       return MessageUtils.error(

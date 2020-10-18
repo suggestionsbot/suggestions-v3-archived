@@ -26,8 +26,8 @@ abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> 
     let cmd: SuggestionsCommand;
     const mainCmd: Command = this.client.commands.get(command) ||
         this.client.commands.filter(c => c.aliases!.includes(command))[0];
-    const subCmd: SubCommand = this.client.subCommands.filter(c => c.arg === args[0])[0] ||
-        this.client.subCommands.filter(c => c.aliases!.includes(command))[0];
+    const subCmd: SubCommand = this.client.subCommands.filter(c => mainCmd && (c.arg === args[0]))[0] ||
+        this.client.subCommands.filter(c => mainCmd && (c.aliases!.includes(args[0])))[0];
 
     if (mainCmd) cmd = mainCmd;
     if (subCmd) cmd = subCmd;

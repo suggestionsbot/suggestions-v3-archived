@@ -34,12 +34,12 @@ export default class SuggestCommand extends Command {
   }
 
   async runPreconditions(ctx: Context, next: CommandNextFunction): Promise<any> {
-    if (!ctx.args[0]) return MessageUtils.error(ctx.client, ctx.message, 'Please provide text for this suggestion!');
+    if (!ctx.args.get(0)) return MessageUtils.error(ctx.client, ctx.message, 'Please provide text for this suggestion!');
     const channels = ctx.settings!.channels.map(c => c.channel);
-    const channel = channels.length <= 1 ? channels[0] : ctx.args[0];
+    const channel = channels.length <= 1 ? channels[0] : ctx.args.get(0);
     const gChannel = Util.getChannel(channel, ctx.guild!);
     if (!gChannel && (channels.length > 1))
-      return MessageUtils.error(this.client, ctx.message, `\`${ctx.args[0]}\` is not a valid channel!`);
+      return MessageUtils.error(this.client, ctx.message, `\`${ctx.args.get(0)}\` is not a valid channel!`);
     if (gChannel && (channels.length > 1) && !channels.includes(gChannel.id))
       return MessageUtils.error(this.client, ctx.message,stripIndents`${gChannel.mention} is not a valid suggestions channel!
         
@@ -78,9 +78,9 @@ export default class SuggestCommand extends Command {
   }
 
   async run(ctx: Context): Promise<any> {
-    const argCheck = Util.getChannel(ctx.args[0], ctx.guild!);
+    const argCheck = Util.getChannel(ctx.args.get(0), ctx.guild!);
     const channels = ctx.settings!.channels.map(c => c.channel);
-    const channel = Util.getChannel(channels.length <= 1 ? channels[0] : ctx.args[0], ctx.guild!)!;
+    const channel = Util.getChannel(channels.length <= 1 ? channels[0] : ctx.args.get(0), ctx.guild!)!;
     const sChannel = this.client.suggestionChannels.get(channel.id)!;
 
     const suggestion = argCheck ? ctx.args.slice(1).join(' ') : ctx.args.join(' ');

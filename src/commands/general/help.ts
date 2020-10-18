@@ -38,7 +38,7 @@ export default class HelpCommand extends Command {
     const adminCheck = ctx.guild ? this.client.isAdmin(ctx.member!) : null;
     const ownerCheck = this.client.isOwner(ctx.sender);
 
-    const command = this.client.commands.getCommand(ctx.args[0], ...ctx.args.slice(1));
+    const command = this.client.commands.getCommand(ctx.args.get(0), ...ctx.args.slice(1));
     if (command) {
       if ((command.category === CommandCategory.OWNER) && !ownerCheck) return;
       const cmdName = 'friendly' in command ? command.friendly : command.name;

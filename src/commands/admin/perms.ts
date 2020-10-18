@@ -25,9 +25,9 @@ export default class PermsCommand extends Command {
   }
 
   async runPreconditions(ctx: Context, next: CommandNextFunction): Promise<any> {
-    const channel = Util.getChannel(ctx.args[0] || ctx.channel.id, ctx.guild!);
+    const channel = Util.getChannel(ctx.args.get(0) || ctx.channel.id, ctx.guild!);
     if (!channel) {
-      return MessageUtils.error(ctx.client, ctx.message, `\`${ctx.args[0]}\` does not resolve to a valid channel!`);
+      return MessageUtils.error(ctx.client, ctx.message, `\`${ctx.args.get(0)}\` does not resolve to a valid channel!`);
     } else {
       next();
     }
@@ -35,7 +35,7 @@ export default class PermsCommand extends Command {
 
   public async run(ctx: CommandContext): Promise<any> {
     try {
-      const channel = <GuildTextableChannel>Util.getChannel(ctx.args[0] || ctx.channel.id, ctx.guild!);
+      const channel = <GuildTextableChannel>Util.getChannel(ctx.args.get(0) || ctx.channel.id, ctx.guild!);
 
       let permissionOverwrites: PermissionOverwrite|Array<PermissionOverwrite>|undefined;
       const guildManagedRoles = ctx.guild!.roles.filter(r => r.managed);

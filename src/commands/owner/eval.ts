@@ -25,7 +25,7 @@ export default class EvalCommand extends Command {
   }
 
   public async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
-    if (!ctx.args[0]) return MessageUtils.error(this.client, ctx.message, 'You need to provide code to eval!');
+    if (!ctx.args.get(0)) return MessageUtils.error(this.client, ctx.message, 'You need to provide code to eval!');
     next();
   }
 

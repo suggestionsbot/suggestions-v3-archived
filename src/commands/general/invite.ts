@@ -43,7 +43,7 @@ export default class InfoCommand extends Command {
         .setColor(main)
         .setTimestamp();
 
-      if (ctx.guild && (ctx.args[0] !== 'here')) {
+      if (ctx.guild && (ctx.args.get(0) !== 'here')) {
         await ctx.dm({
           user: ctx.sender,
           embed: embed

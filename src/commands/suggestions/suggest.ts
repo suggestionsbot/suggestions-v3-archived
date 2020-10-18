@@ -1,7 +1,7 @@
 import Command from '../../structures/Command';
 import SuggestionsClient from '../../structures/Client';
 import Context from '../../structures/Context';
-import { CommandNextFunction, SuggestionChannelType, SuggestionType } from '../../types';
+import { CommandCategory, CommandNextFunction, SuggestionChannelType, SuggestionType } from '../../types';
 import MessageUtils from '../../utils/MessageUtils';
 import { stripIndents } from 'common-tags';
 import * as crypto from 'crypto';
@@ -13,7 +13,7 @@ export default class SuggestCommand extends Command {
     super(client);
 
     this.name = 'suggest';
-    this.category = 'suggestions';
+    this.category = CommandCategory.SUGGESTIONS;
     this.description = 'Submit a new suggestion in a suggestion channel.';
     this.usages = [
       'suggest <suggestion>',

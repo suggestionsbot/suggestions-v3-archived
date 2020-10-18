@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
 
-import { CommandNextFunction } from '../../types';
+import { CommandCategory, CommandNextFunction } from '../../types';
 import MessageEmbed from '../../utils/MessageEmbed';
 import Command from '../../structures/command';
 import ExStaff from '../../structures/client';
@@ -16,7 +16,7 @@ export default class EvalCommand extends Command {
     super(client);
 
     this.name = 'eval';
-    this.category = 'Bot Owner';
+    this.category = CommandCategory.OWNER;
     this.description = 'Run raw JavaScript code via the bot.';
     this.usages = ['eval <code>'];
     this.ownerOnly = true;

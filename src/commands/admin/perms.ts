@@ -1,7 +1,7 @@
 import { Constants, GuildTextableChannel, PermissionOverwrite } from 'eris';
 import Command from '../../structures/command';
 import SuggestionsClient from '../../structures/client';
-import { CommandNextFunction } from '../../types';
+import { CommandCategory, CommandNextFunction } from '../../types';
 import Logger from '../../utils/Logger';
 import MessageUtils from '../../utils/MessageUtils';
 import CommandContext from '../../structures/Context';
@@ -16,7 +16,7 @@ export default class PermsCommand extends Command {
     super(client);
 
     this.name = 'perms';
-    this.category = 'admin';
+    this.category = CommandCategory.ADMIN;
     this.description = 'Debug the permissions of a channel to detect any issues (use by bot support staff).';
     this.guildOnly = true;
     this.guarded = true;

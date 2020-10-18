@@ -1,6 +1,7 @@
 import Command from '../../../structures/Command';
 import SuggestionsClient from '../../../structures/Client';
 import Context from '../../../structures/Context';
+import { CommandCategory } from '../../../types';
 
 export default class ConfigCommand extends Command {
   constructor(public client: SuggestionsClient) {
@@ -8,7 +9,7 @@ export default class ConfigCommand extends Command {
 
     this.name = 'config';
     this.subCommands = ['prefix', 'channels', 'roles', 'emojis', 'responses', 'commands'];
-    this.category = 'admin';
+    this.category = CommandCategory.ADMIN;
     this.description = 'View and update various configurable values of the bot';
     this.aliases = ['conf', 'settings', 'configure'];
     this.usages = [

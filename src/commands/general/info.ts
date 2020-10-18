@@ -5,9 +5,9 @@ import SuggestionsClient from '../../structures/Client';
 import MessageEmbed from '../../utils/MessageEmbed';
 import Logger from '../../utils/Logger';
 
-import { version, description } from '../../../package.json';
+import { description, version } from '../../../package.json';
 import MessageUtils from '../../utils/MessageUtils';
-import { ShardStats } from '../../types';
+import { CommandCategory, ShardStats } from '../../types';
 import Context from '../../structures/Context';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -18,7 +18,7 @@ export default class InfoCommand extends Command {
     super(client);
 
     this.name = 'info';
-    this.category = 'general';
+    this.category = CommandCategory.GENERAL;
     this.description = 'View information about the bot and it\'s global statistics.';
     this.aliases = ['botinfo'];
     this.guildOnly = false;

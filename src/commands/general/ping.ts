@@ -4,13 +4,14 @@ import Command from '../../structures/Command';
 import SuggestionsClient from '../../structures/Client';
 import Logger from '../../utils/Logger';
 import Context from '../../structures/Context';
+import { CommandCategory } from '../../types';
 
 export default class PingCommand extends Command {
   constructor(public client: SuggestionsClient) {
     super(client);
 
     this.name = 'ping';
-    this.category = 'general';
+    this.category = CommandCategory.GENERAL;
     this.description = 'View the latency of the bot and it\'s connection to the Discord API.';
     this.aliases = ['pong'];
     this.guildOnly = false;

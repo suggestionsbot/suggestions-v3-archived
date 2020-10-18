@@ -2,7 +2,7 @@ import { stripIndents } from 'common-tags';
 
 import SubCommand from '../../../structures/SubCommand';
 import SuggestionsClient from '../../../structures/Client';
-import { CommandNextFunction } from '../../../types';
+import { CommandCategory, CommandNextFunction } from '../../../types';
 import Logger from '../../../utils/Logger';
 import MessageUtils from '../../../utils/MessageUtils';
 import Context from '../../../structures/Context';
@@ -15,7 +15,7 @@ export default class ConfigPrefixCommand extends SubCommand {
     this.arg = 'prefix';
     this.name = 'config-prefix';
     this.friendly = 'config prefix';
-    this.category = 'admin';
+    this.category = CommandCategory.ADMIN;
     this.description = 'Update the bot\'ts prefixes in the guild.';
     this.usages = ['config prefix [value]'];
     this.examples = ['config prefix ^'];

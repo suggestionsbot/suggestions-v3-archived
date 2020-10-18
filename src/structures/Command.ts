@@ -1,5 +1,5 @@
 import SuggestionsClient from './Client';
-import { CommandThrottle, CommandThrottling, Command as CommandClass } from '../types';
+import { CommandThrottling, Command as CommandClass, CommandCategory } from '../types';
 import Context from './Context';
 import { RatelimitBucket } from '../managers/RatelimitManager';
 
@@ -8,7 +8,7 @@ export default abstract class Command implements CommandClass {
   public adminOnly: boolean|undefined;
   public aliases: Array<string>|undefined;
   public botPermissions: Array<string|number>|undefined;
-  public category!: string;
+  public category!: CommandCategory;
   public checks: Array<string>|undefined;
   public description!: string;
   public examples: Array<string>|undefined;

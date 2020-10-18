@@ -20,6 +20,7 @@ export default class ConfigPrefixCommand extends SubCommand {
     this.description = 'Update the bot\'s prefixes in the guild.';
     this.usages = ['config prefix [value]'];
     this.examples = ['config prefix ^'];
+    this.aliases = ['prefixes'];
     this.adminOnly = true;
     this.botPermissions = ['manageMessages', 'externalEmojis', 'embedLinks'];
   }

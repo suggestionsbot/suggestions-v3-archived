@@ -53,23 +53,19 @@ export default class SuggestCommand extends Command {
     if (!this.client.isAdmin(ctx.member!)) {
       if (sChannel.type === SuggestionChannelType.STAFF && !this.client.isStaff(ctx.member!, ctx.settings!))
         return MessageUtils.error(this.client, ctx.message,
-          `Cannot post to ${sChannel.channel.mention} as it is a staff suggestion channel!`
-        );
+          `Cannot post to ${sChannel.channel.mention} as it is a staff suggestion channel!`);
       if (sChannel.locked) return MessageUtils.error(this.client, ctx.message,
-        `Cannot post to ${sChannel.channel.mention} as it is currently locked!`
-      );
+        `Cannot post to ${sChannel.channel.mention} as it is currently locked!`);
       if ((sChannel.blocked.size > 0) && sChannel.blocked.some(r => ctx.member!.roles.includes(r.id)))
         return MessageUtils.error(this.client, ctx.message,
-          stripIndents`You cannot submit suggestions to ${sChannel.channel.mention} as you are in a blocked role!
+          `You cannot submit suggestions to ${sChannel.channel.mention} as you are in a blocked role!
           
-          **Blocked:** ${sChannel.blocked.map(r => r.mention).join(' ')}`
-        );
+          **Blocked:** ${sChannel.blocked.map(r => r.mention).join(' ')}`);
       if ((sChannel.allowed.size > 0) && (!sChannel.allowed.some(r => ctx.member!.roles.includes(r.id))))
         return MessageUtils.error(this.client, ctx.message,
           `You cannot submit suggestions to ${sChannel.channel.mention} as you are not in an allowed role!
         
-        **Allowed:** ${sChannel.allowed.map(r => r.mention).join(' ')}`
-        );
+        **Allowed:** ${sChannel.allowed.map(r => r.mention).join(' ')}`);
     }
     if (![SuggestionChannelType.SUGGESTIONS, SuggestionChannelType.STAFF].includes(sChannel.type))
       return MessageUtils.error(this.client, ctx.message, `Suggestions cannot be posted in channels with the type: \`${sChannel.type}\`.`);

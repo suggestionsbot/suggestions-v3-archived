@@ -80,8 +80,8 @@ export abstract class Command {
   public ratelimiter?: Collection<Ratelimit>;
   protected constructor(public client: SuggestionsClient) {}
   public abstract async run(ctx: Context): Promise<any>;
-  public async runPreconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
-  public async runPostconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
+  public abstract async runPreconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
+  public abstract async runPostconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
 }
 
 export abstract class SubCommand extends Command {
@@ -378,6 +378,7 @@ export enum CommandCategory {
   SUGGESTIONS = 'Suggestions',
   STAFF = 'Staff',
   ADMIN = 'Admin',
+  SECRET = 'Secret',
   OWNER = 'Owner'
 }
 

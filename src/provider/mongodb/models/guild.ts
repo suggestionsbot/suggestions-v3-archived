@@ -1,6 +1,13 @@
 import { Schema, model } from 'mongoose';
-import { DisabledCommand, GuildSchema, SuggestionChannel } from '../../../types';
+import { DisabledCommand, GuildSchema, SuggestionChannel, SuggestionRole } from '../../../types';
 import { Guild } from 'eris';
+
+const SuggestionRole = {
+  role: { type: String },
+  type: { type: String, enum: ['allowed', 'blocked'] },
+  added: { type: Number, default: Date.now() },
+  addedBy: { type: String }
+};
 
 export const GuildSettings = new Schema({
   guild: {
@@ -17,8 +24,8 @@ export const GuildSettings = new Schema({
         type: String,
         enum: ['suggestions', 'logs', 'approved', 'rejected', 'staff']
       },
-      allowed: { type: [String] },
-      blocked: { type: [String] },
+      allowed: { type: [SuggestionRole] },
+      blocked: { type: [SuggestionRole] },
       locked: { type: Boolean, default: false },
       reviewMode: { type: Boolean, default: false },
       added: { type: Number, default: Date.now() },
@@ -101,13 +108,13 @@ GuildSettings.method('updateStaffRoles', function(this: GuildSchema, role: strin
   }
 });
 
-GuildSettings.method('updateChannelRoles', function(this: GuildSchema, channel: string, role: string, type: 'allowed'|'blocked') {
+GuildSettings.method('updateChannelRoles', function(this: GuildSchema, channel: string, role: SuggestionRole) {
   const channelInArray = this.channels.find(c => c.channel === channel)!;
-  switch (type) {
+  switch (role.type) {
     case 'allowed': {
-      const roleInArray = channelInArray.allowed.find(r => r === role);
+      const roleInArray = channelInArray.allowed.find(r => r.role === role.role);
       if (roleInArray) {
-        channelInArray.allowed = channelInArray.allowed.filter(r => r !== role);
+        channelInArray.allowed = channelInArray.allowed.filter(r => r.role !== role.role);
       } else {
         channelInArray.allowed = [...channelInArray.allowed, role];
       }
@@ -115,9 +122,9 @@ GuildSettings.method('updateChannelRoles', function(this: GuildSchema, channel: 
       break;
     }
     case 'blocked': {
-      const roleInArray = channelInArray.blocked.find(r => r === role);
+      const roleInArray = channelInArray.blocked.find(r => r.role === role.role);
       if (roleInArray) {
-        channelInArray.blocked = channelInArray.blocked.filter(r => r !== role);
+        channelInArray.blocked = channelInArray.blocked.filter(r => r.role !== role.role);
       } else {
         channelInArray.blocked = [...channelInArray.blocked, role];
       }

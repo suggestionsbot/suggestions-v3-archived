@@ -5,11 +5,10 @@ import {
   GuildSchema,
   SuggestionChannelType,
   SuggestionSchema,
-  SuggestionChannel as SuggestionChannelObj,
+  SuggestionChannel as SuggestionChannelObj, SuggestionRole,
 } from '../types';
 import SuggestionsClient from './Client';
 import ChannelManager from '../managers/ChannelManager';
-import Logger from '../utils/Logger';
 
 export default class SuggestionChannel {
   private readonly _suggestions: Collection<SuggestionSchema>;
@@ -124,7 +123,7 @@ export default class SuggestionChannel {
 
   public async setReviewMode(enabled: boolean): Promise<boolean> {
     this._reviewMode = enabled;
-    this._settings.updateChannel(this.channel.id, { enabled });
+    this._settings.updateChannel(this.channel.id, { reviewMode: enabled });
     await this._settings.save();
     await this.client.redis.helpers.clearCachedGuild(this.guild);
     return this._reviewMode;
@@ -138,21 +137,22 @@ export default class SuggestionChannel {
     return this._locked;
   }
 
-  public async updateRole(role: Role, type: 'allowed'|'blocked'): Promise<boolean> {
-    switch (type) {
+  public async updateRole(data: SuggestionRole): Promise<boolean> {
+    const role = this.guild.roles.get(data.role)!;
+    switch (data.type) {
       case 'allowed': {
-        this._allowed.has(role.id) ? this._allowed.delete(role.id) : this._allowed.set(role.id, role);
-        this._settings.updateChannelRoles(this.channel.id, role.id, 'allowed');
+        this._allowed.has(data.role) ? this._allowed.delete(data.role) : this._allowed.set(data.role, role);
+        this._settings.updateChannelRoles(this.channel.id, data);
         await this._settings.save();
         await this.client.redis.helpers.clearCachedGuild(this.guild);
-        return this._allowed.has(role.id);
+        return this._allowed.has(data.role);
       }
       case 'blocked': {
-        this._allowed.has(role.id) ? this._blocked.delete(role.id) : this._blocked.set(role.id, role);
-        this._settings.updateChannelRoles(this.channel.id, role.id, 'blocked');
+        this._blocked.has(data.role) ? this._blocked.delete(data.role) : this._blocked.set(data.role, role);
+        this._settings.updateChannelRoles(this.channel.id, data);
         await this._settings.save();
         await this.client.redis.helpers.clearCachedGuild(this.guild);
-        return this._blocked.has(role.id);
+        return this._blocked.has(data.role);
       }
       default: {
         throw new Error('InvalidRoleType');
@@ -160,11 +160,11 @@ export default class SuggestionChannel {
     }
   }
 
-  private async _addRoles(roles: Array<string>, collection: Collection<Role>): Promise<void> {
+  private async _addRoles(roles: Array<SuggestionRole>, collection: Collection<Role>): Promise<void> {
     for (const r of roles) {
-      const role = this.guild.roles.get(r);
+      const role = this.guild.roles.get(r.role);
       if (!role) continue;
-      collection.set(r, role);
+      collection.set(role.id, role);
     }
   }
 

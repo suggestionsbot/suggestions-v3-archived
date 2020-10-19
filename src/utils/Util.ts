@@ -1,3 +1,7 @@
+import dotenv from 'dotenv';
+import GiphyAPI, { Giphy } from 'giphy-api';
+dotenv.config();
+
 import Permissions from './Permissions';
 import { Guild, Member, Role, TextChannel, User } from 'eris';
 import { SuggestionGuild, SuggestionUser } from '../types';
@@ -154,5 +158,12 @@ export default class Util {
 
   public static toProperCase(s: string): string {
     return s.replace(/([^\W_]+[^\s-]*) */g, function(txt) {return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+  }
+
+  public static getGiphy(): Giphy {
+    return GiphyAPI({
+      apiKey: process.env.GIPHY,
+      https: true
+    });
   }
 }

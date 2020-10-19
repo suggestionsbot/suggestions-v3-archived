@@ -163,6 +163,10 @@ export default class SuggestionsClient extends Client {
     return hasPerm;
   }
 
+  public isSuperSecret(user: User): boolean {
+    return this.config.superSecretUsers.includes(user.id);
+  }
+
   public isOwner(user: User|Member|string): boolean {
     return this.config.owners.includes(typeof user === 'object' ? user.id : user);
   }

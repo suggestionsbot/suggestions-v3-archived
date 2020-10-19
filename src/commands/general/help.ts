@@ -36,11 +36,13 @@ export default class HelpCommand extends Command {
 
     const staffCheck = ctx.guild ? this.client.isStaff(ctx.member!, ctx.settings!) : null;
     const adminCheck = ctx.guild ? this.client.isAdmin(ctx.member!) : null;
+    const superSecretCheck = this.client.isSuperSecret(ctx.sender);
     const ownerCheck = this.client.isOwner(ctx.sender);
 
     const command = this.client.commands.getCommand(ctx.args.get(0), ...ctx.args.slice(1));
     if (command) {
       if ((command.category === CommandCategory.OWNER) && !ownerCheck) return;
+      if ((command.category === CommandCategory.SECRET) && !superSecretCheck) return;
       const cmdName = 'friendly' in command ? command.friendly : command.name;
       const embed = MessageUtils.defaultEmbed()
         .setTitle(`${cmdName} | Help Information`)

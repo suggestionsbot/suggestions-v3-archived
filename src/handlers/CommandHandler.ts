@@ -37,13 +37,14 @@ export default class CommandHandler {
 
     const staffCheck = message.guildID ? this.client.isStaff(message.member!, settings): null;
     const adminCheck = message.guildID ? this.client.isAdmin(message.member!) : null;
+    const superSecretCheck = this.client.isSuperSecret(message.author);
     const ownerCheck = this.client.isOwner(message.author);
 
     if ((message.guildID !== undefined) && (cmd.staffOnly && !staffCheck))
       return MessageUtils.error(this.client, message, 'This is a staff only command!');
     if ((message.guildID !== undefined) && (cmd.adminOnly && !adminCheck))
       return MessageUtils.error(this.client, message, 'This is an admin only command!');
-    if (cmd.superOnly && !this.client.config.superSecretUsers.includes(message.author.id)) return;
+    if (cmd.superOnly && !superSecretCheck) return;
     if (cmd.ownerOnly && !ownerCheck) return;
 
     // check bot permissions

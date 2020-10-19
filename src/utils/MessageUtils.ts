@@ -23,7 +23,7 @@ export default class MessageUtils {
   }
 
   public static async success(client: SuggestionsClient, data: Message|string, message: string): Promise<Message> {
-    const { colors: { suggestion: { rejected: color } } } = client.config;
+    const { colors: { suggestion: { approved: color } } } = client.config;
     let channel: Textable;
 
     if (typeof data === 'object') channel = data.channel;

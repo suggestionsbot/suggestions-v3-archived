@@ -87,29 +87,23 @@ export default class HelpCommand extends Command {
       ].join(' | '))
       .addField('❗ Found an issue?', `Please report any issues directly to the **Support Team** via the Support Discord: ${discord}`);
 
-    if (ctx.guild) {
-      if (staffCheck && (cmds.getCategory(CommandCategory.STAFF).length > 0)) {
-        embed.fields.splice(3, 0, {
-          name: '🏢 Staff Commands',
-          value: cmds.getCategory(CommandCategory.STAFF, {
-            namesOnly: true,
-            formatted: true,
-          }).join(' | '),
-          inline: false
-        });
-      }
+    if ((ctx.guild! ? staffCheck : true) && (cmds.getCategory(CommandCategory.STAFF).length > 0)) embed.fields.splice(2, 0, {
+      name: '🏢 Staff Commands',
+      value: cmds.getCategory(CommandCategory.STAFF, {
+        namesOnly: true,
+        formatted: true,
+      }).join(' | '),
+      inline: false
+    });
 
-      if (adminCheck && (cmds.getCategory(CommandCategory.ADMIN).length > 0)) {
-        embed.fields.splice(4, 0, {
-          name: '👔 Admin Commands',
-          value: cmds.getCategory(CommandCategory.ADMIN, {
-            namesOnly: true,
-            formatted: true,
-          }).join(' | '),
-          inline: false
-        });
-      }
-    }
+    if ((ctx.guild! ? adminCheck : true) && (cmds.getCategory(CommandCategory.ADMIN).length > 0)) embed.fields.splice(3, 0, {
+      name: '👔 Admin Commands',
+      value: cmds.getCategory(CommandCategory.ADMIN, {
+        namesOnly: true,
+        formatted: true,
+      }).join(' | '),
+      inline: false
+    });
 
     if (ownerCheck && (cmds.getCategory(CommandCategory.OWNER).length > 0)) {
       const value = {
@@ -121,9 +115,7 @@ export default class HelpCommand extends Command {
         inline: false
       };
 
-      if (embed.fields.length === 6) embed.fields.splice(5, 0, value);
-      else if (embed.fields.length === 7) embed.fields.splice(5, 0, value);
-      else embed.fields.splice(3, 0, value);
+      embed.fields.splice(embed.fields.indexOf(embed.fields[embed.fields.length - 2]), 0, value);
     }
 
     ctx.embed(embed);

@@ -1,3 +1,4 @@
+import frenchkiss, { StoreData } from 'frenchkiss';
 import { LanguageInfo, LanguageStatus, Translation } from '../types';
 
 export default class Language {
@@ -5,7 +6,7 @@ export default class Language {
   public contributors: Array<string>;
   public completion: LanguageStatus;
   public aliases: Array<string>;
-  public strings: { [x: string]: string|Record<string, unknown> };
+  public strings: { [x: string]: StoreData };
   public code: string;
   public flag: string;
   public friendly: string;
@@ -19,6 +20,8 @@ export default class Language {
     this.code = info.code;
     this.flag = info.flag;
     this.friendly = info.friendly;
+
+    frenchkiss.set(this.code, this.strings);
   }
 
   public get percentage(): number {
@@ -29,43 +32,13 @@ export default class Language {
     }
   }
 
-  public translate(key: string, args?: { [x: string]: any }): string {
-    const nodes = key.split('.');
-    let translated: any = this.strings;
-
-    for (const fragment of nodes) {
-      try {
-        translated = translated[fragment];
-      } catch {
-        translated = null;
-        break;
-      }
-    }
-
-    if (translated === null) return `Key "${key}" was not found.`;
-    if (typeof translated === 'object' && !Array.isArray(translated)) return `Key "${key}" is an object!`;
-
-    if (Array.isArray(translated)) return (translated as string[]).map(x => this._translate(x, args)).join('\n');
-    else return this._translate(translated, args);
+  public translate(key: string, language: string, args?: { [x: string]: string|number }|undefined): string {
+    const keyExists = this.strings[key];
+    if (keyExists) return frenchkiss.t(key, args, language);
+    else throw new Error('InvalidLocaleKey');
   }
 
   public lazyTranslate(translation: Translation): string {
-    return this.translate(translation.key, translation.args);
-  }
-
-  private _translate(translated: string, args?: { [x: string]: string }): string {
-    // eslint-disable-next-line
-    const KEY_REGEX = /[$]\{([\w\.]+)\}/g;
-    return translated.replace(KEY_REGEX, (_, key) => {
-      if (args) {
-        const value = String(args[key]);
-
-        // Ignore empty strings
-        if (value === '') return '';
-        else return value || '?';
-      } else {
-        return '?';
-      }
-    }).trim();
+    return this.translate(translation.key, this.code, translation.args);
   }
 }

@@ -85,7 +85,7 @@ export default class CommandContext {
   }
 
   public translate(key: string, args?: { [x: string]: any}): string {
-    return this.locale ? this.locale.translate(key, args) : 'Failed translation.';
+    return this.locale ? this.locale.translate(key, this.settings!.locale, args) : 'Failed translation.';
   }
 
   public sendTranslate(key: string, args?: { [x: string]: any}): Promise<Message> {

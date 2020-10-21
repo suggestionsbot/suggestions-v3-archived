@@ -6,6 +6,7 @@ import SuggestionsClient from '../structures/Client';
 import Context from '../structures/Context';
 import { Collection } from '@augu/immutable';
 import Ratelimit from '../structures/Ratelimit';
+import { StoreData } from 'frenchkiss';
 
 export interface EmbedThumbnail {
   url: string;
@@ -358,9 +359,7 @@ export interface LanguageInfo {
   code: string;
   flag: string;
   friendly: string;
-  strings: {
-    [x: string]: string|Record<string, unknown>;
-  };
+  strings: { [x: string]: StoreData; };
 }
 
 export class Translation {

@@ -7,6 +7,9 @@
   "flag": ":flag_fr",
   "friendly": "Françias (FR)",
   "strings": {
-    "COW": "**${name}**, tu aimes les vaches!"
+    "cow": "{mention}, tu aimes les vaches!",
+    "foo": {
+      "bar": "{mention}, vous devez vraiment aimer les vaches!"
+    }
   }
 }

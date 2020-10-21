@@ -7,6 +7,9 @@
   "flag": ":flag_us",
   "friendly": "English (US)",
   "strings": {
-    "COW": "**${name}**, you love cows!"
+    "cow": "{mention}, you love cows!",
+    "foo": {
+      "bar": "{mention}, you must really love cows!"
+    }
   }
 }

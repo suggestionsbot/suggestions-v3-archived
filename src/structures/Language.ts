@@ -1,5 +1,6 @@
 import frenchkiss, { StoreData } from 'frenchkiss';
 import { LanguageInfo, LanguageStatus, Translation } from '../types';
+import LanguageError from '../errors/LanguageError';
 
 export default class Language {
   public translator: string;
@@ -22,6 +23,12 @@ export default class Language {
     this.friendly = info.friendly;
 
     frenchkiss.set(this.code, this.strings);
+    frenchkiss.onMissingKey((key, params, locale) => {
+      throw new LanguageError('InvalidLocaleKey', `Missing the key **${key}** for language **${locale}**!`);
+    });
+    frenchkiss.onMissingVariable((variable, key, language) => {
+      throw new LanguageError('InvalidLocaleVariable', `Missing the variable **${variable}** for key **${key}** in the language **${language}**!`);
+    });
   }
 
   public get percentage(): number {
@@ -32,13 +39,11 @@ export default class Language {
     }
   }
 
-  public translate(key: string, language: string, args?: { [x: string]: string|number }|undefined): string {
-    const keyExists = this.strings[key];
-    if (keyExists) return frenchkiss.t(key, args, language);
-    else throw new Error('InvalidLocaleKey');
+  public translate(key: string, args?: { [x: string]: string|number }|undefined): string {
+    return frenchkiss.t(key, args, this.code);
   }
 
   public lazyTranslate(translation: Translation): string {
-    return this.translate(translation.key, this.code, translation.args);
+    return this.translate(translation.key, translation.args);
   }
 }

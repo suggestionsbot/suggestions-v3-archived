@@ -50,6 +50,7 @@ export interface BotConfig {
       type: string;
     };
     locale: string;
+    emojis: Array<VoteEmoji>;
   }
 }
 
@@ -157,11 +158,10 @@ export interface GuildSchema extends Document {
   locale: string;
   channels: Array<SuggestionChannel>;
   staffRoles: Array<string>;
-  voteEmojis: string;
+  emojis: Array<VoteEmoji>;
   responseRequired: boolean;
   dmResponses: boolean;
   disabledCommands: Array<DisabledCommand>;
-  setEmojis(id: string): void;
   setGuild(guild: Guild|string): void;
   setLocale(locale: string): void;
   updatePrefixes(prefix: string): void;
@@ -177,6 +177,7 @@ export interface SuggestionChannel extends Document {
   type: SuggestionChannelType;
   allowed: Array<SuggestionRole>;
   blocked: Array<SuggestionRole>;
+  emojis: string;
   locked: boolean;
   reviewMode: boolean;
   added: number;
@@ -205,6 +206,9 @@ export interface DisabledCommand extends Document {
 }
 
 export interface VoteEmoji extends Document {
+  name: string;
+  fullName?: string
+  default: boolean;
   emojis: VoteEmojiArray;
   added: number;
   addedBy: string;
@@ -386,4 +390,14 @@ export interface StatusEvent {
   name: string;
   type: BotActivityType;
   url: string|undefined;
+}
+
+export interface InternalVoteEmoji {
+  id: number;
+  name: string;
+  fullName: string;
+  emojis: Array<string>;
+  custom: boolean;
+  added?: number
+  addedBy?: string;
 }

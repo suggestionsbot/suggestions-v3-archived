@@ -1,4 +1,4 @@
-import { BotConfig } from './types';
+import { BotConfig, VoteEmoji } from './types';
 
 const config: BotConfig = {
   prefixes: [','],
@@ -50,7 +50,13 @@ const config: BotConfig = {
       channel: 'suggestions',
       type: 'suggestions'
     },
-    locale: 'en_US'
+    locale: 'en_US',
+    emojis: [<VoteEmoji>{
+      name: 'defaultEmojis',
+      fullName: 'Defaults',
+      emojis: ['578409088157876255', '578409123876438027'],
+      default: true
+    }]
   }
 };
 

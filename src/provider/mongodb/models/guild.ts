@@ -26,6 +26,7 @@ export const GuildSettings = new Schema({
       },
       allowed: { type: [SuggestionRole] },
       blocked: { type: [SuggestionRole] },
+      emoji: { type: String },
       locked: { type: Boolean, default: false },
       reviewMode: { type: Boolean, default: false },
       added: { type: Number, default: Date.now() },
@@ -33,8 +34,9 @@ export const GuildSettings = new Schema({
     }]
   },
   staffRoles: [String],
-  voteEmojis: { type: String },
   emojis: {
+    name: String,
+    default: { type: Boolean },
     emojis: [String],
     added: { type: Number, default: Date.now() },
     addedBy: String
@@ -52,10 +54,6 @@ export const GuildSettings = new Schema({
     added: { type: Number, default: Date.now() },
     addedBy: String
   }]
-});
-
-GuildSettings.method('setEmojis', function(this: GuildSchema, id: string) {
-  this.voteEmojis = id;
 });
 
 GuildSettings.method('setGuild', function(this: GuildSchema, guild: Guild|string) {

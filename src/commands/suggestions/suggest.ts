@@ -110,15 +110,19 @@ export default class SuggestCommand extends Command {
       .setFooter(`Guild ID: ${ctx.guild!.id} | sID: ${shortID}`)
       .setTimestamp();
 
-    const emojis = ['✅', '❎'];
-
+    const setEmojis = ctx.settings!.emojis.find(e => e.name === sChannel.emojis)!;
+    const guild = setEmojis.default ? await this.client.base!.ipc.fetchGuild('737166408525283348') : ctx.guild!;
+    const emojis = setEmojis.emojis.map(e => e && e.length !== 0 ? guild.emojis.find(ge => ge.id === e) : e);
 
     try {
 
 
       const submitted = await sChannel.channel.createMessage({ embed });
 
-      for (const emoji of emojis) await submitted.addReaction(emoji);
+      // for (const emoji of emojis) await submitted.addReaction(emoji);
+      for (const e of emojis) {
+        if (e) await submitted.addReaction(typeof e === 'string' ? e : `${e.name}:${e.id}`);
+      }
 
       // await ctx.dm({
       //   user: ctx.sender,

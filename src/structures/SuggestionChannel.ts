@@ -14,6 +14,7 @@ export default class SuggestionChannel {
   private readonly _suggestions: Collection<SuggestionSchema>;
   private readonly _allowed: Collection<Role>;
   private readonly _blocked: Collection<Role>;
+  private _emojis: string;
   private _locked: boolean;
   private _reviewMode: boolean;
 
@@ -29,6 +30,7 @@ export default class SuggestionChannel {
     this._blocked = new Collection<Role>();
     this._locked = false;
     this._reviewMode = false;
+    this._emojis = 'defaultEmojis';
   }
 
   public get data(): SuggestionChannelObj|undefined {
@@ -63,9 +65,15 @@ export default class SuggestionChannel {
     return this.client.suggestionChannels;
   }
 
+  public get emojis(): string {
+    return this._emojis;
+  }
+
   public async init(): Promise<void> {
     this._locked = this.data!.locked;
     this._reviewMode = this.data!.reviewMode;
+    // TODO look into why data.emojis is undefined
+    // this._emojis = this.data!.emojis;
     this._addRoles(this.data!.allowed, this._allowed);
     this._addRoles(this.data!.blocked, this._blocked);
     this._addSuggestions();
@@ -135,6 +143,14 @@ export default class SuggestionChannel {
     await this._settings.save();
     await this.client.redis.helpers.clearCachedGuild(this.guild);
     return this._locked;
+  }
+
+  public async setEmojis(name: string): Promise<string> {
+    this._emojis = name;
+    this._settings.updateChannel(this.channel.id, { emojis: name });
+    await this._settings.save();
+    await this.client.redis.helpers.clearCachedGuild(this.guild);
+    return this._emojis;
   }
 
   public async updateRole(data: SuggestionRole): Promise<boolean> {

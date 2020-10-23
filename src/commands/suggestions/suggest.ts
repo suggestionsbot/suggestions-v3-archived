@@ -1,10 +1,14 @@
+import { stripIndents } from 'common-tags';
+import * as crypto from 'crypto';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+dayjs.extend(duration);
+
 import Command from '../../structures/Command';
 import SuggestionsClient from '../../structures/Client';
 import Context from '../../structures/Context';
 import { CommandCategory, CommandNextFunction, SuggestionChannelType, SuggestionType } from '../../types';
 import MessageUtils from '../../utils/MessageUtils';
-import { stripIndents } from 'common-tags';
-import * as crypto from 'crypto';
 import Util from '../../utils/Util';
 import Logger from '../../utils/Logger';
 
@@ -51,16 +55,28 @@ export default class SuggestCommand extends Command {
       `Cannot post to ${gChannel!.mention} as it's not currently available!`
     );
     if (!this.client.isAdmin(ctx.member!)) {
+      const cooldown = sChannel.cooldowns.get(ctx.sender.id);
+      if (sChannel.cooldown && cooldown)
+        return MessageUtils.error(this.client, ctx.message,
+          `Cannot post to ${sChannel.channel.mention} for another **${dayjs.duration(cooldown.expires - Date.now()).humanize()}** 
+              as you are in a cooldown!`);
       if (sChannel.type === SuggestionChannelType.STAFF && !this.client.isStaff(ctx.member!, ctx.settings!))
         return MessageUtils.error(this.client, ctx.message,
           `Cannot post to ${sChannel.channel.mention} as it is a staff suggestion channel!`);
       if (sChannel.locked) return MessageUtils.error(this.client, ctx.message,
         `Cannot post to ${sChannel.channel.mention} as it is currently locked!`);
-      if ((sChannel.blocked.size > 0) && sChannel.blocked.some(r => ctx.member!.roles.includes(r.id)))
+
+      const isInAllowedRoles =  sChannel.allowed.some(r => ctx.member!.roles.includes(r.id));
+      const isInBlockedRoles =  sChannel.blocked.some(r => ctx.member!.roles.includes(r.id));
+      const allowed = (sChannel.allowed.size > 0) && isInAllowedRoles;
+      const blocked = (sChannel.blocked.size > 0) && isInBlockedRoles;
+
+      if (allowed) return next();
+      if (blocked || (sChannel.data!.blocked[0].role === 'all'))
         return MessageUtils.error(this.client, ctx.message,
           `You cannot submit suggestions to ${sChannel.channel.mention} as you are in a blocked role!
           
-          **Blocked:** ${sChannel.blocked.map(r => r.mention).join(' ')}`);
+          **Blocked:** ${sChannel.blocked.size > 1 ? sChannel.blocked.map(r => r.mention).join(' ') : 'All roles'}`);
       if ((sChannel.allowed.size > 0) && (!sChannel.allowed.some(r => ctx.member!.roles.includes(r.id))))
         return MessageUtils.error(this.client, ctx.message,
           `You cannot submit suggestions to ${sChannel.channel.mention} as you are not in an allowed role!
@@ -110,24 +126,20 @@ export default class SuggestCommand extends Command {
       .setFooter(`Guild ID: ${ctx.guild!.id} | sID: ${shortID}`)
       .setTimestamp();
 
-    const setEmojis = ctx.settings!.emojis.find(e => e.name === sChannel.emojis)!;
-    const guild = setEmojis.default ? await this.client.base!.ipc.fetchGuild('737166408525283348') : ctx.guild!;
-    const emojis = setEmojis.emojis.map(e => e && e.length !== 0 ? guild.emojis.find(ge => ge.id === e) : e);
 
     try {
-
+      const setEmojis = ctx.settings!.emojis.find(e => e.name === sChannel.emojis)!;
+      const guild = setEmojis.default ? await this.client.base!.ipc.fetchGuild('737166408525283348') : ctx.guild!;
+      const emojis = setEmojis.emojis.map(e => e && e.length !== 0 ? guild.emojis.find(ge => ge.id === e) : e);
 
       const submitted = await sChannel.channel.createMessage({ embed });
 
-      // for (const emoji of emojis) await submitted.addReaction(emoji);
       for (const e of emojis) {
         if (e) await submitted.addReaction(typeof e === 'string' ? e : `${e.name}:${e.id}`);
       }
 
-      // await ctx.dm({
-      //   user: ctx.sender,
-      //   embed: dmEmbed
-      // });
+      // TODO dont forget to re-enable this when we implement (dm) responses
+      // await ctx.dm({ user: ctx.sender, embed: dmEmbed });
 
       await sChannel.createSuggestion({
         user: ctx.sender.id,

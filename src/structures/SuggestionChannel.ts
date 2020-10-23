@@ -10,11 +10,16 @@ import {
 import SuggestionsClient from './Client';
 import ChannelManager from '../managers/ChannelManager';
 
+/**
+ * TODO pull internal data directly from redis (as we already have this data in the db and redis
+ */
 export default class SuggestionChannel {
   private readonly _suggestions: Collection<SuggestionSchema>;
   private readonly _allowed: Collection<Role>;
   private readonly _blocked: Collection<Role>;
+  private readonly _cooldowns: Map<string, { expires: number; }>;
   private _emojis: string;
+  private _cooldown?: number;
   private _locked: boolean;
   private _reviewMode: boolean;
 
@@ -28,6 +33,7 @@ export default class SuggestionChannel {
     this._suggestions = new Collection<SuggestionSchema>();
     this._allowed = new Collection<Role>();
     this._blocked = new Collection<Role>();
+    this._cooldowns = new Map<string, { expires: number; }>();
     this._locked = false;
     this._reviewMode = false;
     this._emojis = 'defaultEmojis';
@@ -61,6 +67,10 @@ export default class SuggestionChannel {
     return this._channel;
   }
 
+  public get cooldowns(): Map<string, { expires: number; }> {
+    return this._cooldowns;
+  }
+
   public get manager(): ChannelManager {
     return this.client.suggestionChannels;
   }
@@ -69,11 +79,15 @@ export default class SuggestionChannel {
     return this._emojis;
   }
 
+  public get cooldown(): number|undefined {
+    return this._cooldown;
+  }
+
   public async init(): Promise<void> {
     this._locked = this.data!.locked;
     this._reviewMode = this.data!.reviewMode;
-    // TODO look into why data.emojis is undefined
-    // this._emojis = this.data!.emojis;
+    this._emojis = this.data!.emojis;
+    this._cooldown = this.data!.cooldown;
     this._addRoles(this.data!.allowed, this._allowed);
     this._addRoles(this.data!.blocked, this._blocked);
     this._addSuggestions();
@@ -85,6 +99,7 @@ export default class SuggestionChannel {
 
     const data = await this.client.database.suggestionHelpers.createSuggestion(suggestion);
     this._suggestions.set(data.id, data);
+    if (this.cooldown && !this.cooldowns.has(data.user)) this.updateCooldowns(data.user);
     return data;
   }
 
@@ -153,6 +168,14 @@ export default class SuggestionChannel {
     return this._emojis;
   }
 
+  public async setCooldown(cooldown: number): Promise<number> {
+    this._cooldown = cooldown;
+    this._settings.updateChannel(this.channel.id, { cooldown });
+    await this._settings.save();
+    await this.client.redis.helpers.clearCachedGuild(this.guild);
+    return this._cooldown;
+  }
+
   public async updateRole(data: SuggestionRole): Promise<boolean> {
     const role = this.guild.roles.get(data.role)!;
     switch (data.type) {
@@ -170,10 +193,38 @@ export default class SuggestionChannel {
         await this.client.redis.helpers.clearCachedGuild(this.guild);
         return this._blocked.has(data.role);
       }
-      default: {
-        throw new Error('InvalidRoleType');
+      default: throw new Error('InvalidRoleType');
+    }
+  }
+
+  public async clearRoles(type: 'allowed'|'blocked', reset?: boolean): Promise<void> {
+    if (type === 'allowed') {
+      this._allowed.clear();
+      this.data!.allowed = [];
+    } else {
+      if (reset) {
+        this._blocked.clear();
+        this.data!.blocked = [];
+      } else {
+        this.data!.blocked = [<SuggestionRole>{
+          role: 'all',
+          addedBy: this.client.user.id,
+          type: 'blocked'
+        }];
       }
     }
+    await this._settings.save();
+    await this.client.redis.helpers.clearCachedGuild(this.guild);
+  }
+
+  public updateCooldowns(user: string, remove?: boolean): boolean {
+    if (remove) return this._cooldowns.delete(user);
+    this._cooldowns.set(user, { expires: this._cooldown! + Date.now() });
+    // TODO in the future when we pull from redis directly, make sure to remove this setTimeout
+    setTimeout(() => {
+      this._cooldowns.delete(user);
+    }, this._cooldown!);
+    return this._cooldowns.has(user);
   }
 
   private async _addRoles(roles: Array<SuggestionRole>, collection: Collection<Role>): Promise<void> {

@@ -1,22 +1,26 @@
-import SubCommand from '../../../structures/SubCommand';
+import { Role, TextChannel } from 'eris';
+import { oneLine, stripIndents } from 'common-tags';
+import ms from 'ms';
+
 import SuggestionsClient from '../../../structures/Client';
 import {
   CommandCategory,
   CommandNextFunction,
   GuildSchema,
   SuggestionChannel,
-  SuggestionChannelType, SuggestionRole
+  SuggestionChannelType,
+  SuggestionRole
 } from '../../../types';
 import CommandContext from '../../../structures/Context';
+import SubCommand from '../../../structures/SubCommand';
 import Util from '../../../utils/Util';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
-import { TextChannel } from 'eris';
-import { oneLine, stripIndents } from 'common-tags';
+import dayjs from 'dayjs';
 
 export default class ConfigChannelsCommand extends SubCommand {
-  #_channelArgOptions = ['lock', 'unlock', 'enable', 'disable', 'enablereview', 'disablereview', 'allowed', 'blocked', 'cooldown', 'emojis'];
-  #_channelFlagOptions = ['allowed', 'blocked'];
+  #_channelArgOptions = ['lock', 'unlock', 'enable', 'disable', 'enablereview', 'disablereview',
+    'allowed', 'blocked', 'cooldown', 'emojis'];
 
   constructor(public client: SuggestionsClient) {
     super(client);
@@ -32,7 +36,8 @@ export default class ConfigChannelsCommand extends SubCommand {
       'config channels [add/remove] [channel]',
       'config channels [add/remove] [channel] [type]',
       'config channels [channel] [enable/unlock|disable/lock]',
-      'config channels [channel] [[--]allowed/[--]blocked] [role(s)/all]',
+      'config channels [channel] [allowed/blocked] [role]',
+      'config channels [channel] [--allowed/--blocked=<role>, <role>, ...]',
       'config channels [channel] cooldown [cooldown]'
     ];
     this.examples = [
@@ -43,7 +48,8 @@ export default class ConfigChannelsCommand extends SubCommand {
       'config channels remove #staff-votes',
       'config channels #suggestions enable',
       'config channels #suggestions allowed all',
-      'config channels #patron-ideas --allowed Donators, Patrons --blocked all',
+      'config channels #suggestions allowed clear',
+      'config channels #patron-ideas --allowed=Donators, Patrons --blocked=Members',
       'config channels #video-ideas cooldown 1d'
     ];
     this.adminOnly = true;
@@ -56,7 +62,14 @@ export default class ConfigChannelsCommand extends SubCommand {
       const arg = ctx.args.get(0).toLowerCase();
       const channel = ctx.args.get(1);
       const gChannel = Util.getChannel(channel, ctx.guild!);
-      if (!gChannel) return MessageUtils.error(this.client, ctx.message, `\`${ctx.args.get(1)}\` is not a valid channel!`);
+      const type = ctx.args.get(2);
+      if (!gChannel) return MessageUtils.error(this.client, ctx.message,
+        `\`${ctx.args.get(1)}\` is not a valid channel!`);
+      if (type && !Object.values(SuggestionChannelType).includes(<SuggestionChannelType>type))
+        return MessageUtils.error(this.client, ctx.message,
+          `\`${type}\` is an invalid channel type:
+            
+            Valid types: \`${Object.values(SuggestionChannelType).join(', ')}\``);
       if ((arg === 'remove') && !channels.includes(gChannel.id))
         return MessageUtils.error(this.client, ctx.message, `${gChannel.mention} is not a configured channel!`);
       if ((arg === 'add') && channels.includes(gChannel.id))
@@ -65,11 +78,47 @@ export default class ConfigChannelsCommand extends SubCommand {
 
     if (ctx.args.get(0) && Util.getChannel(ctx.args.get(0), ctx.guild!)) {
       const channel = Util.getChannel(ctx.args.get(0), ctx.guild!);
-      if (!channel)  return MessageUtils.error(this.client, ctx.message, `\`${ctx.args.get(0)}\` is not a valid channel!`);
-      if (!channels.includes(channel.id))
-        return MessageUtils.error(this.client, ctx.message, `${channel.mention} is not a configured channel!`);
+      if (!channel)  return MessageUtils.error(this.client, ctx.message,
+        `\`${ctx.args.get(0)}\` is not a valid channel!`);
+      if (!channels.includes(channel.id)) return MessageUtils.error(this.client, ctx.message,
+        `${channel.mention} is not a configured channel!`);
       const sChannel = this.client.suggestionChannels.get(channel.id);
-      if (!sChannel) return MessageUtils.error(this.client, ctx.message,`${channel.mention} is not currently available!`);
+      if (!sChannel) return MessageUtils.error(this.client, ctx.message,
+        `${channel.mention} is not currently available!`);
+
+      const allowedRoles = ctx.flags.get('allowed');
+      if (allowedRoles) {
+        if (sChannel.type !== SuggestionChannelType.SUGGESTIONS) return MessageUtils.error(this.client, ctx.message,
+          'You can only adjust the allowed roles for regular suggestion channels!');
+        const missingRoles: Array<string> = [];
+        (allowedRoles as string)
+          .split(', ')
+          .map(role => {
+            const foundRole = Util.getRole(role, ctx);
+            if (!foundRole) missingRoles.push(role);
+            return foundRole;
+          });
+
+        if (missingRoles.length > 0) return MessageUtils.error(this.client, ctx.message,
+          `I could not find these role(s): \`${missingRoles.join(', ')}\``);
+      }
+
+      const blockedRoles = ctx.flags.get('blocked');
+      if (blockedRoles) {
+        if (sChannel.type !== SuggestionChannelType.SUGGESTIONS) return MessageUtils.error(this.client, ctx.message,
+          'You can only adjust the blocked roles for regular suggestion channels!');
+        const missingRoles: Array<string> = [];
+        (allowedRoles as string)
+          .split(', ')
+          .map(role => {
+            const foundRole = Util.getRole(role, ctx);
+            if (!foundRole) missingRoles.push(role);
+            return foundRole;
+          });
+
+        if (missingRoles.length > 0) return MessageUtils.error(this.client, ctx.message,
+          `I could not find these role(s): \`${missingRoles.join(', ')}\``);
+      }
 
       if (ctx.args.get(1) && (this.#_channelArgOptions.includes(ctx.args.get(1)))) {
         const arg = ctx.args.get(1).toLowerCase();
@@ -77,50 +126,94 @@ export default class ConfigChannelsCommand extends SubCommand {
         switch (arg) {
           case 'enable': case 'unlock': {
             if (!sChannel.locked)
-              return MessageUtils.error(this.client, ctx.message, `Cannot unlock ${channel.mention} as it's already unlocked!`);
+              return MessageUtils.error(this.client, ctx.message,
+                `Cannot unlock ${channel.mention} as it's already unlocked!`);
             break;
           }
           case 'disable': case 'lock': {
             if (sChannel.locked)
-              return MessageUtils.error(this.client, ctx.message, `Cannot lock ${channel.mention} as it's already locked!`);
+              return MessageUtils.error(this.client, ctx.message,
+                `Cannot lock ${channel.mention} as it's already locked!`);
             break;
           }
           case 'enablereview': {
+            if (sChannel.type !== SuggestionChannelType.SUGGESTIONS)
+              return MessageUtils.error(this.client, ctx.message,
+                'You can only enable review mode in a regular suggestion channel!');
             if (sChannel.reviewMode)
               return MessageUtils.error(this.client, ctx.message,
                 `Cannot enable review mode for ${channel.mention} as it's already enabled!`);
             break;
           }
           case 'disablereview': {
+            if (sChannel.type !== SuggestionChannelType.SUGGESTIONS)
+              return MessageUtils.error(this.client, ctx.message,
+                'You can only disable review mode in a regular suggestion channel!');
             if (!sChannel.reviewMode)
               return MessageUtils.error(this.client, ctx.message,
                 `Cannot disable review mode for ${channel.mention} as it's already disabled!`);
             break;
           }
+          case 'emojis': {
+            const subArg = ctx.args.get(2);
+            if (subArg && !ctx.settings!.emojis.map(e => e.name).includes(subArg))
+              return MessageUtils.error(this.client, ctx.message,
+                `**${subArg}** does not exist as an emoji set for **${ctx.guild!.name}**!`);
+            if (subArg && (sChannel.emojis === subArg))
+              return MessageUtils.error(this.client, ctx.message,
+                `**${sChannel.emojis}** is already set as the emoji set for ${channel.mention}!`);
+            break;
+          }
+          case 'cooldown': {
+            const subArg = ctx.args.get(2);
+            if (subArg && !ms(subArg))
+              return MessageUtils.error(this.client, ctx.message,
+                `\`${subArg}\` is an invalid cooldown time! Please try again.`);
+            if (subArg && (ms(subArg) > ms('12h')))
+              return MessageUtils.error(this.client, ctx.message,
+                'You cannot set a timeout greater than **12 hours**!');
+            break;
+          }
           case 'allowed': case 'blocked': {
+            if (sChannel.type !== SuggestionChannelType.SUGGESTIONS)
+              return MessageUtils.error(this.client, ctx.message,
+                'You can only adjust the allowed/blocked roles for regular suggestion channels!');
             if (!ctx.args.get(2) && (sChannel[arg].size < 1))
-              return MessageUtils.error(this.client, ctx.message, `There are no ${arg} roles to display for ${channel.mention}!`);
+              return MessageUtils.error(this.client, ctx.message,
+                `There are no ${arg} roles to display for ${channel.mention}!`);
 
             const incorrectArgIsRole = Util.getRole(ctx.args.get(2), ctx);
             if (incorrectArgIsRole)
               return MessageUtils.error(this.client, ctx.message,
-                `You passed in a role! Did you mean to do \`${ctx.prefix + this.friendly} ${arg} add/remove @${incorrectArgIsRole.name}\`?`);
+                oneLine`You passed in a role! Did you mean to do \`${ctx.prefix + this.friendly} ${channel.mention}
+                    ${arg} add/remove @${incorrectArgIsRole.name}\`?`);
 
             if (ctx.args.args.length > 2) {
               const roles = sChannel[arg].map(r => r.id);
               const subArg = ctx.args.get(2).toLowerCase();
               const role = Util.getRole(ctx.args.slice(3).join(' '), ctx);
-              if (!role) return MessageUtils.error(this.client, ctx.message,
+              if (subArg === 'all')  return MessageUtils.error(this.client, ctx.message,
+                oneLine`You passed in \`all\`. Did you mean to do \`${ctx.prefix + this.friendly} #${channel.name}
+                    ${arg} add/remove all\`?`);
+              if (!role && ['add', 'remove'].includes(subArg) && (sChannel.data![arg][0] &&
+                  (sChannel.data![arg][0].role === 'all') && roles.length === 0))
+                return MessageUtils.error(this.client, ctx.message, oneLine`All roles are already **${arg}**
+                  ${arg === 'allowed' ? 'in' : 'from'} ${channel.mention}`);
+
+              if (!role && ['add', 'remove'].includes(subArg) && (ctx.args.get(3).toLowerCase() === 'all')) return next();
+              if (!role && ['add', 'remove'].includes(subArg)) return MessageUtils.error(this.client, ctx.message,
                 `The role \`${ctx.args.slice(3).join(' ')}\` does not exist!`);
 
-
-              if (['add', 'remove'].includes(subArg)) {
-                if (roles.includes(role.id))
+              if (['add', 'remove', 'reset', 'clear'].includes(subArg)) {
+                if ((subArg === 'add') && roles.includes(role!.id))
                   return MessageUtils.error(this.client, ctx.message,
-                    `${role.mention} is already a(n) ${arg} role in ${channel.mention}!`);
-                if (!roles.includes(role.id))
+                    `${role!.mention} is already a(n) ${arg} role in ${channel.mention}!`);
+                if ((subArg === 'remove') && !roles.includes(role!.id))
                   return MessageUtils.error(this.client, ctx.message,
-                    `${role.mention} is not a(n) ${arg} role in ${channel.mention}!`);
+                    `${role!.mention} is not a(n) ${arg} role in ${channel.mention}!`);
+                if (['reset', 'clear'].includes(subArg) && roles.length < 0)
+                  return MessageUtils.error(this.client, ctx.message,
+                    `There are no ${arg} in ${channel.mention} to reset!`);
               }
             }
 
@@ -134,15 +227,56 @@ export default class ConfigChannelsCommand extends SubCommand {
   }
 
   async run(ctx: CommandContext): Promise<any> {
+    const docsRef = `${this.client.config.docs}/docs/configuration.html`;
+
     const baseEmbed = MessageUtils.defaultEmbed()
       .setAuthor(ctx.guild!.name, ctx.guild!.iconURL)
       .setFooter(`Guild: ${ctx.guild!.id}`)
       .setTimestamp();
 
+    if (ctx.args.args.length === 1) {
+      try {
+        const channel = Util.getChannel(ctx.args.get(0), ctx.guild!)!;
+        const sChannel = this.client.suggestionChannels.get(channel.id)!;
+
+        const setEmojis = ctx.settings!.emojis.find(e => e.name === sChannel.emojis)!;
+        const guild = setEmojis.default ? await this.client.base!.ipc.fetchGuild('737166408525283348') : ctx.guild!;
+        const emojis = setEmojis.emojis.map(e => e && e.length !== 0 ? guild.emojis.find(ge => ge.id === e) : e);
+
+        const allowed = sChannel.allowed.size > 0 ?
+          sChannel.allowed.map(r => r.mention).join(' ') :
+          sChannel.data!.blocked[0] && (sChannel.data!.blocked[0].role === 'all') ? 'None' : 'All';
+        const blocked = sChannel.data!.blocked.length > 0 ? sChannel.data!.blocked[0] &&
+        (sChannel.data!.blocked[0].role === 'all') ? 'All' : sChannel.blocked.map(r => r.mention).join(' ') : 'None';
+
+        baseEmbed.setDescription(stripIndents`
+          **Channel:** ${channel.mention}
+          **Added:** ${dayjs(sChannel.data!.added).format('MM/DD/YYYY HH:mm:ss')}
+          **Added By:** <@${sChannel.data!.addedBy}>
+          **Channel Type:** ${Util.toProperCase(sChannel.type)}
+          
+          **Suggestion Cooldown:** ${sChannel?.cooldown ? ms(sChannel.cooldown, { long: true }) : 'N/A'}
+          **Review Mode:** ${sChannel.reviewMode ? 'Enabled' : 'Disabled'}
+          **Locked:** ${sChannel.locked ? 'Yes' : 'No'}
+          **Emojis:** ${emojis.map(e => typeof e === 'string' ? e : `<:${e!.name}:${e!.id}>`).join(' ')}
+          
+          **Allowed Roles:** ${allowed}
+          **Blocked Roles:** ${blocked}
+        `);
+        baseEmbed.addField('More Information', `[Link](${docsRef}#channels)`);
+
+        return ctx.embed(baseEmbed);
+      } catch (e) {
+        Logger.error('CONFIG CHANNEL', e.stack);
+        return MessageUtils.error(this.client, ctx.message, e.message, true);
+      }
+    }
 
     if (ctx.args.get(0) && ['add', 'remove'].includes(ctx.args.get(0).toLowerCase())) {
       const arg = ctx.args.get(0).toLowerCase();
-      const channelExists = (data: GuildSchema, channel: TextChannel): boolean => data.channels.map(c => c.channel).includes(channel.id);
+      const type = ctx.args.get(2);
+      const channelExists = (data: GuildSchema, channel: TextChannel): boolean => data.channels
+        .map(c => c.channel).includes(channel.id);
       switch (arg) {
         case 'add': case 'remove': {
           try {
@@ -151,14 +285,16 @@ export default class ConfigChannelsCommand extends SubCommand {
             const data = await this.client.database.guildHelpers.getGuild(ctx.guild!, false);
             const updated = <SuggestionChannel>{
               channel: gChannel.id,
-              type: SuggestionChannelType.SUGGESTIONS,
+              type: <SuggestionChannelType>type || SuggestionChannelType.SUGGESTIONS,
               addedBy: ctx.sender.id
             };
 
             data.updateChannels(updated);
             const document = await data.save();
             await MessageUtils.success(this.client, ctx.message,
-              `${ctx.sender.mention} has successfully ${channelExists(document, gChannel) ? 'added' : 'removed'} ${gChannel.mention} as a(n) ${updated.type} channel!`);
+              oneLine`${ctx.sender.mention} has successfully 
+              ${channelExists(document, gChannel) ? 'added' : 'removed'} ${gChannel.mention} as 
+                a(n) **${updated.type}** channel!`);
           } catch (e) {
             Logger.error('CONFIG CHANNEL', e.stack);
             return MessageUtils.error(this.client, ctx.message, e.message, true);
@@ -171,9 +307,68 @@ export default class ConfigChannelsCommand extends SubCommand {
     }
 
     if (ctx.args.get(0) && Util.getChannel(ctx.args.get(0), ctx.guild!)) {
-      const docsRef = `${this.client.config.docs}/docs/configuration.html`;
       const channel = Util.getChannel(ctx.args.get(0), ctx.guild!)!;
       const sChannel = this.client.suggestionChannels.get(channel.id)!;
+
+      const allowedRoles = ctx.flags.get('allowed');
+      if (allowedRoles) {
+        const roles = (allowedRoles as string)
+          .split(', ')
+          .map(role => Util.getRole(role, ctx)!);
+
+        const adjustedRoles: Array<{ added: boolean, role: Role }> = [];
+        try {
+          for (const role of roles) {
+            const updated = await sChannel.updateRole(<SuggestionRole>{
+              role: role.id,
+              type: 'allowed',
+              addedBy: ctx.sender.id
+            });
+
+            adjustedRoles.push({ added: updated, role });
+          }
+
+          await MessageUtils.success(this.client, ctx.message,
+            `${ctx.sender.mention} has successfully updated the **allowed** roles in ${channel.mention}: 
+            
+            ${adjustedRoles.map(r => `**${r.added ? '+' : '-'}**${r.role.name}`).join(', ')}`);
+        } catch (e) {
+          Logger.error('CONFIG CHANNEL', e.stack);
+          return MessageUtils.error(this.client, ctx.message, e.message, true);
+        }
+
+        return;
+      }
+
+      const blockedRoles = ctx.flags.get('blocked');
+      if (blockedRoles) {
+        const roles = (blockedRoles as string)
+          .split(', ')
+          .map(role => Util.getRole(role, ctx)!);
+
+        const adjustedRoles: Array<{ added: boolean, role: Role }> = [];
+        try {
+          for (const role of roles) {
+            const updated = await sChannel.updateRole(<SuggestionRole>{
+              role: role.id,
+              type: 'blocked',
+              addedBy: ctx.sender.id
+            });
+
+            adjustedRoles.push({ added: updated, role });
+          }
+
+          await MessageUtils.success(this.client, ctx.message,
+            `${ctx.sender.mention} has successfully updated the **blocked** roles in ${channel.mention}:
+            
+            ${adjustedRoles.map(r => `**${r.added ? '+' : '-'}**${r.role.name}`).join(', ')}`);
+        } catch (e) {
+          Logger.error('CONFIG CHANNEL', e.stack);
+          return MessageUtils.error(this.client, ctx.message, e.message, true);
+        }
+
+        return;
+      }
 
       if (ctx.args.get(1) && (this.#_channelArgOptions.includes(ctx.args.get(1)))) {
         const arg = ctx.args.get(1).toLowerCase();
@@ -184,7 +379,54 @@ export default class ConfigChannelsCommand extends SubCommand {
               const isDisabling = ['disable', 'lock'].includes(arg);
               const locked = await sChannel.lock(isDisabling);
               await MessageUtils.success(this.client, ctx.message,
-                `${ctx.sender.mention} has successfully ${locked ? 'enabled' : 'disabled'} suggestion submissions in ${channel.mention}.`);
+                oneLine`${ctx.sender.mention} has successfully ${locked ? 'enabled' : 'disabled'} suggestion
+                 submissions in ${channel.mention}.`);
+            } catch (e) {
+              Logger.error('CONFIG CHANNEL', e.stack);
+              return MessageUtils.error(this.client, ctx.message, e.message, true);
+            }
+            break;
+          }
+          case 'emojis': {
+            try {
+              if (ctx.args.get(2)) {
+                const emojis = ctx.args.get(2).toLowerCase();
+                const setEmojis = await sChannel.setEmojis(emojis);
+                await MessageUtils.success(this.client, ctx.message,
+                  oneLine`${ctx.sender.mention} has successfully set **${setEmojis}** as the emojis
+                   in **${channel.mention}**.`);
+                return;
+              }
+
+              const setEmojis = ctx.settings!.emojis.find(e => e.name === sChannel.emojis)!;
+              const guild = setEmojis.default ? await this.client.base!.ipc.fetchGuild('737166408525283348')
+                : ctx.guild!;
+              const emojis = setEmojis.emojis.map(e => e && e.length !== 0 ?
+                guild.emojis.find(ge => ge.id === e) : e);
+
+              baseEmbed.addField('Channel Emojis', emojis.map(e => typeof e === 'string' ? e
+                : `<:${e!.name}:${e!.id}>`).join(' '));
+              baseEmbed.addField('More Information', `[Link](${docsRef}#channels)`);
+              ctx.embed(baseEmbed);
+            } catch (e) {
+              Logger.error('CONFIG CHANNEL', e.stack);
+              return MessageUtils.error(this.client, ctx.message, e.message, true);
+            }
+            break;
+          }
+          case 'cooldown': {
+            try {
+              if (ctx.args.get(2)) {
+                const cooldown = ms(ctx.args.get(2));
+                const setCooldown = await sChannel.setCooldown(cooldown);
+                await MessageUtils.success(this.client, ctx.message,
+                  oneLine`${ctx.sender.mention} has successfully set the cooldown for ${channel.mention} 
+                  to **${ms(setCooldown, { long: true })}**!`);
+                return;
+              }
+              baseEmbed.addField('Channel Cooldown', ms(sChannel?.cooldown ?? 0, { long: true }));
+              baseEmbed.addField('More Information', `[Link](${docsRef}#channels)`);
+              ctx.embed(baseEmbed);
             } catch (e) {
               Logger.error('CONFIG CHANNEL', e.stack);
               return MessageUtils.error(this.client, ctx.message, e.message, true);
@@ -195,7 +437,8 @@ export default class ConfigChannelsCommand extends SubCommand {
             try {
               const enabled = await sChannel.setReviewMode(arg === 'enablereview');
               await MessageUtils.success(this.client, ctx.message,
-                `${ctx.sender.mention} has successfully ${enabled ? 'enabled' : 'disabled'} review mode for ${channel.mention}.`);
+                oneLine`${ctx.sender.mention} has successfully ${enabled ? 'enabled' : 'disabled'} 
+                review mode for ${channel.mention}.`);
             } catch (e) {
               Logger.error('CONFIG CHANNEL', e.stack);
               return MessageUtils.error(this.client, ctx.message, e.message, true);
@@ -209,29 +452,40 @@ export default class ConfigChannelsCommand extends SubCommand {
               
                 ${sChannel[arg].map(r => `**${i++})** ${r.mention}`).join('\n')}
               `);
-
-              baseEmbed.addField('Usages', `\`${this.usages!.slice(0, 3).map(u => ctx.prefix + u).join('\n')}\``, true);
-              baseEmbed.addField('Examples', `\`${this.examples!.slice(0, 3).map(u => ctx.prefix + u).join('\n')}\``, true);
               baseEmbed.addField('More Information', `[Link](${docsRef}#channels)`);
               return ctx.embed(baseEmbed);
             }
 
             const subArg = ctx.args.get(2).toLowerCase();
             const role = Util.getRole(ctx.args.slice(3).join(' '), ctx)!;
-            if (['add', 'remove'].includes(subArg)) {
-              try {
-                const updated = await sChannel.updateRole(<SuggestionRole>{
-                  role: role.id,
-                  type: arg,
-                  addedBy: ctx.sender.id
-                });
-                return await MessageUtils.success(this.client, ctx.message,
-                  oneLine`${ctx.sender.mention} has successfully ${updated ? 'added' : 'removed'} ${role.mention} as a(n)
-                       ${arg} role in ${channel.mention}.`);
-              } catch (e) {
-                Logger.error('CONFIG CHANNEL', e.stack);
-                return MessageUtils.error(this.client, ctx.message, e.message, true);
+            try {
+              if (['reset', 'clear'].includes(subArg)) {
+                await sChannel.clearRoles(arg, true);
+                return MessageUtils.error(this.client, ctx.message,
+                  `${ctx.sender.mention} has successfully cleared all **${arg}** roles in ${channel.mention}!`);
               }
+
+              if (['add', 'remove'].includes(subArg)) {
+                if (ctx.args.get(3).toLowerCase() === 'all') {
+                  await sChannel.clearRoles(arg);
+                  return await MessageUtils.success(this.client, ctx.message,
+                    oneLine`${ctx.sender.mention} has successfully **${arg}** 
+                      all roles ${arg === 'allowed' ? 'to submit suggesitons in' : 'from submitting suggestions in'} 
+                      ${channel.mention}!`);
+                } else {
+                  const updated = await sChannel.updateRole(<SuggestionRole>{
+                    role: role.id,
+                    type: arg,
+                    addedBy: ctx.sender.id
+                  });
+                  return await MessageUtils.success(this.client, ctx.message,
+                    oneLine`${ctx.sender.mention} has successfully **${updated ? 'added' : 'removed'}** 
+                      ${role.mention} as a(n) **${arg}** role in ${channel.mention}!`);
+                }
+              }
+            } catch (e) {
+              Logger.error('CONFIG CHANNEL', e.stack);
+              return MessageUtils.error(this.client, ctx.message, e.message, true);
             }
 
             break;

@@ -6,6 +6,7 @@ import Permissions from './Permissions';
 import { Guild, Member, Role, TextChannel, User } from 'eris';
 import { SuggestionGuild, SuggestionUser } from '../types';
 import CommandContext from '../structures/Context';
+import { execSync } from 'child_process';
 
 export default class Util {
   public static formatPermission(permission: string): string {
@@ -165,5 +166,9 @@ export default class Util {
       apiKey: process.env.GIPHY,
       https: true
     });
+  }
+
+  public static lastCommitHash(): string {
+    return execSync('git rev-parse HEAD', { encoding: 'utf8' }).slice(0, 7);
   }
 }

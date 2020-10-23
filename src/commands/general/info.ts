@@ -9,6 +9,7 @@ import { description, version } from '../../../package.json';
 import MessageUtils from '../../utils/MessageUtils';
 import { CommandCategory, ShardStats } from '../../types';
 import Context from '../../structures/Context';
+import Util from '../../utils/Util';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { version: erisVersion }  = require('../../../node_modules/eris/package.json');
@@ -42,7 +43,8 @@ export default class InfoCommand extends Command {
       const [stats, suggestions, commands] = await Promise.all(promises);
 
       const embed = new MessageEmbed()
-        .setTitle(this.client.user.username)
+        .setTitle(`${this.client.user.username} [v${version} / ${Util.lastCommitHash()}]`)
+        .setURL(this.client.config.website)
         .setDescription(description)
         .setColor(main)
         .setThumbnail(this.client.user.dynamicAvatarURL('png', 2048))
@@ -54,17 +56,17 @@ export default class InfoCommand extends Command {
           `**❯ Website:** [Link](${this.client.config.website})`,
           `**❯ Invite:** [Invite me](${this.client.config.invite})`
         ].join('\n'), true)
-        .addField('Versions', [
-          `**❯ Version:** \`${version}\``,
-          `**❯ Node:** \`${process.version.replace('v', '')}\``,
-          `**❯ Eris:** \`${erisVersion}\``,
-        ].join('\n'), true)
         .addField('Statistics', [
           `**❯ Guilds:** \`${stats?.guilds ?? 0}\``,
           `**❯ Users:** \`${stats?.users ?? 0}\``,
           `**❯ Suggestions:** \`${suggestions ?? 0}\``,
           `**❯ Commands:** \`${commands ?? 0}\``,
           `**❯ Memory:** \`${Math.round(stats?.totalRam ?? 0)} MB\``
+        ].join('\n'), true)
+        .addField('Versions', [
+          `**❯ Version:** \`v${version}\``,
+          `**❯ Node:** \`${process.version}\``,
+          `**❯ Eris:** \`v${erisVersion}\``,
         ].join('\n'), true)
         .setFooter(`© 2020 Nerd Cave Development | PID ${process.pid} | Cluster ${cluster} | Shard ${shard}`);
 

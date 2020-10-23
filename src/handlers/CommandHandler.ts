@@ -136,7 +136,8 @@ export default class CommandHandler {
         await preConditionNext();
       }
     } catch (e) {
-      return Logger.error('COMMAND HANDLER', e.stack);
+      Logger.error('COMMAND HANDLER', e.stack);
+      return MessageUtils.error(this.client, ctx.message, e.message, true);
     }
   }
 }

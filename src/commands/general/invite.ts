@@ -56,10 +56,8 @@ export default class InfoCommand extends Command {
       }
     } catch (e) {
       if (e.code === 50007) return MessageUtils.error(this.client, ctx.message,
-        oneLine`Cannot DM you the invite information! Please enable your DMs for this server or do \`${ctx.prefix + this.name} here\`
-          to get the invite information.
-        `
-      );
+        oneLine`Cannot DM you the invite information! Please enable your DMs for this server or do 
+          \`${ctx.prefix + this.name} here\` to get the invite information.`);
       Logger.error(`CMD:${this.name.toUpperCase()}`, e);
       return MessageUtils.error(this.client, ctx.message, e.message, true);
     }

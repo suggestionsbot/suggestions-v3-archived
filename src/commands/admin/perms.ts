@@ -1,4 +1,6 @@
 import { Constants, GuildTextableChannel, PermissionOverwrite } from 'eris';
+import { stripIndents } from 'common-tags';
+
 import Command from '../../structures/command';
 import SuggestionsClient from '../../structures/client';
 import { CommandCategory, CommandNextFunction } from '../../types';
@@ -7,7 +9,6 @@ import MessageUtils from '../../utils/MessageUtils';
 import CommandContext from '../../structures/Context';
 import Context from '../../structures/Context';
 import Util from '../../utils/Util';
-import { stripIndents } from 'common-tags';
 
 const Permissions: { [key: string]: number } = Constants.Permissions;
 
@@ -25,12 +26,10 @@ export default class PermsCommand extends Command {
   }
 
   async runPreconditions(ctx: Context, next: CommandNextFunction): Promise<any> {
-    const channel = Util.getChannel(ctx.args.get(0) || ctx.channel.id, ctx.guild!);
-    if (!channel) {
+    if (!Util.getChannel(ctx.args.get(0) || ctx.channel.id, ctx.guild!))
       return MessageUtils.error(ctx.client, ctx.message, `\`${ctx.args.get(0)}\` does not resolve to a valid channel!`);
-    } else {
-      next();
-    }
+
+    next();
   }
 
   public async run(ctx: CommandContext): Promise<any> {

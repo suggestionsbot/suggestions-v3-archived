@@ -31,8 +31,7 @@ export default class CommandHandler {
       return MessageUtils.error(
         this.client,
         message,
-        `The \`${'friendly' in cmd ? cmd.friendly : cmd.name}\` command can only be used in a server!`
-      );
+        `The \`${'friendly' in cmd ? cmd.friendly : cmd.name}\` command can only be used in a server!`);
     }
 
     const staffCheck = message.guildID ? this.client.isStaff(message.member!, settings): null;
@@ -69,8 +68,7 @@ export default class CommandHandler {
           }
           await message.channel.createMessage(oneLine`
             I need the following permissions for the \`${cmd.name}\` command to work:
-            ${missingPermissions.map((p: string) => `\`${p}\``).join(', ')}
-          `);
+            ${missingPermissions.map((p: string) => `\`${p}\``).join(', ')}`);
 
           return;
         } catch (e) {

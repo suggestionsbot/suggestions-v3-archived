@@ -1,6 +1,7 @@
 import { Role, TextChannel } from 'eris';
 import { oneLine, stripIndents } from 'common-tags';
 import ms from 'ms';
+import dayjs from 'dayjs';
 
 import SuggestionsClient from '../../../structures/Client';
 import {
@@ -16,7 +17,6 @@ import SubCommand from '../../../structures/SubCommand';
 import Util from '../../../utils/Util';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
-import dayjs from 'dayjs';
 
 export default class ConfigChannelsCommand extends SubCommand {
   #_channelArgOptions = ['lock', 'unlock', 'enable', 'disable', 'enablereview', 'disablereview',

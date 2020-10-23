@@ -38,7 +38,8 @@ export default class SuggestCommand extends Command {
   }
 
   async runPreconditions(ctx: Context, next: CommandNextFunction): Promise<any> {
-    if (!ctx.args.get(0)) return MessageUtils.error(ctx.client, ctx.message, 'Please provide text for this suggestion!');
+    if (!ctx.args.get(0)) return MessageUtils.error(ctx.client, ctx.message,
+      'Please provide text for this suggestion!');
     const channels = ctx.settings!.channels.map(c => c.channel);
     const channel = channels.length <= 1 ? channels[0] : ctx.args.get(0);
     const gChannel = Util.getChannel(channel, ctx.guild!);
@@ -47,19 +48,17 @@ export default class SuggestCommand extends Command {
     if (gChannel && (channels.length > 1) && !channels.includes(gChannel.id))
       return MessageUtils.error(this.client, ctx.message,stripIndents`${gChannel.mention} is not a valid suggestions channel!
         
-        Valid channels: ${channels.map(c => `<#${c}>`).join(' ')}
-      `);
+        Valid channels: ${channels.map(c => `<#${c}>`).join(' ')}`);
 
     const sChannel = this.client.suggestionChannels.get(gChannel!.id);
     if (!sChannel) return MessageUtils.error(this.client, ctx.message,
-      `Cannot post to ${gChannel!.mention} as it's not currently available!`
-    );
+      `Cannot post to ${gChannel!.mention} as it's not currently available!`);
     if (!this.client.isAdmin(ctx.member!)) {
       const cooldown = sChannel.cooldowns.get(ctx.sender.id);
       if (sChannel.cooldown && cooldown)
         return MessageUtils.error(this.client, ctx.message,
-          `Cannot post to ${sChannel.channel.mention} for another **${dayjs.duration(cooldown.expires - Date.now()).humanize()}** 
-              as you are in a cooldown!`);
+          `Cannot post to ${sChannel.channel.mention} for another 
+              **${dayjs.duration(cooldown.expires - Date.now()).humanize()}** as you are in a cooldown!`);
       if (sChannel.type === SuggestionChannelType.STAFF && !this.client.isStaff(ctx.member!, ctx.settings!))
         return MessageUtils.error(this.client, ctx.message,
           `Cannot post to ${sChannel.channel.mention} as it is a staff suggestion channel!`);
@@ -84,7 +83,8 @@ export default class SuggestCommand extends Command {
         **Allowed:** ${sChannel.allowed.map(r => r.mention).join(' ')}`);
     }
     if (![SuggestionChannelType.SUGGESTIONS, SuggestionChannelType.STAFF].includes(sChannel.type))
-      return MessageUtils.error(this.client, ctx.message, `Suggestions cannot be posted in channels with the type: \`${sChannel.type}\`.`);
+      return MessageUtils.error(this.client, ctx.message, `Suggestions cannot be posted in channels with
+        the type: \`${sChannel.type}\`.`);
 
     next();
   }

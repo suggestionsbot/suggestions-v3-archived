@@ -38,7 +38,9 @@ export default class ConfigChannelsCommand extends SubCommand {
       'config channels [channel] [enable/unlock|disable/lock]',
       'config channels [channel] [allowed/blocked] [role]',
       'config channels [channel] [--allowed/--blocked=<role>, <role>, ...]',
-      'config channels [channel] cooldown [cooldown]'
+      'config channels [channel] cooldown [cooldown]',
+      'config channels [channel] emojis [name/id]',
+      'config channels [channel] [enableReview/disableReview]'
     ];
     this.examples = [
       'config channels add #suggestions',
@@ -50,7 +52,9 @@ export default class ConfigChannelsCommand extends SubCommand {
       'config channels #suggestions allowed all',
       'config channels #suggestions allowed clear',
       'config channels #patron-ideas --allowed=Donators, Patrons --blocked=Members',
-      'config channels #video-ideas cooldown 1d'
+      'config channels #video-ideas emojis videoIdeaEmojis',
+      'config channels #video-ideas cooldown 1d',
+      'config channels #video-ideas enableReview'
     ];
     this.adminOnly = true;
     this.botPermissions = ['manageMessages', 'externalEmojis', 'embedLinks'];
@@ -120,7 +124,7 @@ export default class ConfigChannelsCommand extends SubCommand {
           `I could not find these role(s): \`${missingRoles.join(', ')}\``);
       }
 
-      if (ctx.args.get(1) && (this.#_channelArgOptions.includes(ctx.args.get(1)))) {
+      if (ctx.args.get(1) && (this.#_channelArgOptions.includes(ctx.args.get(1).toLowerCase()))) {
         const arg = ctx.args.get(1).toLowerCase();
 
         switch (arg) {
@@ -370,7 +374,7 @@ export default class ConfigChannelsCommand extends SubCommand {
         return;
       }
 
-      if (ctx.args.get(1) && (this.#_channelArgOptions.includes(ctx.args.get(1)))) {
+      if (ctx.args.get(1) && (this.#_channelArgOptions.includes(ctx.args.get(1).toLowerCase()))) {
         const arg = ctx.args.get(1).toLowerCase();
 
         switch (arg) {

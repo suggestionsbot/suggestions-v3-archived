@@ -1,4 +1,4 @@
-import { stripIndents } from 'common-tags';
+import { oneLine, stripIndents } from 'common-tags';
 
 import SubCommand from '../../../structures/SubCommand';
 import SuggestionsClient from '../../../structures/Client';
@@ -57,16 +57,14 @@ export default class ConfigPrefixCommand extends SubCommand {
         let i = 1;
         baseEmbed.setDescription(stripIndents`My prefixes ${ctx.guild ? 'in this guild' : ''} are:
 
-        ${this.client.getPrefixes(false, true, ctx.settings).map(p => `**${i++})** ${p}`).join('\n')}
-      `);
-        baseEmbed.addField('Usages', `\`${ctx.prefix + this.usages!.join('\n')}\``, true);
-        baseEmbed.addField('Examples', `\`${ctx.prefix + this.examples!.join('\n')}\``, true);
+          ${this.client.getPrefixes(false, true, ctx.settings).map(p => `**${i++})** ${p}`).join('\n')}`);
         baseEmbed.addField('More Information', `[Link](${docsRef}#prefix)`);
         return ctx.embed(baseEmbed);
       }
 
       const prefixExists = ctx.settings!.prefixes.includes(ctx.args.get(0));
-      baseEmbed.setDescription(`The prefix \`${ctx.args.get(0)}\` has been **${prefixExists ? 'removed from' : 'added to'}** the bot's prefixes.`);
+      baseEmbed.setDescription(oneLine`The prefix \`${ctx.args.get(0)}\` has been 
+        **${prefixExists ? 'removed from' : 'added to'}** the guild's prefixes.`);
       const guildData = await this.client.database.guildHelpers.getGuild(ctx.guild!, false);
       guildData.updatePrefixes(ctx.args.get(0));
       await guildData.save();

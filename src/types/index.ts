@@ -165,6 +165,7 @@ export interface GuildSchema extends Document {
   setGuild(guild: Guild|string): void;
   setLocale(locale: string): void;
   updatePrefixes(prefix: string): void;
+  updateEmojis(emoji: VoteEmoji): void;
   updateChannel(channel: string, data: Record<string, unknown>): void;
   updateChannels(channel: SuggestionChannel): void;
   updateCommands(command: DisabledCommand): void;
@@ -178,6 +179,7 @@ export interface SuggestionChannel extends Document {
   allowed: Array<SuggestionRole>;
   blocked: Array<SuggestionRole>;
   emojis: string;
+  cooldown: number;
   locked: boolean;
   reviewMode: boolean;
   added: number;
@@ -210,8 +212,8 @@ export interface VoteEmoji extends Document {
   fullName?: string
   default: boolean;
   emojis: VoteEmojiArray;
-  added: number;
-  addedBy: string;
+  added?: number;
+  addedBy?: string;
 }
 
 export type VoteEmojiArray = [string, string, string?];

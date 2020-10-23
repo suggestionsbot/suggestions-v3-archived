@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { DisabledCommand, GuildSchema, SuggestionChannel, SuggestionRole } from '../../../types';
+import { DisabledCommand, GuildSchema, SuggestionChannel, SuggestionRole, VoteEmoji } from '../../../types';
 import { Guild } from 'eris';
 
 const SuggestionRole = {
@@ -26,7 +26,8 @@ export const GuildSettings = new Schema({
       },
       allowed: { type: [SuggestionRole] },
       blocked: { type: [SuggestionRole] },
-      emoji: { type: String },
+      emojis: { type: String },
+      cooldown: { type: Number },
       locked: { type: Boolean, default: false },
       reviewMode: { type: Boolean, default: false },
       added: { type: Number, default: Date.now() },
@@ -34,13 +35,13 @@ export const GuildSettings = new Schema({
     }]
   },
   staffRoles: [String],
-  emojis: {
+  emojis: [{
     name: String,
     default: { type: Boolean },
     emojis: [String],
     added: { type: Number, default: Date.now() },
     addedBy: String
-  },
+  }],
   responseRequired: {
     type: Boolean,
     default: false
@@ -69,6 +70,15 @@ GuildSettings.method('updatePrefixes', function(this: GuildSchema, prefix: strin
     this.prefixes = this.prefixes.filter(p => p !== prefix);
   } else {
     this.prefixes = [...this.prefixes, prefix];
+  }
+});
+
+GuildSettings.method('updateEmojis', function(this: GuildSchema, emoji: VoteEmoji) {
+  const emojiInArray = this.emojis.find((c: VoteEmoji) => c.name === emoji.name)!;
+  if (emojiInArray) {
+    this.emojis = this.emojis.filter((c: VoteEmoji) => c !== emojiInArray);
+  } else {
+    this.emojis = [...this.emojis, emoji];
   }
 });
 

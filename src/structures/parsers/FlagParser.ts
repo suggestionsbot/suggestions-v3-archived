@@ -24,8 +24,7 @@ export default class FlagParser {
         continue;
       }
       const a = flag.split(/\s*=\s*/)[0];
-      const b = flag.slice(flag.indexOf('=') + 1).trim();
-      parsed[a] = b;
+      parsed[a] = flag.slice(flag.indexOf('=') + 1).trim();
     }
     return parsed;
   }

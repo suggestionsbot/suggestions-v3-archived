@@ -98,12 +98,15 @@ export default class PermsCommand extends Command {
       ].join('\n'), true);
       if (this.client.suggestionChannels.has(channel.id)) {
         const data = this.client.suggestionChannels.get(channel.id)!;
+        const allowed = data.allowed.size > 0 ? data.allowed.map(r => r.mention).join(' ') : data.data!.blocked[0] && (data.data!.blocked[0].role === 'all') ? 'None' : 'All';
+        const blocked = data.data!.blocked.length > 0 ? data.data!.blocked[0] && (data.data!.blocked[0].role === 'all') ?
+          'All' : data.blocked.map(r => r.mention).join(' ') : 'None';
         // TODO Add emojis, cooldown, etc. Other useful information for myself and support staff to help resolve any sort of issues
         embed.addField('Suggestions', [
           `Type:\n \`${data.type}\``,
           stripIndents`Roles: 
-           ✅ ${data.allowed.size > 0 ? data.allowed.map(r => r.mention).join(' ') : 'All'}
-           ❌ ${data.blocked.size > 0 ? data.blocked.map(r => r.mention).join(' ') : 'None'}
+           ✅ ${allowed}
+           ❌ ${blocked}
           `,
           `Locked:\n \`${data.locked ? 'Yes' : 'No'}\``,
           `Review Mode:\n \`${data.reviewMode ? 'Enabled' : 'Disabled'}\``

@@ -47,34 +47,15 @@ export default class CommandHandler {
     if (cmd.ownerOnly && !ownerCheck) return;
 
     // check bot permissions
-    if ((message.channel instanceof GuildChannel) && (<GuildTextableChannel>message.channel) && cmd.botPermissions) {
+    if ((message.channel instanceof GuildChannel) && cmd.botPermissions) {
       const pendingPermissions = (!cmd.botPermissions) ? this.minimumPermissions : this.minimumPermissions.concat(cmd.botPermissions);
-      const missingPermissions: Array<string> = [];
-
-      // TODO eventually add in functionality to format permission numbewr
-      for (const permission of pendingPermissions) {
-        if (!message.channel.permissionsOf(this.client.user.id).has(<string>permission)) {
-          missingPermissions.push(Util.formatPermission(<string>permission));
-        }
-      }
+      const missingPermissions = Util.getMissingPermissions(pendingPermissions, message.channel, ctx.me!);
+      const cmdName = 'friendly' in cmd ? cmd.friendly : cmd.name;
 
       // TODO if bot is missing 'sendMessages' in a particular channel, dm the command sender
-      if (missingPermissions.length > 0) {
-        try { // this.client.emit('commandBlocked', cmd, `botPermissions: ${missing.join(', ')}`);
-          if (missingPermissions.length === 1) {
-            return message.channel.createMessage(oneLine`I need the \`${missingPermissions[0]}\` permission for the
-              \`${(<Command>cmd).name || (<SubCommand>cmd).friendly}\` command to work.
-            `).then((msg: Message) => this.client.wait(msg.delete, 5000));
-          }
-          await message.channel.createMessage(oneLine`
-            I need the following permissions for the \`${cmd.name}\` command to work:
-            ${missingPermissions.map((p: string) => `\`${p}\``).join(', ')}`);
-
-          return;
-        } catch (e) {
-          return Logger.error('COMMAND HANDLER', e);
-        }
-      }
+      // TODO eventually add in functionality to format permission numbewr
+      if (missingPermissions.length > 0) return MessageUtils.error(this.client, message, oneLine`I need the 
+        \`${missingPermissions.map(p => `\`${p}\``).join(', ')}\` permission(s) for the \`${cmdName}\` command to work.`);
     }
 
     // rate limiting

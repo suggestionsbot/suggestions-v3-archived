@@ -3,7 +3,7 @@ import GiphyAPI, { Giphy } from 'giphy-api';
 dotenv.config();
 
 import Permissions from './Permissions';
-import { Guild, Member, Role, TextChannel, User } from 'eris';
+import { Guild, GuildChannel, Member, Permission, Role, TextChannel, User } from 'eris';
 import { SuggestionGuild, SuggestionUser } from '../types';
 import CommandContext from '../structures/Context';
 import { execSync } from 'child_process';
@@ -170,5 +170,18 @@ export default class Util {
 
   public static lastCommitHash(): string {
     return execSync('git rev-parse HEAD', { encoding: 'utf8' }).slice(0, 7);
+  }
+
+  public static getMissingPermissions(permissions: Array<string|number>|Permission, channel: GuildChannel, member: Member): Array<string> {
+    const missingPermissions: Array<string> = [];
+    permissions = permissions instanceof Permission ? Object.keys(permissions.json) : permissions;
+
+    for (const permission of permissions) {
+      if (!channel.permissionsOf(member.id).has(<string>permission)) {
+        missingPermissions.push(Util.formatPermission(<string>permission));
+      }
+    }
+
+    return missingPermissions;
   }
 }

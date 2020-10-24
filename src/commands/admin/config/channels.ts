@@ -1,4 +1,4 @@
-import { Role, TextChannel } from 'eris';
+import { Permission, Role, TextChannel } from 'eris';
 import { oneLine, stripIndents } from 'common-tags';
 import ms from 'ms';
 import dayjs from 'dayjs';
@@ -18,6 +18,11 @@ import Util from '../../../utils/Util';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
 
+
+/**
+ * TODO implement premium guild checks for adding additional channels (limit is 2 channels)
+ * TODO limit all logs channel to one channel type so there are no multiple/duplicate log channels
+ */
 export default class ConfigChannelsCommand extends SubCommand {
   #_channelArgOptions = ['lock', 'unlock', 'enable', 'disable', 'enablereview', 'disablereview',
     'allowed', 'blocked', 'cooldown', 'emojis'];
@@ -62,22 +67,32 @@ export default class ConfigChannelsCommand extends SubCommand {
 
   async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
     const channels = ctx.settings!.channels.map(c => c.channel);
+
     if (ctx.args.get(0) && ['add', 'remove'].includes(ctx.args.get(0).toLowerCase())) {
       const arg = ctx.args.get(0).toLowerCase();
       const channel = ctx.args.get(1);
       const gChannel = Util.getChannel(channel, ctx.guild!);
-      const type = ctx.args.get(2);
+      const channelType = ctx.args.get(2);
       if (!gChannel) return MessageUtils.error(this.client, ctx.message,
-        `\`${ctx.args.get(1)}\` is not a valid channel!`);
-      if (type && !Object.values(SuggestionChannelType).includes(<SuggestionChannelType>type))
+        `\`${channel}\` is not a valid channel!`);
+      if (channelType && !Object.values(SuggestionChannelType).includes(<SuggestionChannelType>channelType))
         return MessageUtils.error(this.client, ctx.message,
-          `\`${type}\` is an invalid channel type:
+          `\`${channelType}\` is an invalid channel type:
             
             Valid types: \`${Object.values(SuggestionChannelType).join(', ')}\``);
       if ((arg === 'remove') && !channels.includes(gChannel.id))
         return MessageUtils.error(this.client, ctx.message, `${gChannel.mention} is not a configured channel!`);
-      if ((arg === 'add') && channels.includes(gChannel.id))
-        return MessageUtils.error(this.client, ctx.message, `${gChannel.mention} is already a configured channel!`);
+      if (arg === 'add') {
+        const defaultPermissions = new Permission(this.client.config.permissions[ConfigChannelsCommand._getPermsType(channelType)], 0);
+        const missingPermissions = Util.getMissingPermissions(defaultPermissions, gChannel, ctx.me!);
+
+        if (missingPermissions.length > 0)
+          return MessageUtils.error(this.client, ctx.message, oneLine` I need the following permissions in 
+            ${gChannel.mention} to be added: ${missingPermissions.map(p => `\`${p}\``).join(', ')}`);
+
+        if (channels.includes(gChannel!.id))
+          return MessageUtils.error(this.client, ctx.message, `${gChannel!.mention} is already a configured channel!`);
+      }
     }
 
     if (ctx.args.get(0) && Util.getChannel(ctx.args.get(0), ctx.guild!)) {
@@ -95,16 +110,20 @@ export default class ConfigChannelsCommand extends SubCommand {
         if (sChannel.type !== SuggestionChannelType.SUGGESTIONS) return MessageUtils.error(this.client, ctx.message,
           'You can only adjust the allowed roles for regular suggestion channels!');
         const missingRoles: Array<string> = [];
+        const guardedRoles: Array<string> = [];
         (allowedRoles as string)
           .split(', ')
           .map(role => {
             const foundRole = Util.getRole(role, ctx);
-            if (!foundRole) missingRoles.push(role);
+            if (!foundRole) return missingRoles.push(role);
+            if (foundRole!.managed || (foundRole!.id === ctx.guild!.id)) return guardedRoles.push(foundRole!.name);
             return foundRole;
           });
 
-        if (missingRoles.length > 0) return MessageUtils.error(this.client, ctx.message,
-          `I could not find these role(s): \`${missingRoles.join(', ')}\``);
+        let message = '';
+        if (missingRoles.length > 0) message += `I could not find these role(s): \`${missingRoles.join(', ')}\`\n`;
+        if (guardedRoles.length > 0) message += `I cannot add system/managed role(s): \`${guardedRoles.join(', ')}\`\n`;
+        if (message.length > 0) return MessageUtils.error(this.client, ctx.message, message);
       }
 
       const blockedRoles = ctx.flags.get('blocked');
@@ -112,13 +131,20 @@ export default class ConfigChannelsCommand extends SubCommand {
         if (sChannel.type !== SuggestionChannelType.SUGGESTIONS) return MessageUtils.error(this.client, ctx.message,
           'You can only adjust the blocked roles for regular suggestion channels!');
         const missingRoles: Array<string> = [];
-        (allowedRoles as string)
+        const guardedRoles: Array<string> = [];
+        (blockedRoles as string)
           .split(', ')
           .map(role => {
             const foundRole = Util.getRole(role, ctx);
-            if (!foundRole) missingRoles.push(role);
+            if (!foundRole) return missingRoles.push(role);
+            if (foundRole!.managed || (foundRole!.id === ctx.guild!.id)) return guardedRoles.push(foundRole!.name);
             return foundRole;
           });
+
+        let message = '';
+        if (missingRoles.length > 0) message += `I could not find these role(s): \`${missingRoles.join(', ')}\`\n`;
+        if (guardedRoles.length > 0) message += `I cannot add system/managed role(s): \`${guardedRoles.join(', ')}\`\n`;
+        if (message.length > 0) return MessageUtils.error(this.client, ctx.message, message);
 
         if (missingRoles.length > 0) return MessageUtils.error(this.client, ctx.message,
           `I could not find these role(s): \`${missingRoles.join(', ')}\``);
@@ -207,6 +233,8 @@ export default class ConfigChannelsCommand extends SubCommand {
               if (!role && ['add', 'remove'].includes(subArg) && (ctx.args.get(3).toLowerCase() === 'all')) return next();
               if (!role && ['add', 'remove'].includes(subArg)) return MessageUtils.error(this.client, ctx.message,
                 `The role \`${ctx.args.slice(3).join(' ')}\` does not exist!`);
+              if (role && (role.managed || (role.id === ctx.guild!.id))) return MessageUtils.error(this.client,
+                ctx.message, `${role.mention} is a system/managed role, which cannot be added as a(n) ${arg} role!`);
 
               if (['add', 'remove', 'reset', 'clear'].includes(subArg)) {
                 if ((subArg === 'add') && roles.includes(role!.id))
@@ -504,5 +532,16 @@ export default class ConfigChannelsCommand extends SubCommand {
     await this.client.redis.helpers.clearCachedGuild(ctx.guild!.id);
 
     next();
+  }
+
+  private static _getPermsType(t: string): 'regular'|'staff'|'logs' {
+    let returnedPerm: 'regular'|'staff'|'logs' = 'regular';
+    switch (t) {
+      case 'suggestions': return returnedPerm = 'regular';
+      case 'staff': return returnedPerm = 'staff';
+      case 'logs': case 'approved': case 'rejected': return returnedPerm = 'logs';
+    }
+
+    return returnedPerm;
   }
 }

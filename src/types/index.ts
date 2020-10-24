@@ -39,7 +39,7 @@ export interface BotConfig {
   patreon: string;
   superSecretUsers: Array<string>;
   permissions: {
-    default: number;
+    regular: number;
     logs: number;
     staff: number;
   };
@@ -156,8 +156,10 @@ export interface GuildSchema extends Document {
   guild: string,
   prefixes: Array<string>;
   locale: string;
+  premium: boolean;
+  premiumSince: string;
   channels: Array<SuggestionChannel>;
-  staffRoles: Array<string>;
+  staffRoles: Array<SuggestionRole>;
   emojis: Array<VoteEmoji>;
   responseRequired: boolean;
   dmResponses: boolean;
@@ -169,7 +171,7 @@ export interface GuildSchema extends Document {
   updateChannel(channel: string, data: Record<string, unknown>): void;
   updateChannels(channel: SuggestionChannel): void;
   updateCommands(command: DisabledCommand): void;
-  updateStaffRoles(role: string): void;
+  updateStaffRoles(role: SuggestionRole): void;
   updateChannelRoles(channel: string, role: SuggestionRole): void;
 }
 
@@ -188,7 +190,7 @@ export interface SuggestionChannel extends Document {
 
 export interface SuggestionRole extends Document {
   role: string;
-  type: 'allowed'|'blocked';
+  type: 'allowed'|'blocked'|'staff';
   added: number;
   addedBy: string;
 }

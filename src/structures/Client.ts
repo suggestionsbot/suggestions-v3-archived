@@ -147,7 +147,7 @@ export default class SuggestionsClient extends Client {
     let staffCheck: boolean;
     const adminCheck = this.isAdmin(member) || this.isOwner(member);
     const staffRoles = settings.staffRoles;
-    if (staffRoles) staffCheck = member.roles.some(r => staffRoles.includes(r)) || adminCheck;
+    if (staffRoles) staffCheck = member.roles.some(r => staffRoles.map(r => r.role).includes(r)) || adminCheck;
     else staffCheck = adminCheck;
 
     return staffCheck;

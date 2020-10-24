@@ -4,7 +4,7 @@ import { Guild } from 'eris';
 
 const SuggestionRole = {
   role: { type: String },
-  type: { type: String, enum: ['allowed', 'blocked'] },
+  type: { type: String, enum: ['allowed', 'blocked', 'staff'] },
   added: { type: Number, default: Date.now() },
   addedBy: { type: String }
 };
@@ -17,6 +17,8 @@ export const GuildSettings = new Schema({
   },
   prefixes: { type: [String], default: [','] },
   locale: { type: String, default: 'en_US' },
+  premium: { type: Boolean },
+  premiumSince: { type: String },
   channels: {
     type: [{
       channel: String,
@@ -34,7 +36,7 @@ export const GuildSettings = new Schema({
       addedBy: String
     }]
   },
-  staffRoles: [String],
+  staffRoles: [SuggestionRole],
   emojis: [{
     name: String,
     default: { type: Boolean },
@@ -107,8 +109,8 @@ GuildSettings.method('updateCommands', function(this: GuildSchema, { command }: 
   }
 });
 
-GuildSettings.method('updateStaffRoles', function(this: GuildSchema, role: string) {
-  const roleInArray = this.staffRoles.includes(role);
+GuildSettings.method('updateStaffRoles', function(this: GuildSchema, role: SuggestionRole) {
+  const roleInArray = this.staffRoles.find(r => r.role === role.role);
   if (roleInArray) {
     this.staffRoles = this.staffRoles.filter(r => r !== role);
   } else {

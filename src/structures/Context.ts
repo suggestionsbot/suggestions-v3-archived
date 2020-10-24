@@ -80,8 +80,8 @@ export default class CommandContext {
     return this.guild ? this.guild.members.get(this.client.user.id) : undefined;
   }
 
-  public getSettings(): Promise<GuildSchema>|null {
-    return this.guild ? this.client.database.guildHelpers.getGuild(this.guild.id) : null;
+  public getSettings(cached?: boolean): Promise<GuildSchema>|null {
+    return this.guild ? this.client.database.guildHelpers.getGuild(this.guild.id, cached) : null;
   }
 
   public translate(key: string, args?: { [x: string]: any}): string {

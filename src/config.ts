@@ -40,7 +40,7 @@ const config: BotConfig = {
     '158063324699951104' // Anthony
   ],
   permissions: {
-    default: 355392,
+    regular: 355392,
     logs: 84992,
     staff: 85056,
   },

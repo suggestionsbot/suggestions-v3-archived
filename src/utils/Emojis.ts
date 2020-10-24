@@ -40,7 +40,7 @@ const emojis: Array<InternalVoteEmoji> = [
     id: 5,
     name: 'fancyEmojis',
     fullName: 'Fancy',
-    emojis: ['555537247881920521', '555537277200367627'],
+    emojis: ['769382807209771018', '769382807687397386'],
     custom: true
   }
 ];

@@ -200,6 +200,9 @@ export default class ConfigChannelsCommand extends SubCommand {
           }
           case 'cooldown': {
             const subArg = ctx.args.get(2);
+            if (!subArg && !sChannel.cooldown) return MessageUtils.error(this.client, ctx.message,
+              `There is no cooldown to display for ${channel.mention}!`);
+            if (subArg && (subArg.toLowerCase() === 'reset')) return next();
             if (subArg && !ms(subArg))
               return MessageUtils.error(this.client, ctx.message,
                 `\`${subArg}\` is an invalid cooldown time! Please try again.`);
@@ -450,14 +453,15 @@ export default class ConfigChannelsCommand extends SubCommand {
           case 'cooldown': {
             try {
               if (ctx.args.get(2)) {
-                const cooldown = ms(ctx.args.get(2));
+                const subArg = ctx.args.get(2);
+                const cooldown = subArg.toLowerCase() === 'reset' ? 0 : ms(ctx.args.get(2));
                 const setCooldown = await sChannel.setCooldown(cooldown);
                 await MessageUtils.success(this.client, ctx.message,
-                  oneLine`${ctx.sender.mention} has successfully set the cooldown for ${channel.mention} 
-                  to **${ms(setCooldown, { long: true })}**!`);
+                  oneLine`${ctx.sender.mention} has successfully ${setCooldown ? 'set' : 'reset'} the cooldown for ${channel.mention}
+                    ${setCooldown ? `to **${ms(setCooldown, { long: true })}**!` : '!'}`);
                 return;
               }
-              baseEmbed.addField('Channel Cooldown', ms(sChannel?.cooldown ?? 0, { long: true }));
+              baseEmbed.addField('Channel Cooldown', ms(sChannel.cooldown!, { long: true }));
               baseEmbed.addField('More Information', `[Link](${docsRef}#channels)`);
               ctx.embed(baseEmbed);
             } catch (e) {

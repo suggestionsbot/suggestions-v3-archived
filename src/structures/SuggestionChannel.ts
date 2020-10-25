@@ -168,9 +168,9 @@ export default class SuggestionChannel {
     return this._emojis;
   }
 
-  public async setCooldown(cooldown: number): Promise<number> {
-    this._cooldown = cooldown;
-    this._settings.updateChannel(this.channel.id, { cooldown });
+  public async setCooldown(cooldown: number): Promise<number|undefined> {
+    this._cooldown = cooldown === 0 ? undefined : cooldown;
+    this._settings.updateChannel(this.channel.id, { cooldown: this._cooldown });
     await this._settings.save();
     await this.client.redis.helpers.clearCachedGuild(this.guild);
     return this._cooldown;

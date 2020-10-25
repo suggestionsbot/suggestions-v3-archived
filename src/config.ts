@@ -52,10 +52,8 @@ const config: BotConfig = {
     },
     locale: 'en_US',
     emojis: [<VoteEmoji>{
-      name: 'defaultEmojis',
-      fullName: 'Defaults',
       emojis: ['578409088157876255', '578409123876438027'],
-      default: true
+      system: true
     }]
   }
 };

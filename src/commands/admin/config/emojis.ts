@@ -1,10 +1,12 @@
+import { oneLine, stripIndents } from 'common-tags';
+
 import SubCommand from '../../../structures/SubCommand';
 import SuggestionsClient from '../../../structures/Client';
-import { CommandCategory, CommandNextFunction } from '../../../types';
+import { CommandCategory, CommandNextFunction, VoteEmoji } from '../../../types';
 import CommandContext from '../../../structures/Context';
 import MessageUtils from '../../../utils/MessageUtils';
 import emojis from '../../../utils/Emojis';
-import { stripIndents } from 'common-tags';
+import Util from '../../../utils/Util';
 
 /**
  * // TODO implement checks regarding premium, server booster and voting for the addition of custom emoji sets
@@ -35,69 +37,152 @@ export default class ConfigEmojisCommand extends SubCommand {
     this.botPermissions = ['manageMessages', 'externalEmojis', 'embedLinks'];
   }
 
-  // async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
-  //   const emojis = ctx.settings!.emojis.map(e => e.name);
-  //
-  //   if (!ctx.args.get(0) && !emojis.length)
-  //     return MessageUtils.error(this.client, ctx.message,'There are no vote emojis to dispay!');
-  //
-  //   if (ctx.args.get(0) && ['add', 'remove', 'reset', 'default'].includes(ctx.args.get(0).toLowerCase())) {
-  //     const arg = ctx.args.get(0).toLowerCase();
-  //     const emojis = ctx.args.slice(1).join(' ').split(', ')
-  //   }
-  //
-  //   next();
-  // }
+  async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
+    // const emojis = ctx.settings!.emojis.map(e => e.name);
+    const allEmojis = [...emojis, ...ctx.settings!.emojis];
+
+    if (!ctx.args.get(0) && !allEmojis.length)
+      return MessageUtils.error(this.client, ctx.message,'There are no vote emojis to dispay!');
+
+    if (ctx.args.get(0) && ['add', 'remove', 'reset', 'default'].includes(ctx.args.get(0).toLowerCase())) {
+      const arg = ctx.args.get(0).toLowerCase();
+
+      switch (arg) {
+        // TODO add condition to check if emoji options already match a current emoji set
+        case 'add': {
+          const emojiArgs = ctx.args.slice(1).join(' ').split(', ');
+          if (!emojiArgs || ![2, 3].includes(emojiArgs.length)) return MessageUtils.error(this.client, ctx.message,
+            'Please supply 2 or 3 emojis!');
+          const invalidEmojis: Array<string> = [];
+          for (const str of emojiArgs) {
+            const guildEmoji = Util.parseEmoji(str.trim());
+            const emojiMatch = Util.matchUnicodeEmoji(str.trim());
+            if ((guildEmoji && guildEmoji.id) && ctx.guild!.emojis.find(e => e.id ===guildEmoji.id)) continue;
+            if (emojiMatch && emojiMatch[0]) continue;
+            invalidEmojis.push(str.trim());
+          }
+
+
+          if (invalidEmojis.length > 0) return MessageUtils.error(this.client, ctx.message,
+            `I could not find these emojis: \`${invalidEmojis.join(', ')}\``);
+
+          break;
+        }
+        case 'remove': case 'default': {
+          const subArg = ctx.args.get(1);
+          if (!allEmojis[+subArg]) return MessageUtils.error(this.client, ctx.message,
+            `\`${subArg}\` is out of range. Please do \`${ctx.prefix + this.friendly}\` to see the options.`);
+          if ((arg === 'remove') && (allEmojis[+subArg].system)) return MessageUtils.error(this.client, ctx.message,
+            `\`${allEmojis[+subArg].name}\` is a system emoji set and cannot be removed!`);
+
+          break;
+        }
+        case 'reset': {
+          if (!emojis.length) return MessageUtils.error(this.client, ctx.message, 'There are no custom emoji sets to clear!');
+          break;
+        }
+      }
+    }
+
+    next();
+  }
 
   async run(ctx: CommandContext): Promise<any> {
     const docsRef = `${this.client.config.docs}/docs/configuration.html`;
-    const voteEmojis = ctx.settings!.emojis.find(e => e.default)?.name ?? 'defaultEmojis';
+    const voteEmojis = [...emojis, ...ctx.settings!.emojis];
 
     const baseEmbed = MessageUtils.defaultEmbed()
       .setAuthor(ctx.guild!.name, ctx.guild!.iconURL)
       .setFooter(`Guild: ${ctx.guild!.id}`)
       .setTimestamp();
 
+    if ([0, 1].includes(ctx.args.args.length)) {
+      const mainView = <Array<string>>await this.client.getVoteEmojisView(ctx.settings!);
 
-    const emojiSets = emojis.map(async set => {
-      let emojiSet;
+      const configChannels = <SubCommand>this.client.subCommands.getCommand('config-channels');
+      const premiumNotice = `You can do \`${ctx.prefix + configChannels.friendly} <channel> emojis <id>\` to override the default emoji set for a *specific* channel.`;
+      baseEmbed.addField('Voting Emojis', stripIndents`
+        Choose a default emoji set from the **${mainView.length}** sets below and see which sets you can use in your channels.
+        
+        ${mainView.join('\n\n')}
+        
+        You can do \`${ctx.prefix + this.friendly} default <id>\` to set the default emoji set for *all* channels.
+        ${ctx.settings!.premium ? premiumNotice : ''}
+      `);
+      baseEmbed.addField('More Information', `[Link](${docsRef}#vote-emojis)`);
 
-      if (set.custom) {
-        emojiSet = set.emojis.map(async e => {
-          return this.client.base!.ipc.fetchGuild('737166408525283348').then(g => {
-            if (!g) throw new Error('GuildNotFound');
-            const emoji = g.emojis.find(em => em.id === e);
-            if (!emoji) throw new Error('EmojiNotFound');
+      return ctx.embed(baseEmbed);
+    }
 
-            return `<:${emoji.name}:${emoji.id}>`;
+    if (ctx.args.get(0) && ['add', 'remove', 'reset', 'default'].includes(ctx.args.get(0).toLowerCase())) {
+      const arg = ctx.args.get(0).toLowerCase();
+
+      switch (arg) {
+        case 'add': {
+          const data = await ctx.getSettings(false)!;
+          const emojiArgs = ctx.args.slice(1).join(' ').split(', ');
+          const emojis = emojiArgs.map(arg => {
+            const emojiMatch = Util.matchUnicodeEmoji(arg);
+            const guildEmojiMatch = Util.parseEmoji(arg.trim());
+            if (emojiMatch) return emojiMatch[0]!;
+            if (Util.parseEmoji(arg.trim())!) return guildEmojiMatch!;
           });
-        });
-      } else {
-        emojiSet = set.emojis;
+          const emojiView = emojis.map(e => {
+            if (typeof e === 'object') {
+              if (e!.animated) return `<a:${e.name}:${e.id}`;
+              else return `<:${e.name}:${e.id}>`;
+            }
+
+            return e;
+          });
+
+          const newSet = <VoteEmoji>{
+            id: (emojis.length + ctx.settings!.emojis.length) + 1,
+            emojis: emojis.map(e => typeof e === 'object' ? e.id : e),
+            addedBy: ctx.sender.id,
+          };
+
+          data.updateEmojis(newSet);
+
+          await data.save();
+          const document = await data.save();
+          const updated = document.emojis.find(e => e.id === newSet.id);
+
+          await MessageUtils.success(this.client, ctx.message, oneLine`${ctx.sender.mention} has successfully 
+            ${updated ? 'added' : 'removed'} an emoji set: ${emojiView.join(' ')}`);
+
+          break;
+        }
+        case 'remove': {
+          const subArg = ctx.args.get(1);
+          const set = voteEmojis[+subArg];
+          const setView = <string>await this.client.getVoteEmojisView(ctx.settings!, +subArg);
+
+          const data = await ctx.getSettings(false)!;
+          data.updateEmojis(set);
+          const document = await data.save();
+          const updated = document.emojis.find(e => e.id === +subArg);
+
+          await MessageUtils.success(this.client, ctx.message, oneLine`${ctx.sender.mention} has successfully 
+            ${updated ? 'addded' : 'removed'} an emoji set: ${setView}`);
+
+          break;
+        }
+        case 'default': {
+          const subArg = ctx.args.get(1);
+          const setView = <string>await this.client.getVoteEmojisView(ctx.settings!, +subArg);
+
+          const data = await ctx.getSettings(false)!;
+          data.setDefaultEmojis(+subArg);
+          await data.save();
+
+          await MessageUtils.success(this.client, ctx.message, oneLine`${ctx.sender.mention} has successfully set the
+            default emoji set: ${setView}`);
+
+          break;
+        }
       }
-
-      const emojiSetView = await Promise.all(emojiSet);
-
-      if (voteEmojis === set.name) return `\`${set.id}\`: ${emojiSetView.join(' ')} ***(Currently Using)***`;
-      else return `\`${set.id}\` ${emojiSetView.join(' ')}`;
-    });
-
-    const mainView = await Promise.all(emojiSets);
-
-    const configChannels = <SubCommand>this.client.subCommands.getCommand('config-channels');
-    const emojiCount = [0, 1].includes(ctx.settings!.emojis.length) ? emojis.length : emojis.length + (ctx.settings!.emojis.length - 1);
-    // TODO currently, we're displaying IDs here. When setting actual vote emojis per channel, we take in a name. See how to incorporate names
-    baseEmbed.addField('Voting Emojis', stripIndents`
-      Choose a default emoji set from the **${emojiCount}** sets below and see which sets you can use in your channels.
-      
-      ${mainView.join('\n\n')}
-      
-      You can do \`${ctx.prefix + this.friendly} default <id>\` to set the default emoji set for *all* channels.
-      You can do \`${ctx.prefix + configChannels.friendly} <channel> emojis <id>\` to override the default emoji set for a *specific* channel.
-    `);
-    baseEmbed.addField('More Information', `[Link](${docsRef}#vote-emojis)`);
-
-    ctx.embed(baseEmbed);
+    }
   }
 
   async runPostconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {

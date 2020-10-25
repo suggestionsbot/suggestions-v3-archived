@@ -160,12 +160,14 @@ export interface GuildSchema extends Document {
   premiumSince: string;
   channels: Array<SuggestionChannel>;
   staffRoles: Array<SuggestionRole>;
+  defaultEmojis: number;
   emojis: Array<VoteEmoji>;
   responseRequired: boolean;
   dmResponses: boolean;
   disabledCommands: Array<DisabledCommand>;
   setGuild(guild: Guild|string): void;
   setLocale(locale: string): void;
+  setDefaultEmojis(index: number): void
   updatePrefixes(prefix: string): void;
   updateEmojis(emoji: VoteEmoji): void;
   updateChannel(channel: string, data: Record<string, unknown>): void;
@@ -210,12 +212,13 @@ export interface DisabledCommand extends Document {
 }
 
 export interface VoteEmoji extends Document {
+  id: number;
   name: string;
-  fullName?: string
-  default: boolean;
+  system: boolean;
+  custom: boolean;
   emojis: VoteEmojiArray;
-  added?: number;
-  addedBy?: string;
+  added: number;
+  addedBy: string;
 }
 
 export type VoteEmojiArray = [string, string, string?];
@@ -399,7 +402,6 @@ export interface StatusEvent {
 export interface InternalVoteEmoji {
   id: number;
   name: string;
-  fullName: string;
   emojis: Array<string>;
   custom: boolean;
   added?: number

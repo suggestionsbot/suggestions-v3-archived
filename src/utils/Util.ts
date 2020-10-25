@@ -3,7 +3,7 @@ import GiphyAPI, { Giphy } from 'giphy-api';
 dotenv.config();
 
 import Permissions from './Permissions';
-import { Guild, GuildChannel, Member, Permission, Role, TextChannel, User } from 'eris';
+import { Emoji, Guild, GuildChannel, Member, Permission, Role, TextChannel, User } from 'eris';
 import { SuggestionGuild, SuggestionUser } from '../types';
 import CommandContext from '../structures/Context';
 import { execSync } from 'child_process';
@@ -183,5 +183,27 @@ export default class Util {
     }
 
     return missingPermissions;
+  }
+
+  public static parseEmoji(text: string ): { animated: boolean, name: string, id: string|null }|null {
+    if (text.includes('%')) text = decodeURIComponent(text);
+    if (!text.includes(':')) return { animated: false, name: text, id: null };
+    const m = text.match(/<?(?:(a):)?(\w{2,32}):(\d{17,19})?>?/);
+    if (!m) return null;
+    return { animated: Boolean(m[1]), name: m[2], id: m[3] || null };
+  }
+
+  public static getEmojiString(emoji: Emoji): string {
+    if (emoji.animated) return `<a:${emoji.name}:${emoji.id}>`;
+    else return `<:${emoji.name}:${emoji.id}>`;
+  }
+
+  public static getReactionString(emoji: Emoji): string {
+    if (emoji.animated) return `a:${emoji.name}:${emoji.id}`;
+    else return `:${emoji.name}:${emoji.id}`;
+  }
+
+  public static matchUnicodeEmoji(emoji: string): RegExpExecArray|null {
+    return /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/i.exec(emoji);
   }
 }

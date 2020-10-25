@@ -37,9 +37,11 @@ export const GuildSettings = new Schema({
     }]
   },
   staffRoles: [SuggestionRole],
+  defaultEmojis: { type: Number, default: 0 },
   emojis: [{
+    id: Number,
     name: String,
-    default: { type: Boolean },
+    custom: { type: Boolean, default: true },
     emojis: [String],
     added: { type: Number, default: Date.now() },
     addedBy: String
@@ -67,6 +69,10 @@ GuildSettings.method('setLocale', function(this: GuildSchema, locale: string) {
   this.locale = locale;
 });
 
+GuildSettings.method('setDefaultEmojis', function(this: GuildSchema, index: number) {
+  this.defaultEmojis = index;
+});
+
 GuildSettings.method('updatePrefixes', function(this: GuildSchema, prefix: string) {
   if (this.prefixes.includes(prefix)) {
     this.prefixes = this.prefixes.filter(p => p !== prefix);
@@ -76,7 +82,7 @@ GuildSettings.method('updatePrefixes', function(this: GuildSchema, prefix: strin
 });
 
 GuildSettings.method('updateEmojis', function(this: GuildSchema, emoji: VoteEmoji) {
-  const emojiInArray = this.emojis.find((c: VoteEmoji) => c.name === emoji.name)!;
+  const emojiInArray = this.emojis.find((c: VoteEmoji) => c.id === emoji.id)!;
   if (emojiInArray) {
     this.emojis = this.emojis.filter((c: VoteEmoji) => c !== emojiInArray);
   } else {

@@ -46,7 +46,8 @@ export default class GuildHelpers {
 
   public async createGuild(guild: SuggestionGuild, newData = {}): Promise<GuildSchema> {
     const guildID = GuildHelpers._getGuildID(guild);
-    const schema = new GuildModel(Object.assign({ guild: guildID }, newData));
+    // TODO make sure to test this
+    const schema = new GuildModel(Object.assign({ guild: guildID, emojis: [] }, newData));
 
     const data = await schema.save();
     await this.client.redis.helpers.setCachedGuild(guild, data);

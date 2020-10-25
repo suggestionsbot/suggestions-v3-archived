@@ -14,6 +14,7 @@ import {
 import { inspect, promisify } from 'util';
 import { Base } from 'eris-sharder';
 import { stripIndents } from 'common-tags';
+import emojis from '../utils/Emojis';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -169,6 +170,58 @@ export default class SuggestionsClient extends Client {
 
   public isOwner(user: User|Member|string): boolean {
     return this.config.owners.includes(typeof user === 'object' ? user.id : user);
+  }
+
+  public async getVoteEmojisView(settings: GuildSchema, index?: number ): Promise<Array<string>|string> {
+    let allEmojis = [...emojis];
+    if (settings.emojis) allEmojis = [...emojis, ...settings.emojis];
+
+    if (index) {
+      const emojiSet = allEmojis[index];
+      const emojis = emojiSet.emojis.map(async e => {
+        if (emojiSet.custom) {
+          return this.base!.ipc.fetchGuild(emojiSet.system ? '737166408525283348' : settings.guild).then(g => {
+            if (!g) throw new Error('GuildNotFound');
+            const emoji = g.emojis.find(emoji => emoji.id === e);
+            if (!emoji) return e;
+
+            if (emoji.animated) return `<a:${emoji.name}:${emoji.id}>`;
+            else return `<:${emoji.name}:${emoji.id}>`;
+          });
+        } else {
+          return e;
+        }
+      });
+
+      return Promise.all(emojis).then(e => e.join(' '));
+    }
+
+    if (!settings.defaultEmojis) settings.defaultEmojis = 0;
+    const emojiSets = allEmojis.map(async (set, index) => {
+      let emojiSet;
+
+      if (set.custom) {
+        emojiSet = set.emojis.map(async e => {
+          return this.base!.ipc.fetchGuild(set.system ? '737166408525283348' : settings.guild).then(g => {
+            if (!g) throw new Error('GuildNotFound');
+            const emoji = g.emojis.find(emoji => emoji.id === e);
+            if (!emoji) return e;
+
+            if (emoji.animated) return `<a:${emoji.name}:${emoji.id}>`;
+            else return `<:${emoji.name}:${emoji.id}>`;
+          });
+        });
+      } else {
+        emojiSet = set.emojis;
+      }
+
+      const emojiSetView = await Promise.all(emojiSet);
+
+      if (index === settings.defaultEmojis) return `\`${index++}\`: ${emojiSetView.join(' ')} ***(Default Set)***`;
+      else return `\`${index++}\` ${emojiSetView.join(' ')}`;
+    });
+
+    return Promise.all(emojiSets);
   }
 
   public async awaitChannelMessages(channel: TextableChannel, filter: CollectorFilter<Message>, options: AwaitMessagesOptions): Promise<MessageCollector> {

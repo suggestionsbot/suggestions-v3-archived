@@ -11,6 +11,8 @@ import { CommandCategory, CommandNextFunction, SuggestionChannelType, Suggestion
 import MessageUtils from '../../utils/MessageUtils';
 import Util from '../../utils/Util';
 import Logger from '../../utils/Logger';
+import emojis from '../../utils/Emojis';
+import { Emoji } from 'eris';
 
 export default class SuggestCommand extends Command {
   constructor(public client: SuggestionsClient) {
@@ -128,14 +130,14 @@ export default class SuggestCommand extends Command {
 
 
     try {
-      const setEmojis = ctx.settings!.emojis.find(e => e.name === sChannel.emojis)!;
-      const guild = setEmojis.default ? await this.client.base!.ipc.fetchGuild('737166408525283348') : ctx.guild!;
-      const emojis = setEmojis.emojis.map(e => e && e.length !== 0 ? guild.emojis.find(ge => ge.id === e) : e);
+      const setEmojis = [...emojis, ...ctx.settings!.emojis][ctx.settings!.defaultEmojis]!;
+      const guild = setEmojis.system ? await this.client.base!.ipc.fetchGuild('737166408525283348') : ctx.guild!;
+      const reactions = setEmojis.emojis.map(e => e && Util.matchUnicodeEmoji(e) ? e : guild.emojis.find(ge => ge.id === e));
 
       const submitted = await sChannel.channel.createMessage({ embed });
 
-      for (const e of emojis) {
-        if (e) await submitted.addReaction(typeof e === 'string' ? e : `${e.name}:${e.id}`);
+      for (const react of reactions) {
+        if (react) await submitted.addReaction(typeof react !== 'string' ? Util.getReactionString(react)! : react);
       }
 
       // TODO dont forget to re-enable this when we implement (dm) responses

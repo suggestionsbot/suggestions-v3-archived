@@ -1,47 +1,40 @@
-import { InternalVoteEmoji } from '../types';
+import { VoteEmoji } from '../types';
 
-const emojis: Array<InternalVoteEmoji> = [
+const emojis = <Array<VoteEmoji>>[
   {
-    id: 0,
-    name: 'defaultEmojis',
-    fullName: 'Defaults',
     emojis: ['756633653668479117', '756633653286797443'],
-    custom: true
+    custom: true,
+    system: true
   },
   {
-    id: 1,
-    name: 'oldDefaults',
-    fullName: 'Old Defaults',
     emojis: ['✅', '❌'],
-    custom: false
+    custom: false,
+    system: true
   },
   {
-    id: 2,
-    name: 'thumbsEmojis',
-    fullName: 'Thumbs',
     emojis: ['👍', '👎'],
-    custom: false
+    custom: false,
+    system: true
   },
   {
-    id: 3,
-    name: 'arrowsEmojis',
-    fullName: 'Arrows',
     emojis: ['⬆', '⬇'],
-    custom: false
+    custom: false,
+    system: true
   },
   {
-    id: 4,
-    name: 'greenEmojis',
-    fullName: 'Green',
     emojis: ['✅', '❎'],
-    custom: false
+    custom: false,
+    system: true
   },
   {
-    id: 5,
-    name: 'fancyEmojis',
-    fullName: 'Fancy',
     emojis: ['769382807209771018', '769382807687397386'],
-    custom: true
+    custom: true,
+    system: true
+  },
+  {
+    emojis: ['769737361642225685', '769737361776967723'],
+    custom: true,
+    system: true
   }
 ];
 

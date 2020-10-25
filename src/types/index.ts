@@ -182,7 +182,7 @@ export interface SuggestionChannel extends Document {
   type: SuggestionChannelType;
   allowed: Array<SuggestionRole>;
   blocked: Array<SuggestionRole>;
-  emojis: string;
+  emojis: number;
   cooldown: number;
   locked: boolean;
   reviewMode: boolean;

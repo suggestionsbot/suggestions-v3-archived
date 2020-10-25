@@ -28,7 +28,7 @@ export const GuildSettings = new Schema({
       },
       allowed: { type: [SuggestionRole] },
       blocked: { type: [SuggestionRole] },
-      emojis: { type: String },
+      emojis: { type: Number },
       cooldown: { type: Number },
       locked: { type: Boolean, default: false },
       reviewMode: { type: Boolean, default: false },

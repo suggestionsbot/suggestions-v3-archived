@@ -12,7 +12,6 @@ import MessageUtils from '../../utils/MessageUtils';
 import Util from '../../utils/Util';
 import Logger from '../../utils/Logger';
 import emojis from '../../utils/Emojis';
-import { Emoji } from 'eris';
 
 export default class SuggestCommand extends Command {
   constructor(public client: SuggestionsClient) {
@@ -96,6 +95,7 @@ export default class SuggestCommand extends Command {
     const channels = ctx.settings!.channels.map(c => c.channel);
     const channel = Util.getChannel(channels.length <= 1 ? channels[0] : ctx.args.get(0), ctx.guild!)!;
     const sChannel = this.client.suggestionChannels.get(channel.id)!;
+    const voteEmojis = [...emojis, ...ctx.settings!.emojis];
 
     const suggestion = argCheck ? ctx.args.slice(1).join(' ') : ctx.args.join(' ');
 
@@ -130,7 +130,7 @@ export default class SuggestCommand extends Command {
 
 
     try {
-      const setEmojis = [...emojis, ...ctx.settings!.emojis][ctx.settings!.defaultEmojis]!;
+      const setEmojis = voteEmojis[sChannel.emojis]!;
       const guild = setEmojis.system ? await this.client.base!.ipc.fetchGuild('737166408525283348') : ctx.guild!;
       const reactions = setEmojis.emojis.map(e => e && Util.matchUnicodeEmoji(e) ? e : guild.emojis.find(ge => ge.id === e));
 

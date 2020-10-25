@@ -17,6 +17,7 @@ import SubCommand from '../../../structures/SubCommand';
 import Util from '../../../utils/Util';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
+import emojis from '../../../utils/Emojis';
 
 
 /**
@@ -185,13 +186,16 @@ export default class ConfigChannelsCommand extends SubCommand {
             break;
           }
           case 'emojis': {
+            const voteEmojis = [...emojis, ...ctx.settings!.emojis];
             const subArg = ctx.args.get(2);
-            if (subArg && !ctx.settings!.emojis.map(e => e.name).includes(subArg))
+            if (subArg && !voteEmojis[+subArg])
+              return MessageUtils.error(this.client, ctx.message, `\`${subArg}\` is out of range.
+                Please do \`${ctx.prefix + this.friendly} #${channel.name} emojis\` to see the options.`);
+            if (subArg && (sChannel.emojis === +subArg)) {
+              const setView = <string>await this.client.getVoteEmojisView(ctx.settings!, +subArg);
               return MessageUtils.error(this.client, ctx.message,
-                `**${subArg}** does not exist as an emoji set for **${ctx.guild!.name}**!`);
-            if (subArg && (sChannel.emojis === subArg))
-              return MessageUtils.error(this.client, ctx.message,
-                `**${sChannel.emojis}** is already set as the emoji set for ${channel.mention}!`);
+                `**${setView}** is already set as the emoji set for ${channel.mention}!`);
+            }
             break;
           }
           case 'cooldown': {
@@ -271,9 +275,7 @@ export default class ConfigChannelsCommand extends SubCommand {
         const channel = Util.getChannel(ctx.args.get(0), ctx.guild!)!;
         const sChannel = this.client.suggestionChannels.get(channel.id)!;
 
-        const setEmojis = ctx.settings!.emojis.find(e => e.name === sChannel.emojis)!;
-        const guild = setEmojis.default ? await this.client.base!.ipc.fetchGuild('737166408525283348') : ctx.guild!;
-        const emojis = setEmojis.emojis.map(e => e && e.length !== 0 ? guild.emojis.find(ge => ge.id === e) : e);
+        const setView = <string>await this.client.getVoteEmojisView(ctx.settings!, sChannel.emojis);
 
         const allowed = sChannel.allowed.size > 0 ?
           sChannel.allowed.map(r => r.mention).join(' ') :
@@ -290,7 +292,7 @@ export default class ConfigChannelsCommand extends SubCommand {
           **Suggestion Cooldown:** ${sChannel?.cooldown ? ms(sChannel.cooldown, { long: true }) : 'N/A'}
           **Review Mode:** ${sChannel.reviewMode ? 'Enabled' : 'Disabled'}
           **Locked:** ${sChannel.locked ? 'Yes' : 'No'}
-          **Emojis:** ${emojis.map(e => typeof e === 'string' ? e : `<:${e!.name}:${e!.id}>`).join(' ')}
+          **Emojis:** ${setView}
           
           **Allowed Roles:** ${allowed}
           **Blocked Roles:** ${blocked}
@@ -423,21 +425,20 @@ export default class ConfigChannelsCommand extends SubCommand {
             try {
               if (ctx.args.get(2)) {
                 const emojis = ctx.args.get(2).toLowerCase();
-                const setEmojis = await sChannel.setEmojis(emojis);
+                const setView = <string>await this.client.getVoteEmojisView(ctx.settings!, +emojis);
+                await sChannel.setEmojis(+emojis);
                 await MessageUtils.success(this.client, ctx.message,
-                  oneLine`${ctx.sender.mention} has successfully set **${setEmojis}** as the emojis
-                   in **${channel.mention}**.`);
+                  oneLine`${ctx.sender.mention} has successfully set **${setView}** as the emoji set
+                   in **${channel.mention}**!`);
                 return;
               }
 
-              const setEmojis = ctx.settings!.emojis.find(e => e.name === sChannel.emojis)!;
-              const guild = setEmojis.default ? await this.client.base!.ipc.fetchGuild('737166408525283348')
-                : ctx.guild!;
-              const emojis = setEmojis.emojis.map(e => e && e.length !== 0 ?
-                guild.emojis.find(ge => ge.id === e) : e);
-
-              baseEmbed.addField('Channel Emojis', emojis.map(e => typeof e === 'string' ? e
-                : `<:${e!.name}:${e!.id}>`).join(' '));
+              const mainView = <Array<string>>await this.client.getVoteEmojisView(ctx.settings!, null, sChannel);
+              baseEmbed.addField('Channel Emojis', stripIndents`
+                ${mainView.join('\n\n')}
+                
+                You can do \`${ctx.prefix + this.friendly} #${channel.name} emojis <id>\` to set the emoji set for this channel.
+              `);
               baseEmbed.addField('More Information', `[Link](${docsRef}#channels)`);
               ctx.embed(baseEmbed);
             } catch (e) {

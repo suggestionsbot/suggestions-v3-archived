@@ -41,6 +41,7 @@ import BotListManager from '../managers/BotListManager';
 import ChecksManager from '../managers/ChecksManager';
 import RatelimitManager from '../managers/RatelimitManager';
 import ChannelManager from '../managers/ChannelManager';
+import SuggestionChannel from './SuggestionChannel';
 
 /**
  * TODO Rewrite all emoji search methods to support sharding/clustering
@@ -172,11 +173,11 @@ export default class SuggestionsClient extends Client {
     return this.config.owners.includes(typeof user === 'object' ? user.id : user);
   }
 
-  public async getVoteEmojisView(settings: GuildSchema, index?: number ): Promise<Array<string>|string> {
+  public async getVoteEmojisView(settings: GuildSchema, index?: number|null, channel?: SuggestionChannel): Promise<Array<string>|string> {
     let allEmojis = [...emojis];
     if (settings.emojis) allEmojis = [...emojis, ...settings.emojis];
 
-    if (index) {
+    if (typeof index === 'number') {
       const emojiSet = allEmojis[index];
       const emojis = emojiSet.emojis.map(async e => {
         if (emojiSet.custom) {
@@ -218,6 +219,7 @@ export default class SuggestionsClient extends Client {
       const emojiSetView = await Promise.all(emojiSet);
 
       if (index === settings.defaultEmojis) return `\`${index++}\`: ${emojiSetView.join(' ')} ***(Default Set)***`;
+      if (index === (channel && channel.emojis)) return `\`${index++}\`: ${emojiSetView.join(' ')} ***(Channel Set)***`;
       else return `\`${index++}\` ${emojiSetView.join(' ')}`;
     });
 

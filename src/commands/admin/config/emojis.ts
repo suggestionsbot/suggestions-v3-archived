@@ -38,7 +38,6 @@ export default class ConfigEmojisCommand extends SubCommand {
   }
 
   async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
-    // const emojis = ctx.settings!.emojis.map(e => e.name);
     const allEmojis = [...emojis, ...ctx.settings!.emojis];
 
     if (!ctx.args.get(0) && !allEmojis.length)
@@ -48,11 +47,10 @@ export default class ConfigEmojisCommand extends SubCommand {
       const arg = ctx.args.get(0).toLowerCase();
 
       switch (arg) {
-        // TODO add condition to check if emoji options already match a current emoji set
         case 'add': {
           const emojiArgs = ctx.args.slice(1).join(' ').split(', ');
           if (!emojiArgs || ![2, 3].includes(emojiArgs.length)) return MessageUtils.error(this.client, ctx.message,
-            'Please supply 2 or 3 emojis!');
+            'Please supply 2 or 3 emojis that are **comma-separated**! (`emoji1, emoji2`)');
           const invalidEmojis: Array<string> = [];
           for (const str of emojiArgs) {
             const guildEmoji = Util.parseEmoji(str.trim());
@@ -61,7 +59,6 @@ export default class ConfigEmojisCommand extends SubCommand {
             if (emojiMatch && emojiMatch[0]) continue;
             invalidEmojis.push(str.trim());
           }
-
 
           if (invalidEmojis.length > 0) return MessageUtils.error(this.client, ctx.message,
             `I could not find these emojis: \`${invalidEmojis.join(', ')}\``);
@@ -78,7 +75,9 @@ export default class ConfigEmojisCommand extends SubCommand {
           break;
         }
         case 'reset': {
-          if (!emojis.length) return MessageUtils.error(this.client, ctx.message, 'There are no custom emoji sets to clear!');
+          if (!ctx.settings!.emojis.length) return MessageUtils.error(this.client, ctx.message,
+            'There are no custom emoji sets to clear!');
+
           break;
         }
       }
@@ -137,7 +136,7 @@ export default class ConfigEmojisCommand extends SubCommand {
           });
 
           const newSet = <VoteEmoji>{
-            id: (emojis.length + ctx.settings!.emojis.length) + 1,
+            id: voteEmojis.length + 1,
             emojis: emojis.map(e => typeof e === 'object' ? e.id : e),
             addedBy: ctx.sender.id,
           };
@@ -178,6 +177,16 @@ export default class ConfigEmojisCommand extends SubCommand {
 
           await MessageUtils.success(this.client, ctx.message, oneLine`${ctx.sender.mention} has successfully set the
             default emoji set: ${setView}`);
+
+          break;
+        }
+        case 'reset': {
+          const data = await ctx.getSettings(false)!;
+          data.emojis = [];
+          await data.save();
+
+          await MessageUtils.success(this.client, ctx.message, `${ctx.sender.mention} has successfully cleared
+            the custom emojis sets for **${ctx.guild!.name}**!`);
 
           break;
         }

@@ -18,7 +18,7 @@ export default class SuggestionChannel {
   private readonly _allowed: Collection<Role>;
   private readonly _blocked: Collection<Role>;
   private readonly _cooldowns: Map<string, { expires: number; }>;
-  private _emojis: string;
+  private _emojis: number;
   private _cooldown?: number;
   private _locked: boolean;
   private _reviewMode: boolean;
@@ -36,7 +36,7 @@ export default class SuggestionChannel {
     this._cooldowns = new Map<string, { expires: number; }>();
     this._locked = false;
     this._reviewMode = false;
-    this._emojis = 'defaultEmojis';
+    this._emojis = 0;
   }
 
   public get data(): SuggestionChannelObj|undefined {
@@ -75,7 +75,7 @@ export default class SuggestionChannel {
     return this.client.suggestionChannels;
   }
 
-  public get emojis(): string {
+  public get emojis(): number {
     return this._emojis;
   }
 
@@ -160,9 +160,9 @@ export default class SuggestionChannel {
     return this._locked;
   }
 
-  public async setEmojis(name: string): Promise<string> {
-    this._emojis = name;
-    this._settings.updateChannel(this.channel.id, { emojis: name });
+  public async setEmojis(id: number): Promise<number> {
+    this._emojis = id;
+    this._settings.updateChannel(this.channel.id, { emojis: id });
     await this._settings.save();
     await this.client.redis.helpers.clearCachedGuild(this.guild);
     return this._emojis;

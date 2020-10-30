@@ -84,10 +84,11 @@ export default class SuggestionChannel {
   }
 
   public async init(): Promise<void> {
-    this._locked = this.data!.locked;
-    this._reviewMode = this.data!.reviewMode;
-    this._emojis = this.data!.emojis;
-    this._cooldown = this.data!.cooldown;
+    if (this.data!.locked) this._locked = this.data!.locked;
+    if (this.data!.reviewMode) this._reviewMode = this.data!.reviewMode;
+    if (this.data!.emojis) this._emojis = this.data!.emojis;
+    if (this.data!.cooldown) this._cooldown = this.data!.cooldown;
+    this.type = this.data!.type;
     this._addRoles(this.data!.allowed, this._allowed);
     this._addRoles(this.data!.blocked, this._blocked);
     this._addSuggestions();

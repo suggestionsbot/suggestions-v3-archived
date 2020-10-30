@@ -1,8 +1,8 @@
-import { GuildChannel, Message, GuildTextableChannel } from 'eris';
+import { GuildChannel, Message } from 'eris';
 import { oneLine } from 'common-tags';
 
 import SuggestionsClient from '../structures/Client';
-import { Command, GuildSchema, SubCommand } from '../types';
+import { GuildSchema } from '../types';
 import Util from '../utils/Util';
 import Logger from '../utils/Logger';
 import MessageUtils from '../utils/MessageUtils';
@@ -76,7 +76,7 @@ export default class CommandHandler {
         try {
           await check!.run(ctx);
         } catch (e) {
-          return MessageUtils.error(this.client, message, e);
+          return MessageUtils.error(this.client, message, e.message);
         }
       }
     }

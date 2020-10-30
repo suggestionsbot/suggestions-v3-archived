@@ -42,6 +42,8 @@ import ChecksManager from '../managers/ChecksManager';
 import RatelimitManager from '../managers/RatelimitManager';
 import ChannelManager from '../managers/ChannelManager';
 import SuggestionChannel from './SuggestionChannel';
+import SuggestionHandler from '../handlers/SuggestionHandler';
+import Context from './Context';
 
 /**
  * TODO Rewrite all emoji search methods to support sharding/clustering
@@ -59,6 +61,7 @@ export default class SuggestionsClient extends Client {
   public suggestionChannels: ChannelManager;
   public config: BotConfig;
   public commandHandler: CommandHandler;
+  public suggestionHandler: SuggestionHandler;
   public wait: any;
   public database: MongoDB;
   public redis: Redis;
@@ -81,6 +84,7 @@ export default class SuggestionsClient extends Client {
     this.production = (/true/i).test(process.env.NODE_ENV!);
     this.config = config;
     this.commandHandler = new CommandHandler(this);
+    this.suggestionHandler = new SuggestionHandler(this);
     this.wait = promisify(setTimeout);
     this.messageCollectors = [];
   }
@@ -300,11 +304,34 @@ export default class SuggestionsClient extends Client {
 
   private _runMessageOperator(message: Message): void {
     this._commandListener(message);
+    this._suggestionsListener(message);
+  }
+
+  private async _suggestionsListener(message: Message): Promise<void> {
+    try {
+      if (message.author.bot) return;
+      if ((message.channel instanceof GuildChannel) && !message.channel.permissionsOf(this.user.id).has('sendMessages')) return;
+      if (!message.guildID) return;
+
+      const channel = this.suggestionChannels.get(message.channel.id);
+      if (!channel) return;
+
+      let settings: GuildSchema;
+      if (this.database.connection !== null) settings = await this.database.guildHelpers.getGuild(message.guildID);
+      else settings = <GuildSchema><unknown>{ ...this.config.defaults, guild: message.guildID };
+
+      const args = message.content.split(/ +/g);
+      const locale = this.locales.get(settings.locale);
+      const ctx: Context = new Context(message, args, locale, settings);
+
+      await this.suggestionHandler.handle(ctx);
+    } catch (e) {
+      Logger.error('SUGGESTIONS LISTENER', e);
+    }
   }
 
   private async _commandListener(message: Message): Promise<void> {
     try {
-
       if (message.author.bot) return;
       if ((message.channel instanceof GuildChannel) && !message.channel.permissionsOf(this.user.id).has('sendMessages')) return;
 
@@ -342,7 +369,7 @@ export default class SuggestionsClient extends Client {
 
       await this.commandHandler.handle(message, settings);
     } catch (e) {
-      console.error(e.stack);
+      Logger.error('COMMAND LISTENER', e);
     }
   }
 

@@ -416,7 +416,7 @@ export default class ConfigChannelsCommand extends SubCommand {
               const isDisabling = ['disable', 'lock'].includes(arg);
               const locked = await sChannel.lock(isDisabling);
               await MessageUtils.success(this.client, ctx.message,
-                oneLine`${ctx.sender.mention} has successfully ${locked ? 'enabled' : 'disabled'} suggestion
+                oneLine`${ctx.sender.mention} has successfully ${locked ? 'disabled' : 'enabled'} suggestion
                  submissions in ${channel.mention}.`);
             } catch (e) {
               Logger.error('CONFIG CHANNEL', e.stack);

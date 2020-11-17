@@ -1,11 +1,12 @@
-import Check from '../structures/Check';
-import SuggestionsClient from '../structures/Client';
-import dayjs from 'dayjs';
-import { SuggestionChannelType } from '../types';
-import Util from '../utils/Util';
-import { oneLine, stripIndents } from 'common-tags';
-import CommandContext from '../structures/Context';
 import { GuildTextableChannel } from 'eris';
+import dayjs from 'dayjs';
+import { oneLine, stripIndents } from 'common-tags';
+
+import { SuggestionChannelType } from '../types';
+import SuggestionsClient from '../structures/Client';
+import CommandContext from '../structures/Context';
+import Check from '../structures/Check';
+import Util from '../utils/Util';
 
 export default class SuggestionChannelCheck extends Check {
 
@@ -20,8 +21,7 @@ export default class SuggestionChannelCheck extends Check {
     const channels = ctx.settings!.channels.map(c => c.channel);
     const channel = channels.length <= 1 ? channels[0] : ctx.args.get(0);
     const gChannel = ctx.message.prefix ? Util.getChannel(channel, ctx.guild!) : <GuildTextableChannel>ctx.channel;
-    if (!gChannel && (channels.length > 1))
-      throw new Error(`\`${ctx.args.get(0)}\` is not a valid channel!`);
+    if (!gChannel && (channels.length > 1)) throw new Error(`\`${ctx.args.get(0)}\` is not a valid channel!`);
     if (gChannel && (channels.length > 1) && !channels.includes(gChannel.id))
       throw new Error(stripIndents`${gChannel.mention} is not a valid suggestions channel!
         

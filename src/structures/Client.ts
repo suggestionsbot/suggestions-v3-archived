@@ -307,22 +307,32 @@ export default class SuggestionsClient extends Client {
     this._suggestionsListener(message);
   }
 
-  private async _suggestionsListener(message: Message): Promise<void> {
+  private async _suggestionsListener(message: Message): Promise<any> {
     try {
       if (message.author.bot) return;
-      if ((message.channel instanceof GuildChannel) && !message.channel.permissionsOf(this.user.id).has('sendMessages')) return;
+      if ((message.channel instanceof GuildChannel) &&
+        !message.channel.permissionsOf(this.user.id).has('sendMessages')) return;
       if (!message.guildID) return;
-
-      const channel = this.suggestionChannels.get(message.channel.id);
-      if (!channel) return;
 
       let settings: GuildSchema;
       if (this.database.connection !== null) settings = await this.database.guildHelpers.getGuild(message.guildID);
       else settings = <GuildSchema><unknown>{ ...this.config.defaults, guild: message.guildID };
 
-      const args = message.content.split(/ +/g);
+      const isInDatabase = settings.channels.map(c => c.channel).includes(message.channel.id);
+      if (!isInDatabase) return;
+
+      const channel = this.suggestionChannels.get(message.channel.id);
+      if (!channel) {
+        const msg = await MessageUtils.error(this, message,
+          `Cannot post to ${message.channel!.mention} as it's not currently available!`);
+        return Promise.all([
+          MessageUtils.delete(msg, { timeout: 3000 }),
+          message.delete()
+        ]);
+      }
+
       const locale = this.locales.get(settings.locale);
-      const ctx: Context = new Context(message, args, locale, settings);
+      const ctx: Context = new Context(message, [], locale, settings);
 
       await this.suggestionHandler.handle(ctx);
     } catch (e) {

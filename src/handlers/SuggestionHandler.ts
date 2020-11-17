@@ -19,7 +19,6 @@ export default class SuggestionHandler {
       if (sChannel.cooldown && cooldown) {
         const msg = await MessageUtils.error(this.client, ctx.message, oneLine`Cannot post to ${sChannel.channel.mention} for 
           another **${dayjs.duration(cooldown.expires - Date.now()).humanize()}** as you are in a cooldown!`);
-
         return Promise.all([
           MessageUtils.delete(msg, { timeout: 3000 }),
           ctx.message.delete()
@@ -80,7 +79,7 @@ export default class SuggestionHandler {
     }
 
     try {
-      new Suggestion(ctx, ctx.message.content, sChannel);
+      await new Suggestion(ctx, ctx.message.content, sChannel).post();
       await MessageUtils.delete(ctx.message, { timeout: 5000 });
     } catch (e) {
       if (e.message === 'Missing Access') return;

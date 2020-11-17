@@ -12,28 +12,22 @@ import emojis from '../utils/Emojis';
 import SuggestionsClient from './Client';
 
 export default class Suggestion {
-  #_sender: User;
   #_channel: SuggestionChannel;
+  #_sender: User;
+  readonly #_client: SuggestionsClient;
   readonly #_guild: Guild;
   readonly #_id: string;
-  readonly #_suggestion: string;
   readonly #_settings: GuildSchema;
-  readonly #_client: SuggestionsClient;
+  readonly #_suggestion: string;
 
-  constructor(
-    ctx: CommandContext,
-    suggestion: string,
-    channel: SuggestionChannel,
-  ) {
+  constructor(ctx: CommandContext, suggestion: string, channel: SuggestionChannel) {
+    this.#_channel = channel;
     this.#_client = ctx.client;
     this.#_guild = ctx.guild!;
-    this.#_channel = channel;
-    this.#_sender = ctx.sender;
-    this.#_suggestion = suggestion;
     this.#_id = crypto.randomBytes(20).toString('hex');
+    this.#_sender = ctx.sender;
     this.#_settings = ctx.settings!;
-
-    this._postSuggestion();
+    this.#_suggestion = suggestion;
   }
 
   public get id(): string|undefined {
@@ -42,6 +36,10 @@ export default class Suggestion {
 
   public get shortID(): string|undefined {
     return this.#_id.slice(33, 40);
+  }
+
+  public async post(): Promise<SuggestionSchema|void> {
+    return this._postSuggestion();
   }
 
   private _createDMEmbed(): MessageEmbed {

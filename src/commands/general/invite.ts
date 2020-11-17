@@ -1,3 +1,5 @@
+import { oneLine } from 'common-tags';
+
 import Command from '../../structures/Command';
 import SuggestionsClient from '../../structures/Client';
 import MessageEmbed from '../../utils/MessageEmbed';
@@ -5,7 +7,6 @@ import Logger from '../../utils/Logger';
 import MessageUtils from '../../utils/MessageUtils';
 import Context from '../../structures/Context';
 import { CommandCategory } from '../../types';
-import { oneLine } from 'common-tags';
 
 export default class InfoCommand extends Command {
   constructor(public client: SuggestionsClient) {

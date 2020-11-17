@@ -48,8 +48,7 @@ export default class SuggestCommand extends Command {
     const suggestion = argCheck ? ctx.args.slice(1).join(' ') : ctx.args.join(' ');
 
     try {
-      // TODO make sure to properly handle errors here eventually
-      new Suggestion(ctx, suggestion, sChannel);
+      await new Suggestion(ctx, suggestion, sChannel).post();
       await MessageUtils.delete(ctx.message, { timeout: 5000 });
     } catch (e) {
       if (e.message === 'Missing Access') return;

@@ -1,12 +1,10 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 
 import SuggestionsClient from '../../structures/Client';
 import GuildHelpers from './helpers/guild';
 import SuggestionHelpers from './helpers/suggestion';
 import CommandHelpers from './helpers/command';
 import BlacklistHelpers from './helpers/blacklist';
-dotenv.config();
 
 export default class MongoDB {
   public connection: mongoose.Connection|null;

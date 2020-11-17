@@ -1,6 +1,4 @@
-import dotenv from 'dotenv';
 import GiphyAPI, { Giphy } from 'giphy-api';
-dotenv.config();
 
 import Permissions from './Permissions';
 import { Emoji, Guild, GuildChannel, Member, Permission, Role, TextChannel, User } from 'eris';

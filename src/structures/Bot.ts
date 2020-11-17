@@ -2,8 +2,6 @@ import * as Sentry from '@sentry/node';
 import { CaptureConsole, RewriteFrames } from '@sentry/integrations';
 import { Base } from 'eris-sharder';
 import { setDefaults } from 'wumpfetch';
-import dotenv from 'dotenv';
-dotenv.config();
 
 import SuggestionsClient from './Client';
 import { version } from '../../package.json';

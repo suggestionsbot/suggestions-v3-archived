@@ -68,7 +68,7 @@ export default class InfoCommand extends Command {
           `**❯ Node:** \`${process.version}\``,
           `**❯ Eris:** \`v${erisVersion}\``,
         ].join('\n'), true)
-        .setFooter(`© 2020 Nerd Cave Development | PID ${process.pid} | Cluster ${cluster} | Shard ${shard}`);
+        .setFooter(`© 2020 Anthony Collier | PID ${process.pid} | Cluster ${cluster} | Shard ${shard}`);
 
       await ctx.embed(embed);
     } catch (e) {

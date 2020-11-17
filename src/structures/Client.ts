@@ -11,12 +11,10 @@ import {
   TextableChannel,
   User
 } from 'eris';
-import { inspect, promisify } from 'util';
+import { inspect } from 'util';
 import { Base } from 'eris-sharder';
 import { stripIndents } from 'common-tags';
 import emojis from '../utils/Emojis';
-import dotenv from 'dotenv';
-dotenv.config();
 
 import {
   BotConfig,
@@ -62,7 +60,6 @@ export default class SuggestionsClient extends Client {
   public config: BotConfig;
   public commandHandler: CommandHandler;
   public suggestionHandler: SuggestionHandler;
-  public wait: any;
   public database: MongoDB;
   public redis: Redis;
   public messageCollectors: Array<MessageCollector>;
@@ -85,7 +82,6 @@ export default class SuggestionsClient extends Client {
     this.config = config;
     this.commandHandler = new CommandHandler(this);
     this.suggestionHandler = new SuggestionHandler(this);
-    this.wait = promisify(setTimeout);
     this.messageCollectors = [];
   }
 
@@ -408,4 +404,15 @@ export default class SuggestionsClient extends Client {
     return text;
   }
 
+  public async isSupport(user: User): Promise<boolean> {
+    const id = this.production ? '601219766258106399' : '737166408525283348';
+
+    return this.base!.ipc.fetchGuild(id)
+      .then(async (guild: any) => {
+        const member: Member = guild.members[user.id] ??
+          await guild?.fetchMembers({ userIDs: [user.id] }).then((res: Array<Member>) => res[0]) ?? false;
+
+        return member.roles.some(r => this.config.supportRoles.includes(r)) ?? false;
+      });
+  }
 }

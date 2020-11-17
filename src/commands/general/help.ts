@@ -1,8 +1,9 @@
+import { stripIndents } from 'common-tags';
+
 import Command from '../../structures/Command';
 import SuggestionsClient from '../../structures/Client';
 import Context from '../../structures/Context';
 import MessageUtils from '../../utils/MessageUtils';
-import { stripIndents } from 'common-tags';
 import { CommandCategory } from '../../types';
 
 export default class HelpCommand extends Command {
@@ -33,9 +34,11 @@ export default class HelpCommand extends Command {
     const prefix = ctx.prefix;
 
     const cmds = this.client.commands;
+    const categoryOptions = { namesOnly: true, formatted: true };
 
     const staffCheck = ctx.guild ? this.client.isStaff(ctx.member!, ctx.settings!) : null;
     const adminCheck = ctx.guild ? this.client.isAdmin(ctx.member!) : null;
+    const supportCheck = await this.client.isSupport(ctx.sender).catch(e => new Error(e.message));
     const superSecretCheck = this.client.isSuperSecret(ctx.sender);
     const ownerCheck = this.client.isOwner(ctx.sender);
 
@@ -73,14 +76,8 @@ export default class HelpCommand extends Command {
       `)
       .setColor(main)
       .addField('📣 Current Prefixes', prefixes.join(' | '))
-      .addField('🤖 General Commands', cmds.getCategory(CommandCategory.GENERAL, {
-        namesOnly: true,
-        formatted: true
-      }).join(' | '))
-      .addField('🗳 Suggestion Commands', cmds.getCategory(CommandCategory.SUGGESTIONS, {
-        namesOnly: true,
-        formatted: true
-      }).join(' | '))
+      .addField('🤖 General Commands', cmds.getCategory(CommandCategory.GENERAL, categoryOptions).join(' | '))
+      .addField('🗳 Suggestion Commands', cmds.getCategory(CommandCategory.SUGGESTIONS, categoryOptions).join(' | '))
       .addField('ℹ Important Links', [
         `[Discord](${discord} "Get support and keep up-to-date with bot news!")`,
         `[Website](${website} "View our website!")`,
@@ -89,35 +86,36 @@ export default class HelpCommand extends Command {
       ].join(' | '))
       .addField('❗ Found an issue?', `Please report any issues directly to the **Support Team** via the Support Discord: ${discord}`);
 
-    if ((ctx.guild! ? staffCheck : true) && (cmds.getCategory(CommandCategory.STAFF).length > 0)) embed.fields.splice(2, 0, {
-      name: '🏢 Staff Commands',
-      value: cmds.getCategory(CommandCategory.STAFF, {
-        namesOnly: true,
-        formatted: true,
-      }).join(' | '),
-      inline: false
-    });
+    if ((ctx.guild! ? staffCheck : true) && (cmds.getCategory(CommandCategory.STAFF).length > 0)) {
+      embed.fields.splice(2, 0, {
+        name: '🏢 Staff Commands',
+        value: cmds.getCategory(CommandCategory.STAFF, categoryOptions).join(' | '),
+        inline: false
+      });
+    }
 
-    if ((ctx.guild! ? adminCheck : true) && (cmds.getCategory(CommandCategory.ADMIN).length > 0)) embed.fields.splice(3, 0, {
-      name: '👔 Admin Commands',
-      value: cmds.getCategory(CommandCategory.ADMIN, {
-        namesOnly: true,
-        formatted: true,
-      }).join(' | '),
-      inline: false
-    });
+    if ((ctx.guild! ? adminCheck : true) && (cmds.getCategory(CommandCategory.ADMIN).length > 0)) {
+      embed.fields.splice(3, 0, {
+        name: '👔 Admin Commands',
+        value: cmds.getCategory(CommandCategory.ADMIN, categoryOptions).join(' | '),
+        inline: false
+      });
+    }
+
+    if (supportCheck && (cmds.getCategory(CommandCategory.SUPPORT).length > 0)) {
+      embed.fields.splice(4, 0, {
+        name: '🤝 Support Commands',
+        value: cmds.getCategory(CommandCategory.SUPPORT, categoryOptions).join(' | '),
+        inline: false
+      });
+    }
 
     if (ownerCheck && (cmds.getCategory(CommandCategory.OWNER).length > 0)) {
-      const value = {
+      embed.fields.splice(embed.fields.indexOf(embed.fields[embed.fields.length - 2]), 0, {
         name: '🔒 Owner Commands',
-        value: cmds.getCategory(CommandCategory.OWNER, {
-          namesOnly: true,
-          formatted: true,
-        }).join(' | '),
+        value: cmds.getCategory(CommandCategory.OWNER, categoryOptions).join(' | '),
         inline: false
-      };
-
-      embed.fields.splice(embed.fields.indexOf(embed.fields[embed.fields.length - 2]), 0, value);
+      });
     }
 
     ctx.embed(embed);

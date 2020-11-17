@@ -1,14 +1,14 @@
 import { BotConfig, VoteEmoji } from './types';
 
+const id = process.env.NODE_ENV === 'production' ? '474051954998509571' : '476928510573805568';
+
 const config: BotConfig = {
   prefixes: [','],
   owners: ['158063324699951104'],
   discord: 'https://discord.gg/ntXkRan',
   website: 'https://suggestions.gg',
   docs: 'https://docs.suggestions.gg',
-  invite: `https://discord.com/oauth2/authorize?client_id=${
-    process.env.NODE_ENV === 'production' ? '474051954998509571' : '476928510573805568'
-  }&scope=bot&permissions=355392`,
+  invite: `https://discord.com/oauth2/authorize?client_id=${id}&scope=bot&permissions=355392`,
   github: 'https://github.com/suggestionsbot/suggestions',
   colors: {
     main: 0xdd9323,
@@ -26,14 +26,13 @@ const config: BotConfig = {
     error: 'nerdError'
   },
   voteSites: [
-    { name: 'top.gg', link: 'https://top.gg/bot/474051954998509571', voted: true },
-    { name: 'discord.bots.gg', link: 'https://discord.bots.gg/bots/474051954998509571', voted: false },
-    { name: 'discordbotlist.com', link: 'https://discordbotlist.com/bots/474051954998509571', voted: true },
-    { name: 'botlist.space', link: 'https://botlist.space/bot/474051954998509571', voted: true },
-    { name: 'discordapps.dev', link: 'https://discordapps.dev/en-GB/bots/474051954998509571', voted: true },
-    { name: 'botsforddiscord.com', link: 'https://botsfordiscord.com/bots/474051954998509571', voted: true }
+    { name: 'top.gg', link: `https://top.gg/bot/${id}`, voted: true },
+    { name: 'discord.bots.gg', link: `https://discord.bots.gg/bots/${id}`, voted: false },
+    { name: 'discordbotlist.com', link: `https://discordbotlist.com/bots/${id}`, voted: true },
+    { name: 'botlist.space', link: `https://botlist.space/bot/${id}`, voted: true },
+    { name: 'discordapps.dev', link: `https://discordapps.dev/en-GB/bots/${id}`, voted: true },
+    { name: 'botsforddiscord.com', link: `https://botsfordiscord.com/bots/${id}`, voted: true }
   ],
-  patreon: 'https://patreon.com/acollierr17',
   superSecretUsers: [
     '214719690855940109', // Lukasz
     '245385436669804547', // Kyle
@@ -55,7 +54,24 @@ const config: BotConfig = {
       emojis: ['578409088157876255', '578409123876438027'],
       system: true
     }]
-  }
+  },
+  supportRoles: process.env.NODE_ENV === 'production' ?
+    [
+      // Developer
+      '601235098012090378',
+      // Staff
+      '602552757634859008',
+      // Trusted
+      '629883041946533893'
+    ] :
+    [
+      // Developer
+      '737533859926638642',
+      // Staff
+      '778368987472986113',
+      // Trusted
+      '778368989369860158'
+    ]
 };
 
 export default config;

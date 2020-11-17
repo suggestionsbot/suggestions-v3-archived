@@ -36,6 +36,8 @@ export default class CommandHandler {
 
     const staffCheck = message.guildID ? this.client.isStaff(message.member!, settings): null;
     const adminCheck = message.guildID ? this.client.isAdmin(message.member!) : null;
+    const supportCheck = await this.client.isSupport(message.author)
+      .catch(e => MessageUtils.error(this.client, message, e.message, true));
     const superSecretCheck = this.client.isSuperSecret(message.author);
     const ownerCheck = this.client.isOwner(message.author);
 
@@ -43,6 +45,8 @@ export default class CommandHandler {
       return MessageUtils.error(this.client, message, 'This is a staff only command!');
     if ((message.guildID !== undefined) && (cmd.adminOnly && !adminCheck))
       return MessageUtils.error(this.client, message, 'This is an admin only command!');
+    if (cmd.supportOnly && !supportCheck)
+      return MessageUtils.error(this.client, message, 'This is a support only command!');
     if (cmd.superOnly && !superSecretCheck) return;
     if (cmd.ownerOnly && !ownerCheck) return;
 

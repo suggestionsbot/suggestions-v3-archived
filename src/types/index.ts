@@ -36,7 +36,6 @@ export interface BotConfig {
     error: string;
   };
   voteSites: Array<VoteSite>;
-  patreon: string;
   superSecretUsers: Array<string>;
   permissions: {
     regular: number;
@@ -51,7 +50,8 @@ export interface BotConfig {
     };
     locale: string;
     emojis: Array<VoteEmoji>;
-  }
+  };
+  supportRoles: Array<string>
 }
 
 export interface VoteSite {
@@ -76,6 +76,7 @@ export abstract class Command {
   public adminOnly?: boolean;
   public ownerOnly?: boolean;
   public superOnly?: boolean;
+  public supportOnly?: boolean;
   public botPermissions?: Array<string|number>;
   public userPermissions?: Array<string|number>;
   public throttles!: CommandThrottling;
@@ -389,6 +390,7 @@ export enum CommandCategory {
   STAFF = 'Staff',
   ADMIN = 'Admin',
   SECRET = 'Secret',
+  SUPPORT = 'Support',
   OWNER = 'Owner'
 }
 

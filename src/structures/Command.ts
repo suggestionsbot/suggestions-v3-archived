@@ -19,6 +19,7 @@ export default abstract class Command implements CommandClass {
   public staffOnly: boolean|undefined;
   public subCommands: Array<string>;
   public superOnly: boolean|undefined;
+  public supportOnly: boolean|undefined;
   public throttles: CommandThrottling;
   public usages: Array<string>|undefined;
   public userPermissions: Array<string|number>|undefined;

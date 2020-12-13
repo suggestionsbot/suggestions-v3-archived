@@ -21,7 +21,7 @@ export default class PingCommand extends Command {
     try {
       const msg = await ctx.send('🏓 Ping!');
       return msg.edit(oneLine`
-        Pong! 
+        Pong!
         Latency is \`${msg.timestamp - ctx.message.timestamp}ms\`.
         API Latency is \`${Math.round(ctx.shard!.latency)}ms\`.`);
     } catch (error) {

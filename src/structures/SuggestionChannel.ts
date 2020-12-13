@@ -3,9 +3,11 @@ import { Collection } from '@augu/immutable';
 
 import {
   GuildSchema,
+  SuggestionChannel as SuggestionChannelObj,
   SuggestionChannelType,
+  SuggestionRole,
   SuggestionSchema,
-  SuggestionChannel as SuggestionChannelObj, SuggestionRole,
+  SuggestionType,
 } from '../types';
 import SuggestionsClient from './Client';
 import ChannelManager from '../managers/ChannelManager';
@@ -18,6 +20,7 @@ export default class SuggestionChannel {
   private readonly _allowed: Collection<Role>;
   private readonly _blocked: Collection<Role>;
   private readonly _cooldowns: Map<string, { expires: number; }>;
+  private _count: number;
   private _emojis: number;
   private _cooldown?: number;
   private _locked: boolean;
@@ -37,6 +40,7 @@ export default class SuggestionChannel {
     this._locked = false;
     this._reviewMode = false;
     this._emojis = 0;
+    this._count = 0;
   }
 
   public get data(): SuggestionChannelObj|undefined {
@@ -83,6 +87,10 @@ export default class SuggestionChannel {
     return this._cooldown;
   }
 
+  public get count(): number {
+    return this._count;
+  }
+
   public async init(): Promise<void> {
     if (this.data!.locked) this._locked = this.data!.locked;
     if (this.data!.reviewMode) this._reviewMode = this.data!.reviewMode;
@@ -91,12 +99,14 @@ export default class SuggestionChannel {
     this.type = this.data!.type;
     this._addRoles(this.data!.allowed, this._allowed);
     this._addRoles(this.data!.blocked, this._blocked);
-    this._addSuggestions();
+    this._count = await this.client.redis.helpers.getGuildSuggestionCount(this.guild, this.channel);
   }
 
   public async createSuggestion(suggestion: Record<string, unknown>): Promise<SuggestionSchema|void> {
     suggestion.guild = this.guild.id;
     suggestion.channel = this.channel.id;
+    if (this.type === SuggestionChannelType.SUGGESTIONS) suggestion.type = SuggestionType.REGULAR;
+    if (this.type === SuggestionChannelType.STAFF) suggestion.type = SuggestionType.STAFF;
 
     const data = await this.client.database.suggestionHelpers.createSuggestion(suggestion);
     this._suggestions.set(data.id, data);
@@ -104,6 +114,7 @@ export default class SuggestionChannel {
     return data;
   }
 
+  // TODO improve this method, add some regex maybe?
   public getSuggestion(query: string, cached = true): SuggestionSchema|undefined {
     if (query.length === 40) {
       const suggestion = this._suggestions.find(r => r.id === query);
@@ -233,14 +244,6 @@ export default class SuggestionChannel {
       const role = this.guild.roles.get(r.role);
       if (!role) continue;
       collection.set(role.id, role);
-    }
-  }
-
-  private async _addSuggestions(): Promise<void> {
-    const suggestions = await this.client.redis.helpers.getCachedSuggestions(this.guild, this.channel.id);
-    if (!suggestions) return;
-    for (const suggestion of suggestions) {
-      this._suggestions.set(suggestion.id, suggestion);
     }
   }
 }

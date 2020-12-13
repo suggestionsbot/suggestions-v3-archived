@@ -49,7 +49,7 @@ export default class SuggestCommand extends Command {
 
     try {
       await new Suggestion(ctx, suggestion, sChannel).post();
-      await MessageUtils.delete(ctx.message, { timeout: 5000 });
+      MessageUtils.delete(ctx.message, { timeout: 5000 });
     } catch (e) {
       if (e.message === 'Missing Access') return;
       Logger.error(e);

@@ -1,8 +1,9 @@
-import { Guild, User } from 'eris';
+import { Guild, Message, MessageFile, User } from 'eris';
 import { stripIndents } from 'common-tags';
 import crypto from 'crypto';
+import fetch from 'node-fetch';
 
-import { GuildSchema, SuggestionSchema, SuggestionType } from '../types';
+import { GuildSchema, SuggestionSchema } from '../types';
 import CommandContext from './Context';
 import MessageEmbed from '../utils/MessageEmbed';
 import MessageUtils from '../utils/MessageUtils';
@@ -19,6 +20,7 @@ export default class Suggestion {
   readonly #_id: string;
   readonly #_settings: GuildSchema;
   readonly #_suggestion: string;
+  readonly #_message: Message;
 
   constructor(ctx: CommandContext, suggestion: string, channel: SuggestionChannel) {
     this.#_channel = channel;
@@ -28,6 +30,7 @@ export default class Suggestion {
     this.#_sender = ctx.sender;
     this.#_settings = ctx.settings!;
     this.#_suggestion = suggestion;
+    this.#_message = ctx.message;
   }
 
   public get id(): string|undefined {
@@ -79,10 +82,20 @@ export default class Suggestion {
     const setEmojis = voteEmojis[this.#_channel.emojis]!;
     const guild = setEmojis.system ? await this.#_client.base!.ipc.fetchGuild('737166408525283348') : this.#_guild!;
     const reactions = setEmojis.emojis.map(e => e && Util.matchUnicodeEmoji(e) ? e : guild.emojis.find(ge => ge.id === e));
+    const embed = this._createEmbed();
 
     // TODO dont forget to re-enable this when we implement (dm) responses
-    // this.#_sender.getDMChannel().then(c => c.createMessage({ embed: this._createDMEmbed() }));
-    const msg = await this.#_channel.channel.createMessage({ embed: this._createEmbed() });
+
+    let file: MessageFile | undefined;
+    if (this.#_message.attachments.length > 0) {
+      const attachment = this.#_message.attachments[0];
+      const fileExtArray = attachment.filename.split('.');
+      const fileExt = fileExtArray[fileExtArray.length - 1];
+      if (['jpg', 'gif', 'png', 'jpeg'].includes(fileExt)) embed.setImage(attachment.url);
+      else file = { file: await fetch(attachment.url).then(res => res.buffer()), name: attachment.filename };
+    }
+
+    const msg = await this.#_channel.channel.createMessage({ embed }, file);
 
     for (const react of reactions) {
       if (react) await msg.addReaction(typeof react !== 'string' ? Util.getReactionString(react)! : react);
@@ -90,10 +103,9 @@ export default class Suggestion {
 
     return this.#_channel.createSuggestion({
       user: this.#_sender.id,
-      message: '',
+      message: msg.id,
       suggestion: this.#_suggestion,
-      id: this.#_id,
-      type: SuggestionType.REGULAR
+      id: this.#_id
     });
   }
 }

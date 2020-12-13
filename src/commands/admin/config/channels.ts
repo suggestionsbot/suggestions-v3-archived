@@ -19,6 +19,7 @@ import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
 import emojis from '../../../utils/Emojis';
 
+type ChannelType = 'regular' | 'staff' | 'logs';
 
 /**
  * TODO implement premium guild checks for adding additional channels (limit is 2 channels)
@@ -294,6 +295,7 @@ export default class ConfigChannelsCommand extends SubCommand {
           
           **Suggestion Cooldown:** ${sChannel?.cooldown ? ms(sChannel.cooldown, { long: true }) : 'N/A'}
           **Review Mode:** ${sChannel.reviewMode ? 'Enabled' : 'Disabled'}
+          **Total Count:** ${sChannel.count}
           **Locked:** ${sChannel.locked ? 'Yes' : 'No'}
           **Emojis:** ${setView}
           
@@ -539,8 +541,8 @@ export default class ConfigChannelsCommand extends SubCommand {
     next();
   }
 
-  private static _getPermsType(t: string): 'regular'|'staff'|'logs' {
-    let returnedPerm: 'regular'|'staff'|'logs' = 'regular';
+  private static _getPermsType(t: string): ChannelType {
+    let returnedPerm: ChannelType = 'regular';
     switch (t) {
       case 'suggestions': return returnedPerm = 'regular';
       case 'staff': return returnedPerm = 'staff';

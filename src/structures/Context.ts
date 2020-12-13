@@ -93,7 +93,7 @@ export default class CommandContext {
   }
 
   public get redis(): Promisified|null {
-    return this.client.redis.redis;
+    return this.client.redis.instance;
   }
 
   public async dm(options: DMOptions): Promise<Message> {

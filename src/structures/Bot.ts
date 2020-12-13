@@ -55,7 +55,7 @@ export default class Bot extends Base {
     process.on('message', async data => {
       try {
         if (data.name === 'shardStats') {
-          if (this.client.redis.redis) await this.client.redis.helpers.updateStats(data.data);
+          if (this.client.redis.instance) await this.client.redis.helpers.updateStats(data.data);
         }
       } catch (e) {
         Logger.error('SHARD CLASS', e);

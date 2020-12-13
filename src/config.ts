@@ -1,6 +1,7 @@
 import { BotConfig, VoteEmoji } from './types';
 
-const id = process.env.NODE_ENV === 'production' ? '474051954998509571' : '476928510573805568';
+const isProduction = (): boolean => process.env.NODE_ENV === 'production';
+const id = isProduction() ? '474051954998509571' : '476928510573805568';
 
 const config: BotConfig = {
   prefixes: [','],
@@ -55,23 +56,10 @@ const config: BotConfig = {
       system: true
     }]
   },
-  supportRoles: process.env.NODE_ENV === 'production' ?
-    [
-      // Developer
-      '601235098012090378',
-      // Staff
-      '602552757634859008',
-      // Trusted
-      '629883041946533893'
-    ] :
-    [
-      // Developer
-      '737533859926638642',
-      // Staff
-      '778368987472986113',
-      // Trusted
-      '778368989369860158'
-    ]
+  // Developer, Leadership, Moderators, Trusted
+  supportRoles: isProduction() ?
+    ['601235098012090378', '603803993562677258', '601235098502823947', '629883041946533893'] :
+    ['737533859926638642', '786005367922360400', '778368987472986113', '778368989369860158']
 };
 
 export default config;

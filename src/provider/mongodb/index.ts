@@ -18,10 +18,10 @@ export default class MongoDB {
   }
 
   public async init(): Promise<void> {
-    this.guildHelpers = new GuildHelpers(this.client);
-    this.suggestionHelpers = new SuggestionHelpers(this.client);
-    this.commandHelpers = new CommandHelpers(this.client);
-    this.blacklistHelpers = new BlacklistHelpers(this.client);
+    this.guildHelpers = new GuildHelpers(this);
+    this.suggestionHelpers = new SuggestionHelpers(this);
+    this.commandHelpers = new CommandHelpers(this);
+    this.blacklistHelpers = new BlacklistHelpers(this);
 
     const dbOptions = {
       useNewUrlParser: true,

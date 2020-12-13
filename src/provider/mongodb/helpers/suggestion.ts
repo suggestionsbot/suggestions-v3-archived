@@ -1,12 +1,12 @@
-import SuggestionsClient from '../../../structures/Client';
-import { Guild, Message } from 'eris';
+import { Guild } from 'eris';
 import { SuggestionGuild, SuggestionSchema } from '../../../types';
 import SuggestionModel from '../models/suggestion';
 import Logger from '../../../utils/Logger';
 import Util from '../../../utils/Util';
+import MongoDB from '../';
 
 export default class SuggestionHelpers {
-  constructor(public client: SuggestionsClient) {}
+  constructor(public database: MongoDB) {}
 
   private static _querySuggestion(query: string): Array<Record<string, unknown>> {
     return [
@@ -27,7 +27,7 @@ export default class SuggestionHelpers {
   public async getSuggestions(guild: SuggestionGuild, cached = true): Promise<Array<SuggestionSchema>|undefined> {
     let data: Array<SuggestionSchema>;
 
-    const suggestions = await this.client.redis.helpers.getCachedSuggestions(guild);
+    const suggestions = await this.database.client.redis.helpers.getCachedSuggestions(guild);
     if (cached && suggestions) {
       data = suggestions;
     } else {
@@ -41,13 +41,13 @@ export default class SuggestionHelpers {
 
   public async getSuggestion(guildID: string, id: string, cached = true, guild = true): Promise<SuggestionSchema|undefined> {
     let data: SuggestionSchema;
-    const inCache = await this.client.redis.helpers.getCachedSuggestion(id);
+    const inCache = await this.database.client.redis.helpers.getCachedSuggestion(id);
     if (inCache && cached) {
       data = inCache;
     } else {
       const fetched = await SuggestionModel.findOne({ $or: SuggestionHelpers._querySuggestion(id) });
       if (!fetched) throw new Error('SuggestionNotFound');
-      await this.client.redis.helpers.setCachedSuggestion(fetched);
+      await this.database.client.redis.helpers.setCachedSuggestion(fetched);
       data = fetched;
     }
 
@@ -59,11 +59,12 @@ export default class SuggestionHelpers {
   public async createSuggestion(suggestion: Record<string, unknown>): Promise<SuggestionSchema> {
     const schema = new SuggestionModel(suggestion);
     const data = await schema.save();
-    await this.client.redis.helpers.setCachedSuggestion(data);
-    this.client.redis.redis!.incrby(`guild:${data.guild}:member:${data.user}:suggestions:count`, 1);
-    this.client.redis.redis!.incrby(`user:${data.user}:suggestions:count`, 1);
-    this.client.redis.redis!.incrby(`guild:${data.guild}:suggestions:count`, 1);
-    this.client.redis.redis!.incrby('global:suggestions', 1);
+    await this.database.client.redis.helpers.setCachedSuggestion(data);
+    this.database.client.redis.instance!.incrby(`guild:${data.guild}:member:${data.user}:suggestions:count`, 1);
+    this.database.client.redis.instance!.incrby(`user:${data.user}:suggestions:count`, 1);
+    this.database.client.redis.instance!.incrby(`guild:${data.guild}:suggestions:count`, 1);
+    this.database.client.redis.instance!.incrby(`guild:${data.guild}:channel:${data.channel}:suggestions:count`, 1);
+    this.database.client.redis.instance!.incrby('global:suggestions', 1);
 
     Logger.log(`Suggestion ${data.getSuggestionID(false)} created in the database.`);
     return data;
@@ -71,7 +72,7 @@ export default class SuggestionHelpers {
 
   public async deleteSuggestion(id: string): Promise<boolean> {
     const deleted = await SuggestionModel.deleteOne({ $or: SuggestionHelpers._querySuggestion(id) });
-    await this.client.redis.helpers.clearCachedSuggestion(id);
+    await this.database.client.redis.helpers.clearCachedSuggestion(id);
     return !!deleted.ok;
   }
 
@@ -83,7 +84,7 @@ export default class SuggestionHelpers {
   public async cacheAllGuildSuggestions(guild: SuggestionGuild): Promise<void> {
     return SuggestionModel.find({ guild: Util.getGuildID(guild) }).then(async documents => {
       if (!documents) return;
-      for (const document of documents) await this.client.redis.helpers.setCachedSuggestion(document);
+      for (const document of documents) await this.database.client.redis.helpers.setCachedSuggestion(document);
     });
   }
 }

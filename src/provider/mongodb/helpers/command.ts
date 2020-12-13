@@ -1,13 +1,13 @@
 import { Message, User } from 'eris';
 
-import SuggestionsClient from '../../../structures/Client';
 import Command from '../models/command';
 import { CommandSchema, SuggestionGuild } from '../../../types';
 import Logger from '../../../utils/Logger';
 import Util from '../../../utils/Util';
+import MongoDB from '../';
 
 export default class CommandHelpers {
-  constructor(public client: SuggestionsClient) {}
+  constructor(public database: MongoDB) {}
 
   public async deleteCommands(guild: SuggestionGuild): Promise<boolean> {
     await Command.deleteMany({ guild: Util.getGuildID(guild) });

@@ -204,4 +204,8 @@ export default class Util {
   public static matchUnicodeEmoji(emoji: string): RegExpExecArray|null {
     return /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/i.exec(emoji);
   }
+
+  public static getGuildMemberByID(guild: Guild, id: string): Promise<Member> {
+    return guild.fetchMembers({ userIDs: [id] }).then(res => res[0]);
+  }
 }

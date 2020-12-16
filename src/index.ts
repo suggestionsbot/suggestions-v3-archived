@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import Logger from './utils/Logger';
+import { ClientOptions } from 'eris';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -13,6 +14,28 @@ declare global {
     }
   }
 }
+
+export const CLIENT_OPTIONS: ClientOptions = {
+  messageLimit: 0,
+  defaultImageFormat: 'jpg',
+  disableEvents: {
+    GUILD_BAN_ADD: true,
+    GUILD_BAN_REMOVE: true,
+    MESSAGE_DELETE_BULK: true,
+    TYPING_START: true,
+    VOICE_STATE_UPDATE: true,
+    PRESENCE_UPDATE: true
+  },
+  intents: [
+    'guilds',
+    'guildMessages',
+    'guildMessageReactions',
+    'directMessages',
+    'directMessageReactions'
+  ],
+  guildSubscriptions: false,
+  restMode: true
+};
 
 export const main = async (): Promise<boolean> => {
   try {
@@ -35,27 +58,6 @@ export const main = async (): Promise<boolean> => {
           id: process.env.CLUSTER_WEBHOOK_ID!,
           token: process.env.CLUSTER_WEBHOOK_TOKEN!
         }
-      },
-      clientOptions: {
-        messageLimit: 0,
-        defaultImageFormat: 'jpg',
-        disableEvents: {
-          GUILD_BAN_ADD: true,
-          GUILD_BAN_REMOVE: true,
-          MESSAGE_DELETE_BULK: true,
-          TYPING_START: true,
-          VOICE_STATE_UPDATE: true,
-          PRESENCE_UPDATE: true
-        },
-        intents: [
-          'guilds',
-          'guildMessages',
-          'guildMessageReactions',
-          'directMessages',
-          'directMessageReactions'
-        ],
-        guildSubscriptions: false,
-        restMode: true
       }
     });
 

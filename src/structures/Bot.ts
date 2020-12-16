@@ -8,6 +8,7 @@ import { version } from '../../package.json';
 import Logger from '../utils/Logger';
 import config from '../config';
 import { StatusEvent } from '../types';
+import { CLIENT_OPTIONS } from '../index';
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -37,7 +38,7 @@ export default class Bot extends Base {
   constructor(public bot: boolean) {
     super(bot);
 
-    this.client = new SuggestionsClient(process.env.DISCORD_TOKEN!);
+    this.client = new SuggestionsClient(process.env.DISCORD_TOKEN!, CLIENT_OPTIONS);
     this.client.start();
   }
 

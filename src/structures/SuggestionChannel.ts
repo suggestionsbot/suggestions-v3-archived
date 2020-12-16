@@ -6,17 +6,13 @@ import {
   SuggestionChannel as SuggestionChannelObj,
   SuggestionChannelType,
   SuggestionRole,
-  SuggestionSchema,
-  SuggestionType,
 } from '../types';
 import SuggestionsClient from './Client';
 import ChannelManager from '../managers/ChannelManager';
+import SuggestionManager from '../managers/SuggestionManager';
 
-/**
- * TODO pull internal data directly from redis (as we already have this data in the db and redis
- */
 export default class SuggestionChannel {
-  private readonly _suggestions: Collection<SuggestionSchema>;
+  private readonly _suggestions: SuggestionManager;
   private readonly _allowed: Collection<Role>;
   private readonly _blocked: Collection<Role>;
   private readonly _cooldowns: Map<string, { expires: number; }>;
@@ -33,7 +29,7 @@ export default class SuggestionChannel {
     private _channel: GuildTextableChannel,
     private _settings: GuildSchema
   ) {
-    this._suggestions = new Collection<SuggestionSchema>();
+    this._suggestions = new SuggestionManager(this);
     this._allowed = new Collection<Role>();
     this._blocked = new Collection<Role>();
     this._cooldowns = new Map<string, { expires: number; }>();
@@ -55,7 +51,7 @@ export default class SuggestionChannel {
     return this._reviewMode;
   }
 
-  public get suggestions(): Collection<SuggestionSchema> {
+  public get suggestions(): SuggestionManager {
     return this._suggestions;
   }
 
@@ -100,60 +96,6 @@ export default class SuggestionChannel {
     this._addRoles(this.data!.allowed, this._allowed);
     this._addRoles(this.data!.blocked, this._blocked);
     this._count = await this.client.redis.helpers.getGuildSuggestionCount(this.guild, this.channel);
-  }
-
-  public async createSuggestion(suggestion: Record<string, unknown>): Promise<SuggestionSchema|void> {
-    suggestion.guild = this.guild.id;
-    suggestion.channel = this.channel.id;
-    if (this.type === SuggestionChannelType.SUGGESTIONS) suggestion.type = SuggestionType.REGULAR;
-    if (this.type === SuggestionChannelType.STAFF) suggestion.type = SuggestionType.STAFF;
-
-    const data = await this.client.database.suggestionHelpers.createSuggestion(suggestion);
-    this._suggestions.set(data.id, data);
-    if (this.cooldown && !this.cooldowns.has(data.user)) this.updateCooldowns(data.user);
-    return data;
-  }
-
-  // TODO improve this method, add some regex maybe?
-  public getSuggestion(query: string, cached = true): SuggestionSchema|undefined {
-    if (query.length === 40) {
-      const suggestion = this._suggestions.find(r => r.id === query);
-      if (!suggestion) throw new Error('SuggestionNotFound');
-
-      return suggestion;
-    }
-
-    if (query.length === 7) {
-      const suggestion = this._suggestions.find(s => s.id.slice(33, 40) === query);
-      if (!suggestion) throw new Error('SuggestionNotFound');
-
-      return suggestion;
-    }
-
-    if (query.length === 18) {
-      const suggestion = this._suggestions.find(s => s.message === query);
-      if (!suggestion) throw new Error('SuggestionNotFound');
-
-      return suggestion;
-    }
-
-    const re = /(https?:\/\/)?(www\.)?((canary|ptb)\.?|(discordapp|discord\.com)\/channels)\/(.+[[0-9])/g;
-    if (query.match(re)) {
-      const matches = re.exec(query)!;
-      const ids = matches[matches.length - 1].split('/');
-      const messageID = ids[ids.length - 1];
-
-      const suggestion = this._suggestions.find(s => s.message === messageID);
-      if (!suggestion) throw new Error('SuggestionNotFound');
-
-      return suggestion;
-    }
-
-    return;
-  }
-
-  public async deleteSuggestion(query: string): Promise<boolean> {
-    return false;
   }
 
   public async setReviewMode(enabled: boolean): Promise<boolean> {

@@ -12,6 +12,9 @@ import Util from '../utils/Util';
 import emojis from '../utils/Emojis';
 import SuggestionsClient from './Client';
 
+/**
+ * TODO: Rework this class so it can actually be used with managers and such
+ */
 export default class Suggestion {
   #_channel: SuggestionChannel;
   #_sender: User;
@@ -45,7 +48,7 @@ export default class Suggestion {
     return this._postSuggestion();
   }
 
-  private _createDMEmbed(): MessageEmbed {
+  private _dmEmbed(): MessageEmbed {
     return MessageUtils.defaultEmbed()
       .setAuthor(this.#_guild.name, this.#_guild.iconURL)
       .setDescription(stripIndents`Hey, ${this.#_sender.mention}. Your suggestion has been sent to the ${this.#_channel.channel.mention} to be voted on!
@@ -58,7 +61,7 @@ export default class Suggestion {
       .setTimestamp();
   }
 
-  private _createEmbed(): MessageEmbed {
+  private _publicEmbed(): MessageEmbed {
     const imageCheck = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)/.exec(this.#_suggestion);
 
     const embed = MessageUtils.defaultEmbed()
@@ -82,7 +85,7 @@ export default class Suggestion {
     const setEmojis = voteEmojis[this.#_channel.emojis]!;
     const guild = setEmojis.system ? await this.#_client.base!.ipc.fetchGuild('737166408525283348') : this.#_guild!;
     const reactions = setEmojis.emojis.map(e => e && Util.matchUnicodeEmoji(e) ? e : guild.emojis.find(ge => ge.id === e));
-    const embed = this._createEmbed();
+    const embed = this._publicEmbed();
 
     // TODO dont forget to re-enable this when we implement (dm) responses
 
@@ -101,7 +104,7 @@ export default class Suggestion {
       if (react) await msg.addReaction(typeof react !== 'string' ? Util.getReactionString(react)! : react);
     }
 
-    return this.#_channel.createSuggestion({
+    return this.#_channel.suggestions.add({
       user: this.#_sender.id,
       message: msg.id,
       suggestion: this.#_suggestion,

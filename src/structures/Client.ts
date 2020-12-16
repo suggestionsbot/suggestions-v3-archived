@@ -26,10 +26,10 @@ import {
 } from '../types';
 import config from '../config';
 import CommandHandler from '../handlers/CommandHandler';
-import MongoDB from '../provider/mongodb';
+import MongoDB from '../providers/mongodb';
 import MessageCollector from '../utils/MessageCollector';
 import ReactionCollector from '../utils/ReactionCollector';
-import Redis from '../provider/redis';
+import Redis from '../providers/redis';
 import Logger from '../utils/Logger';
 import MessageUtils from '../utils/MessageUtils';
 import LocalizationManager from '../managers/LocalizationManager';
@@ -42,12 +42,14 @@ import ChannelManager from '../managers/ChannelManager';
 import SuggestionChannel from './SuggestionChannel';
 import SuggestionHandler from '../handlers/SuggestionHandler';
 import Context from './Context';
+import Util from '../utils/Util';
 
 /**
  * TODO Rewrite all emoji search methods to support sharding/clustering
  */
 export default class SuggestionsClient extends Client {
   public readonly production: boolean;
+  public readonly system: string;
   public base: Base|undefined;
   public commands: CommandManager;
   public subCommands: SubCommandManager;
@@ -83,6 +85,7 @@ export default class SuggestionsClient extends Client {
     this.commandHandler = new CommandHandler(this);
     this.suggestionHandler = new SuggestionHandler(this);
     this.messageCollectors = [];
+    this.system = this.production ? '601219766258106399' : '737166408525283348';
   }
 
   public start(): void {
@@ -116,12 +119,11 @@ export default class SuggestionsClient extends Client {
 
   public updateBotPresence(): void {
     const prefix = this.getPrefixes()[0];
-    const help = this.commands.getCommand('help') || { name: 'help' };
 
     if (this.production) {
       this.base!.ipc.broadcast('changeStatus', {
         status: 'online',
-        name: `your suggestions | ${prefix + help.name}`,
+        name: `your suggestions | ${prefix + 'help'}`,
         type: 2
       });
     } else {
@@ -181,7 +183,7 @@ export default class SuggestionsClient extends Client {
       const emojiSet = allEmojis[index];
       const emojis = emojiSet.emojis.map(async e => {
         if (emojiSet.custom) {
-          return this.base!.ipc.fetchGuild(emojiSet.system ? '737166408525283348' : settings.guild).then(g => {
+          return this.base!.ipc.fetchGuild(emojiSet.system ? this.system : settings.guild).then(g => {
             if (!g) throw new Error('GuildNotFound');
             const emoji = g.emojis.find(emoji => emoji.id === e);
             if (!emoji) return e;
@@ -311,7 +313,7 @@ export default class SuggestionsClient extends Client {
       if (!message.guildID) return;
 
       let settings: GuildSchema;
-      if (this.database.connection !== null) settings = await this.database.guildHelpers.getGuild(message.guildID);
+      if (this.database.connection !== null) settings = await this.database.helpers.guild.getGuild(message.guildID);
       else settings = <GuildSchema><unknown>{ ...this.config.defaults, guild: message.guildID };
 
       const isInDatabase = settings.channels.map(c => c.channel).includes(message.channel.id);
@@ -344,7 +346,7 @@ export default class SuggestionsClient extends Client {
       let settings!: GuildSchema;
       if (message.guildID) {
         try {
-          if (this.database.connection !== null) settings = await this.database.guildHelpers.getGuild(message.guildID);
+          if (this.database.connection !== null) settings = await this.database.helpers.guild.getGuild(message.guildID);
           else settings = <GuildSchema><unknown>{ ...this.config.defaults, guild: message.guildID };
         } catch (e) {
           Logger.error('COMMAND HANDLER', e);
@@ -405,13 +407,9 @@ export default class SuggestionsClient extends Client {
   }
 
   public async isSupport(user: User): Promise<boolean> {
-    const id = this.production ? '601219766258106399' : '737166408525283348';
-
-    return this.base!.ipc.fetchGuild(id)
+    return this.base!.ipc.fetchGuild(this.system)
       .then(async (guild: any) => {
-        const member: Member = guild.members[user.id] ??
-          await guild?.fetchMembers({ userIDs: [user.id] }).then((res: Array<Member>) => res[0]) ?? false;
-
+        const member: Member = guild.members[user.id] ?? Util.getGuildMemberByID(<Guild>guild, user.id) ?? false;
         return member.roles.some(r => this.config.supportRoles.includes(r)) ?? false;
       });
   }

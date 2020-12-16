@@ -10,7 +10,6 @@ export default class BlacklistHelpers {
   public async addBlacklist(blacklist: Record<string, unknown>): Promise<BlacklistSchema> {
     const document = new Blacklist(blacklist);
     const data = await document.save();
-    await this.database.client.redis.helpers.setCachedBlacklist(data.id, data, document.guild);
 
     Logger.log(`User ${document.user} blacklisted by ${document.issuer}`);
     return data;
@@ -26,7 +25,6 @@ export default class BlacklistHelpers {
     document.status = false;
     document.issuer = data.data.issuer;
     const saved = await document.save();
-    await this.database.client.redis.helpers.clearCachedBlacklist(document.user, document.guild);
 
     Logger.log(`User ${document.user} blacklist removed by ${data.data.issuer}`);
     return saved.isModified();
@@ -45,7 +43,6 @@ export default class BlacklistHelpers {
   }
 
   public async isUserBlacklisted(user: SuggestionUser, guild?: SuggestionGuild, cached = true): Promise<boolean> {
-    if (cached) return this.database.client.redis.helpers.getCachedBlacklist(user, guild).then(res => res.status);
     return Blacklist.findOne({
       $and: [
         { guild: Util.getGuildID(guild!) ?? null },

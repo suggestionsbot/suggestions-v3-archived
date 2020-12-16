@@ -98,7 +98,7 @@ export default class CommandHandler {
             this.client.redis.instance.hincrby(`guild:${message.guildID}:commands`, cmd.name, 1),
             this.client.redis.instance.incrby(`guild:${message.guildID}:commands:count`, 1),
             this.client.redis.instance.incrby('global:commands', 1),
-            this.client.database.commandHelpers.createCommand(message, cmd.name)
+            this.client.database.helpers.command.createCommand(message, cmd.name)
           ]);
         }
       } catch (e) {

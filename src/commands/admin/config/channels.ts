@@ -321,7 +321,7 @@ export default class ConfigChannelsCommand extends SubCommand {
           try {
             const channel = ctx.args.get(1);
             const gChannel = Util.getChannel(channel, ctx.guild!)!;
-            const data = await this.client.database.guildHelpers.getGuild(ctx.guild!, false);
+            const data = await this.client.database.helpers.guild.getGuild(ctx.guild!, false);
             const updated = <SuggestionChannel>{
               channel: gChannel.id,
               type: type ? <SuggestionChannelType>type : SuggestionChannelType.SUGGESTIONS,

@@ -111,7 +111,7 @@ export type CommandNextFunction = () => void;
 
 export abstract class Event {
   protected constructor(public client?: SuggestionsClient, public name?: string, public options: EventOptions = {}) {}
-  public abstract run(...args: Array<any>): Promise<any>;
+  public abstract async run(...args: Array<any>): Promise<any>;
 }
 
 export type EventConstructor<T> = new (...args: never[]) => T;

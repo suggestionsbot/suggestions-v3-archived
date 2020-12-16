@@ -21,6 +21,7 @@ export default class SuggestionChannel {
   private _cooldown?: number;
   private _locked: boolean;
   private _reviewMode: boolean;
+  private _initialized: boolean;
 
   constructor(
     public client: SuggestionsClient,
@@ -37,6 +38,7 @@ export default class SuggestionChannel {
     this._reviewMode = false;
     this._emojis = 0;
     this._count = 0;
+    this._initialized = false;
   }
 
   public get data(): SuggestionChannelObj|undefined {
@@ -88,6 +90,7 @@ export default class SuggestionChannel {
   }
 
   public async init(): Promise<void> {
+    if (this._initialized) return;
     if (this.data!.locked) this._locked = this.data!.locked;
     if (this.data!.reviewMode) this._reviewMode = this.data!.reviewMode;
     if (this.data!.emojis) this._emojis = this.data!.emojis;
@@ -96,6 +99,7 @@ export default class SuggestionChannel {
     this._addRoles(this.data!.allowed, this._allowed);
     this._addRoles(this.data!.blocked, this._blocked);
     this._count = await this.client.redis.helpers.getGuildSuggestionCount(this.guild, this.channel);
+    this._initialized = true;
   }
 
   public async setReviewMode(enabled: boolean): Promise<boolean> {

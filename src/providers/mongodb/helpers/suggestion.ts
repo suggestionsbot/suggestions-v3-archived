@@ -30,6 +30,7 @@ export default class SuggestionHelpers {
 
   public async getSuggestion(guildID: string, query: string, guild = true): Promise<SuggestionSchema|null> {
     const fetched = await SuggestionModel.findOne({ $or: SuggestionHelpers._querySuggestion(query) });
+    if (!fetched) throw new Error('SuggestionNotFound');
 
     if (guild && (fetched!.guild !== guildID)) throw new Error('GuildScope');
 

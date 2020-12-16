@@ -12,7 +12,7 @@ export default class extends Event {
 
   public async run(): Promise<any> {
     const readyMessages: Array<string> = [
-      `🔖 Version ${version} of the bot loaded in ${process.env.NODE_ENV!.toUpperCase().trim()}.`,
+      `🔖 Version ${version} of the bot loaded in ${this.client.production ? 'PRODUCTION' : 'DEVELOPMENT'}.`,
       `⚙ Loaded (${this.client.commands.size}) commands!`,
       `⚙ Loaded (${this.client.subCommands.size}) subcommands!`,
       `👂 Loaded (${this.client.events.size}) events!`,
@@ -22,7 +22,7 @@ export default class extends Event {
 
     try {
       await this.client.database.init();
-      await this.client.redis.init();
+      this.client.redis.init();
       for (const m of readyMessages) await Logger.event(this.name, m);
       Logger.ready(`🤖 Logged in as ${Util.formatUserTag(this.client.user)} (${this.client.user.id}).`);
       this.client.updateBotPresence();

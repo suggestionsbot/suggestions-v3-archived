@@ -1,11 +1,11 @@
-import SuggestionsClient from '../structures/Client';
+import SuggestionsClient from '../structures/core/Client';
 import { Collection } from '@augu/immutable';
 import path from 'path';
 import globFunction from 'glob';
 import { promisify } from 'util';
 
 import Logger from '../utils/Logger';
-import Check from '../structures/Check';
+import Check from '../structures/commands/Check';
 
 const glob = promisify(globFunction);
 

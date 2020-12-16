@@ -1,8 +1,8 @@
 import { Guild, TextChannel } from 'eris';
 import dayjs from 'dayjs';
 
-import Event from '../structures/Event';
-import SuggestionsClient from '../structures/Client';
+import Event from '../structures/core/Event';
+import SuggestionsClient from '../structures/core/Client';
 import Logger from '../utils/Logger';
 import MessageEmbed from '../utils/MessageEmbed';
 

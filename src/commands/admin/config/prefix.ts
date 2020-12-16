@@ -1,11 +1,11 @@
 import { oneLine, stripIndents } from 'common-tags';
 
-import SubCommand from '../../../structures/SubCommand';
-import SuggestionsClient from '../../../structures/Client';
+import SubCommand from '../../../structures/core/SubCommand';
+import SuggestionsClient from '../../../structures/core/Client';
 import { CommandCategory, CommandNextFunction } from '../../../types';
 import Logger from '../../../utils/Logger';
 import MessageUtils from '../../../utils/MessageUtils';
-import Context from '../../../structures/Context';
+import Context from '../../../structures/commands/Context';
 import Util from '../../../utils/Util';
 
 export default class ConfigPrefixCommand extends SubCommand {

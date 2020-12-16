@@ -1,5 +1,5 @@
 import SuggestionsClient from './Client';
-import RatelimitManager from '../managers/RatelimitManager';
+import RatelimitManager from '../../managers/RatelimitManager';
 
 export default class Ratelimit {
   public ignored: boolean;

@@ -1,9 +1,9 @@
 import { oneLine } from 'common-tags';
 
-import Command from '../../structures/Command';
-import SuggestionsClient from '../../structures/Client';
+import Command from '../../structures/core/Command';
+import SuggestionsClient from '../../structures/core/Client';
 import Logger from '../../utils/Logger';
-import Context from '../../structures/Context';
+import Context from '../../structures/commands/Context';
 import { CommandCategory } from '../../types';
 
 export default class PingCommand extends Command {

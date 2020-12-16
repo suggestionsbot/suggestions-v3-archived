@@ -1,7 +1,7 @@
 import { createClient } from 'redis';
 import asyncRedis from 'async-redis';
 
-import SuggestionsClient from '../../structures/Client';
+import SuggestionsClient from '../../structures/core/Client';
 import { Promisified } from '../../types';
 import Logger from '../../utils/Logger';
 import RedisHelpers from './helpers';

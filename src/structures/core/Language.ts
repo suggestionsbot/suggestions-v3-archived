@@ -1,6 +1,6 @@
 import frenchkiss, { StoreData } from 'frenchkiss';
-import { LanguageInfo, LanguageStatus, Translation } from '../types';
-import LanguageError from '../errors/LanguageError';
+import { LanguageInfo, LanguageStatus, Translation } from '../../types';
+import LanguageError from '../../errors/LanguageError';
 
 export default class Language {
   public translator: string;

@@ -4,7 +4,7 @@ import { EventEmitter } from 'events';
 // @ts-expect-error no typings exist for package
 import { continuousReactionStream } from 'eris-reactions';
 
-import SuggestionsClient from '../structures/Client';
+import SuggestionsClient from '../structures/core/Client';
 import { AwaitReactionsOptions, CollectorFilter } from '../types';
 
 export default class ReactionCollector extends EventEmitter {

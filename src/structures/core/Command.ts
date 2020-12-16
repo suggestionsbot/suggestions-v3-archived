@@ -1,7 +1,7 @@
 import SuggestionsClient from './Client';
-import { CommandThrottling, Command as CommandClass, CommandCategory } from '../types';
-import Context from './Context';
-import { RatelimitBucket } from '../managers/RatelimitManager';
+import { CommandThrottling, Command as CommandClass, CommandCategory } from '../../types';
+import Context from '../commands/Context';
+import { RatelimitBucket } from '../../managers/RatelimitManager';
 
 export default abstract class Command implements CommandClass {
   public active: boolean;

@@ -1,6 +1,6 @@
-import Command from '../../structures/Command';
-import SuggestionsClient from '../../structures/Client';
-import CommandContext from '../../structures/Context';
+import Command from '../../structures/core/Command';
+import SuggestionsClient from '../../structures/core/Client';
+import CommandContext from '../../structures/commands/Context';
 import { CommandCategory } from '../../types';
 import Logger from '../../utils/Logger';
 import MessageUtils from '../../utils/MessageUtils';

@@ -1,13 +1,13 @@
 import { Constants, GuildTextableChannel, PermissionOverwrite } from 'eris';
 import { stripIndents } from 'common-tags';
 
-import Command from '../../structures/command';
-import SuggestionsClient from '../../structures/client';
+import Command from '../../structures/core/Command';
+import SuggestionsClient from '../../structures/core/Client';
 import { CommandCategory, CommandNextFunction } from '../../types';
 import Logger from '../../utils/Logger';
 import MessageUtils from '../../utils/MessageUtils';
-import CommandContext from '../../structures/Context';
-import Context from '../../structures/Context';
+import CommandContext from '../../structures/commands/Context';
+import Context from '../../structures/commands/Context';
 import Util from '../../utils/Util';
 
 const Permissions: { [key: string]: number } = Constants.Permissions;

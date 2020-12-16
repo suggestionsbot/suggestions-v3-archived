@@ -3,7 +3,7 @@ import { oneLine, stripIndents } from 'common-tags';
 import ms from 'ms';
 import dayjs from 'dayjs';
 
-import SuggestionsClient from '../../../structures/Client';
+import SuggestionsClient from '../../../structures/core/Client';
 import {
   CommandCategory,
   CommandNextFunction,
@@ -12,8 +12,8 @@ import {
   SuggestionChannelType,
   SuggestionRole
 } from '../../../types';
-import CommandContext from '../../../structures/Context';
-import SubCommand from '../../../structures/SubCommand';
+import CommandContext from '../../../structures/commands/Context';
+import SubCommand from '../../../structures/core/SubCommand';
 import Util from '../../../utils/Util';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';

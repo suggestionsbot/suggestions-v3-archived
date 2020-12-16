@@ -14,7 +14,7 @@ import {
 import { inspect } from 'util';
 import { Base } from 'eris-sharder';
 import { stripIndents } from 'common-tags';
-import emojis from '../utils/Emojis';
+import emojis from '../../utils/Emojis';
 
 import {
   BotConfig,
@@ -23,26 +23,26 @@ import {
   AwaitReply,
   AwaitReactionsOptions,
   GuildSchema,
-} from '../types';
-import config from '../config';
-import CommandHandler from '../handlers/CommandHandler';
-import MongoDB from '../providers/mongodb';
-import MessageCollector from '../utils/MessageCollector';
-import ReactionCollector from '../utils/ReactionCollector';
-import Redis from '../providers/redis';
-import Logger from '../utils/Logger';
-import MessageUtils from '../utils/MessageUtils';
-import LocalizationManager from '../managers/LocalizationManager';
-import { CommandManager, SubCommandManager } from '../managers/CommandManager';
-import ListenerManager from '../managers/ListenerManager';
-import BotListManager from '../managers/BotListManager';
-import ChecksManager from '../managers/ChecksManager';
-import RatelimitManager from '../managers/RatelimitManager';
-import ChannelManager from '../managers/ChannelManager';
-import SuggestionChannel from './SuggestionChannel';
-import SuggestionHandler from '../handlers/SuggestionHandler';
-import Context from './Context';
-import Util from '../utils/Util';
+} from '../../types';
+import config from '../../config';
+import CommandHandler from '../../handlers/CommandHandler';
+import MongoDB from '../../providers/mongodb';
+import MessageCollector from '../../utils/MessageCollector';
+import ReactionCollector from '../../utils/ReactionCollector';
+import Redis from '../../providers/redis';
+import Logger from '../../utils/Logger';
+import MessageUtils from '../../utils/MessageUtils';
+import LocalizationManager from '../../managers/LocalizationManager';
+import { CommandManager, SubCommandManager } from '../../managers/CommandManager';
+import ListenerManager from '../../managers/ListenerManager';
+import BotListManager from '../../managers/BotListManager';
+import ChecksManager from '../../managers/ChecksManager';
+import RatelimitManager from '../../managers/RatelimitManager';
+import ChannelManager from '../../managers/ChannelManager';
+import SuggestionChannel from '../suggestions/SuggestionChannel';
+import SuggestionHandler from '../../handlers/SuggestionHandler';
+import Context from '../commands/Context';
+import Util from '../../utils/Util';
 
 /**
  * TODO Rewrite all emoji search methods to support sharding/clustering

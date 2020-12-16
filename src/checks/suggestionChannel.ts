@@ -3,9 +3,9 @@ import dayjs from 'dayjs';
 import { oneLine, stripIndents } from 'common-tags';
 
 import { SuggestionChannelType } from '../types';
-import SuggestionsClient from '../structures/Client';
-import CommandContext from '../structures/Context';
-import Check from '../structures/Check';
+import SuggestionsClient from '../structures/core/Client';
+import CommandContext from '../structures/commands/Context';
+import Check from '../structures/commands/Check';
 import Util from '../utils/Util';
 
 export default class SuggestionChannelCheck extends Check {

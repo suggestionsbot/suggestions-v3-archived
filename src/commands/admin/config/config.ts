@@ -1,6 +1,6 @@
-import Command from '../../../structures/Command';
-import SuggestionsClient from '../../../structures/Client';
-import Context from '../../../structures/Context';
+import Command from '../../../structures/core/Command';
+import SuggestionsClient from '../../../structures/core/Client';
+import Context from '../../../structures/commands/Context';
 import { CommandCategory } from '../../../types';
 
 export default class ConfigCommand extends Command {

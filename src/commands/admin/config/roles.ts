@@ -1,12 +1,12 @@
-import SuggestionsClient from '../../../structures/Client';
-import SubCommand from '../../../structures/SubCommand';
+import SuggestionsClient from '../../../structures/core/Client';
+import SubCommand from '../../../structures/core/SubCommand';
 import {
   CommandCategory,
   CommandNextFunction,
   GuildSchema,
   SuggestionRole
 } from '../../../types';
-import CommandContext from '../../../structures/Context';
+import CommandContext from '../../../structures/commands/Context';
 import Util from '../../../utils/Util';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';

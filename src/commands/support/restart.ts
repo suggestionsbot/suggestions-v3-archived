@@ -1,7 +1,7 @@
-import Command from '../../structures/Command';
-import SuggestionsClient from '../../structures/Client';
+import Command from '../../structures/core/Command';
+import SuggestionsClient from '../../structures/core/Client';
 import { CommandCategory, CommandNextFunction } from '../../types';
-import CommandContext from '../../structures/Context';
+import CommandContext from '../../structures/commands/Context';
 import MessageUtils from '../../utils/MessageUtils';
 import { oneLine } from 'common-tags';
 import Logger from '../../utils/Logger';

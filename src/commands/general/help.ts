@@ -1,8 +1,8 @@
 import { stripIndents } from 'common-tags';
 
-import Command from '../../structures/Command';
-import SuggestionsClient from '../../structures/Client';
-import Context from '../../structures/Context';
+import Command from '../../structures/core/Command';
+import SuggestionsClient from '../../structures/core/Client';
+import Context from '../../structures/commands/Context';
 import MessageUtils from '../../utils/MessageUtils';
 import { CommandCategory } from '../../types';
 

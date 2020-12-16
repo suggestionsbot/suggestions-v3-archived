@@ -1,7 +1,7 @@
 import { Message, Textable } from 'eris';
 import { stripIndents } from 'common-tags';
 
-import SuggestionsClient from '../structures/Client';
+import SuggestionsClient from '../structures/core/Client';
 import MessageEmbed from './MessageEmbed';
 import config from '../config';
 

@@ -6,10 +6,10 @@ dayjs.extend(duration);
 
 import { CommandCategory, CommandNextFunction } from '../../types';
 import MessageEmbed from '../../utils/MessageEmbed';
-import Command from '../../structures/command';
-import ExStaff from '../../structures/client';
+import Command from '../../structures/core/Command';
+import ExStaff from '../../structures/core/Client';
 import MessageUtils from '../../utils/MessageUtils';
-import CommandContext from '../../structures/Context';
+import CommandContext from '../../structures/commands/Context';
 
 export default class EvalCommand extends Command {
   constructor(client: ExStaff) {

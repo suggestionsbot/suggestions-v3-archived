@@ -3,7 +3,7 @@ import path from 'path';
 import globFunction from 'glob';
 import { promisify } from 'util';
 
-import SuggestionsClient from '../structures/Client';
+import SuggestionsClient from '../structures/core/Client';
 // import Event from '../structures/Event';
 import Logger from '../utils/Logger';
 import { Event } from '../types';

@@ -1,9 +1,9 @@
 import { oneLine, stripIndents } from 'common-tags';
 
-import SubCommand from '../../../structures/SubCommand';
-import SuggestionsClient from '../../../structures/Client';
+import SubCommand from '../../../structures/core/SubCommand';
+import SuggestionsClient from '../../../structures/core/Client';
 import { CommandCategory, CommandNextFunction, VoteEmoji } from '../../../types';
-import CommandContext from '../../../structures/Context';
+import CommandContext from '../../../structures/commands/Context';
 import MessageUtils from '../../../utils/MessageUtils';
 import emojis from '../../../utils/Emojis';
 import Util from '../../../utils/Util';

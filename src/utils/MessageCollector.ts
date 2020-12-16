@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { Message, TextableChannel, Collection } from 'eris';
 
-import SuggestionsClient from '../structures/Client';
+import SuggestionsClient from '../structures/core/Client';
 import { AwaitMessagesOptions, CollectorFilter } from '../types';
 import Logger from './Logger';
 

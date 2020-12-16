@@ -1,6 +1,6 @@
-import SuggestionChannel from '../structures/SuggestionChannel';
+import SuggestionChannel from '../structures/suggestions/SuggestionChannel';
 import { Collection } from '@augu/immutable';
-import SuggestionsClient from '../structures/Client';
+import SuggestionsClient from '../structures/core/Client';
 import { SuggestionGuild } from '../types';
 
 export default class ChannelManager extends Collection<SuggestionChannel> {

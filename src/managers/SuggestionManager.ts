@@ -1,9 +1,9 @@
 import { Collection } from '@augu/immutable';
 
 import { SuggestionChannelType, SuggestionSchema, SuggestionType } from '../types';
-import SuggestionChannel from '../structures/SuggestionChannel';
+import SuggestionChannel from '../structures/suggestions/SuggestionChannel';
 import Logger from '../utils/Logger';
-import SuggestionsClient from '../structures/Client';
+import SuggestionsClient from '../structures/core/Client';
 
 export default class SuggestionManager {
   private readonly _cache: Collection<SuggestionSchema>;

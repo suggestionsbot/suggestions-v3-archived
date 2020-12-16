@@ -3,14 +3,14 @@ import { stripIndents } from 'common-tags';
 import crypto from 'crypto';
 import fetch from 'node-fetch';
 
-import { GuildSchema, SuggestionSchema } from '../types';
-import CommandContext from './Context';
-import MessageEmbed from '../utils/MessageEmbed';
-import MessageUtils from '../utils/MessageUtils';
+import { GuildSchema, SuggestionSchema } from '../../types';
+import CommandContext from '../commands/Context';
+import MessageEmbed from '../../utils/MessageEmbed';
+import MessageUtils from '../../utils/MessageUtils';
 import SuggestionChannel from './SuggestionChannel';
-import Util from '../utils/Util';
-import emojis from '../utils/Emojis';
-import SuggestionsClient from './Client';
+import Util from '../../utils/Util';
+import emojis from '../../utils/Emojis';
+import SuggestionsClient from '../core/Client';
 
 /**
  * TODO: Rework this class so it can actually be used with managers and such

@@ -7,12 +7,12 @@ import {
   User
 } from 'eris';
 
-import SuggestionsClient from './Client';
-import { DMOptions, GuildSchema, Promisified } from '../types';
-import Language from './Language';
-import Util from '../utils/Util';
-import ArgumentParser from './parsers/ArgumentParser';
-import FlagParser from './parsers/FlagParser';
+import SuggestionsClient from '../core/Client';
+import { DMOptions, GuildSchema, Promisified } from '../../types';
+import Language from '../core/Language';
+import Util from '../../utils/Util';
+import ArgumentParser from '../parsers/ArgumentParser';
+import FlagParser from '../parsers/FlagParser';
 
 export default class CommandContext {
   public args: ArgumentParser;

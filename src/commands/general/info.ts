@@ -1,14 +1,14 @@
 import dayjs from 'dayjs';
 
-import Command from '../../structures/Command';
-import SuggestionsClient from '../../structures/Client';
+import Command from '../../structures/core/Command';
+import SuggestionsClient from '../../structures/core/Client';
 import MessageEmbed from '../../utils/MessageEmbed';
 import Logger from '../../utils/Logger';
 
 import { description, version } from '../../../package.json';
 import MessageUtils from '../../utils/MessageUtils';
 import { CommandCategory, ShardStats } from '../../types';
-import Context from '../../structures/Context';
+import Context from '../../structures/commands/Context';
 import Util from '../../utils/Util';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

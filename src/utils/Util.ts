@@ -3,7 +3,7 @@ import GiphyAPI, { Giphy } from 'giphy-api';
 import Permissions from './Permissions';
 import { Emoji, Guild, GuildChannel, Member, Permission, Role, TextChannel, User } from 'eris';
 import { SuggestionGuild, SuggestionUser } from '../types';
-import CommandContext from '../structures/Context';
+import CommandContext from '../structures/commands/Context';
 import { execSync } from 'child_process';
 
 export default class Util {

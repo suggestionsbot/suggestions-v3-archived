@@ -1,6 +1,6 @@
-import Event from '../structures/Event';
+import Event from '../structures/core/Event';
 
-import SuggestionsClient from '../structures/Client';
+import SuggestionsClient from '../structures/core/Client';
 import { version } from '../../package.json';
 import Logger from '../utils/Logger';
 import Util from '../utils/Util';

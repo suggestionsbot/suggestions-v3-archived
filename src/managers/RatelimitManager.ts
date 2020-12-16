@@ -6,8 +6,8 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
-import Ratelimit from '../structures/Ratelimit';
-import SuggestionsClient from '../structures/Client';
+import Ratelimit from '../structures/core/Ratelimit';
+import SuggestionsClient from '../structures/core/Client';
 import { SuggestionsCommand } from '../types';
 
 export default class RatelimitManager extends Collection<RatelimitBucket> {

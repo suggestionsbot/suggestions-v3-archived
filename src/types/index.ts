@@ -2,10 +2,10 @@ import { BotActivityType, EmbedOptions, Guild, Member, Message, User } from 'eri
 import { Commands, RedisClient } from 'redis';
 import { Document } from 'mongoose';
 
-import SuggestionsClient from '../structures/Client';
-import Context from '../structures/Context';
+import SuggestionsClient from '../structures/core/Client';
+import Context from '../structures/commands/Context';
 import { Collection } from '@augu/immutable';
-import Ratelimit from '../structures/Ratelimit';
+import Ratelimit from '../structures/core/Ratelimit';
 import { StoreData } from 'frenchkiss';
 
 export interface EmbedThumbnail {

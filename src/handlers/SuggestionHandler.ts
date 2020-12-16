@@ -1,12 +1,12 @@
 import { oneLine } from 'common-tags';
 import dayjs from 'dayjs';
 
-import SuggestionsClient from '../structures/Client';
-import CommandContext from '../structures/Context';
+import SuggestionsClient from '../structures/core/Client';
+import CommandContext from '../structures/commands/Context';
 import { SuggestionChannelType } from '../types';
 import MessageUtils from '../utils/MessageUtils';
 import Logger from '../utils/Logger';
-import Suggestion from '../structures/Suggestion';
+import Suggestion from '../structures/suggestions/Suggestion';
 
 export default class SuggestionHandler {
   constructor(public client: SuggestionsClient) {}

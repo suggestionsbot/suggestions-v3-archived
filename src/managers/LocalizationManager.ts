@@ -3,8 +3,8 @@ import { promisify } from 'util';
 import { Collection } from '@augu/immutable';
 import path from 'path';
 
-import SuggestionsClient from '../structures/Client';
-import Language from '../structures/Language';
+import SuggestionsClient from '../structures/core/Client';
+import Language from '../structures/core/Language';
 import Logger from '../utils/Logger';
 
 const glob = promisify(globFunction);

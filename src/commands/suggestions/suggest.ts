@@ -2,15 +2,15 @@ import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
 
-import Command from '../../structures/Command';
-import SuggestionsClient from '../../structures/Client';
-import Context from '../../structures/Context';
+import Command from '../../structures/core/Command';
+import SuggestionsClient from '../../structures/core/Client';
+import Context from '../../structures/commands/Context';
 import { CommandCategory } from '../../types';
 import MessageUtils from '../../utils/MessageUtils';
 import Util from '../../utils/Util';
 import Logger from '../../utils/Logger';
 import { GuildTextableChannel } from 'eris';
-import Suggestion from '../../structures/Suggestion';
+import Suggestion from '../../structures/suggestions/Suggestion';
 
 export default class SuggestCommand extends Command {
   constructor(public client: SuggestionsClient) {

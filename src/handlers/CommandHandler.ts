@@ -1,12 +1,12 @@
 import { GuildChannel, Message } from 'eris';
 import { oneLine } from 'common-tags';
 
-import SuggestionsClient from '../structures/Client';
+import SuggestionsClient from '../structures/core/Client';
 import { GuildSchema } from '../types';
 import Util from '../utils/Util';
 import Logger from '../utils/Logger';
 import MessageUtils from '../utils/MessageUtils';
-import Context from '../structures/Context';
+import Context from '../structures/commands/Context';
 
 export default class CommandHandler {
   public minimumPermissions: Array<string|number>;

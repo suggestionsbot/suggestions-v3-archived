@@ -1,4 +1,4 @@
-import SuggestionsClient from './Client';
+import SuggestionsClient from '../core/Client';
 import Context from './Context';
 
 export default abstract class Check {

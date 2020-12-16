@@ -1,7 +1,7 @@
 import ExStaff from './Client';
 import Command from './Command';
 
-import { SubCommand as SubCommandClass } from '../types';
+import { SubCommand as SubCommandClass } from '../../types';
 
 export default abstract class SubCommand extends Command implements SubCommandClass {
   public parent!: string;

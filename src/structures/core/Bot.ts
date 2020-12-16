@@ -4,11 +4,11 @@ import { Base } from 'eris-sharder';
 import { setDefaults } from 'wumpfetch';
 
 import SuggestionsClient from './Client';
-import { version } from '../../package.json';
-import Logger from '../utils/Logger';
-import config from '../config';
-import { StatusEvent } from '../types';
-import { CLIENT_OPTIONS } from '../index';
+import { version } from '../../../package.json';
+import Logger from '../../utils/Logger';
+import config from '../../config';
+import { StatusEvent } from '../../types';
+import { CLIENT_OPTIONS } from '../../index';
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,

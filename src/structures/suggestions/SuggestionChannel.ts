@@ -6,10 +6,10 @@ import {
   SuggestionChannel as SuggestionChannelObj,
   SuggestionChannelType,
   SuggestionRole,
-} from '../types';
-import SuggestionsClient from './Client';
-import ChannelManager from '../managers/ChannelManager';
-import SuggestionManager from '../managers/SuggestionManager';
+} from '../../types';
+import SuggestionsClient from '../core/Client';
+import ChannelManager from '../../managers/ChannelManager';
+import SuggestionManager from '../../managers/SuggestionManager';
 
 export default class SuggestionChannel {
   private readonly _suggestions: SuggestionManager;

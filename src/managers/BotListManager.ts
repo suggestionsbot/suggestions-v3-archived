@@ -1,6 +1,6 @@
 import { Poster } from 'dbots';
 
-import SuggestionsClient from '../structures/Client';
+import SuggestionsClient from '../structures/core/Client';
 
 export default class BotListManager {
   public poster!: Poster;

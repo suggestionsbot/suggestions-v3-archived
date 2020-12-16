@@ -42,18 +42,16 @@ export default class SuggestionManager {
 
   public async delete(query: string): Promise<boolean> {
     const data = await this._queryFromDatabase(query);
-    if (!data) return false;
 
     const deleted = await this.client.database.helpers.suggestion.deleteSuggestion(query);
-    if (!deleted) return false;
-    this._cache.delete(data.id);
-    this.client.redis.instance!.decr(`guild:${data.guild}:member:${data.user}:suggestions:count`);
-    this.client.redis.instance!.decr(`user:${data.user}:suggestions:count`);
-    this.client.redis.instance!.decr(`guild:${data.guild}:suggestions:count`);
-    this.client.redis.instance!.decr(`guild:${data.guild}:channel:${data.channel}:suggestions:count`);
+    this._cache.delete(data!.id);
+    this.client.redis.instance!.decr(`guild:${data!.guild}:member:${data!.user}:suggestions:count`);
+    this.client.redis.instance!.decr(`user:${data!.user}:suggestions:count`);
+    this.client.redis.instance!.decr(`guild:${data!.guild}:suggestions:count`);
+    this.client.redis.instance!.decr(`guild:${data!.guild}:channel:${data!.channel}:suggestions:count`);
     this.client.redis.instance!.decr('global:suggestions');
 
-    Logger.log(`Deleted suggestion ${data.getSuggestionID(false)} from the database.`);
+    Logger.log(`Deleted suggestion ${data!.getSuggestionID(false)} from the database.`);
 
     return deleted;
   }
@@ -62,8 +60,7 @@ export default class SuggestionManager {
     if (query.length === 40) {
       const suggestion = force ? await this._queryFromDatabase(query) : this._cache.get(query) ??
           await this._queryFromDatabase(query);
-      if (!suggestion) throw new Error('SuggestionNotFound');
-      if (cache) this._cache.set(suggestion.id, suggestion);
+      if (cache) this._cache.set(suggestion!.id, suggestion!);
 
       return suggestion;
     }
@@ -71,8 +68,7 @@ export default class SuggestionManager {
     if (query.length === 7) {
       const suggestion = force ? await this._queryFromDatabase(query) :
         this._cache.find(s => s.id.slice(33, 40) === query) ?? await this._queryFromDatabase(query);
-      if (!suggestion) throw new Error('SuggestionNotFound');
-      if (cache) this._cache.set(suggestion.id, suggestion);
+      if (cache) this._cache.set(suggestion!.id, suggestion!);
 
       return suggestion;
     }
@@ -81,8 +77,7 @@ export default class SuggestionManager {
     if (query.match(snowflake)) {
       const suggestion = force ? await this._queryFromDatabase(query) : this._cache.get(query) ??
           await this._queryFromDatabase(query);
-      if (!suggestion) throw new Error('SuggestionNotFound');
-      if (cache) this._cache.set(suggestion.id, suggestion);
+      if (cache) this._cache.set(suggestion!.id, suggestion!);
 
       return suggestion;
     }
@@ -95,8 +90,7 @@ export default class SuggestionManager {
 
       const suggestion = force ? await this._queryFromDatabase(query) :
         this._cache.find(s => s.message === messageID) ?? await this._queryFromDatabase(query);
-      if (!suggestion) throw new Error('SuggestionNotFound');
-      if (cache) this._cache.set(suggestion.id, suggestion);
+      if (cache) this._cache.set(suggestion!.id, suggestion!);
 
       return suggestion;
     }

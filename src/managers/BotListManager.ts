@@ -25,6 +25,6 @@ export default class BotListManager {
   }
 
   public start(enable = true): NodeJS.Timeout|void {
-    enable ? this.poster.startInterval() : this.poster.stopInterval();
+    return enable ? this.poster.startInterval() : this.poster.stopInterval();
   }
 }

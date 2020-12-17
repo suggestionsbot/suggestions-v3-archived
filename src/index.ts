@@ -40,8 +40,8 @@ export const CLIENT_OPTIONS: ClientOptions = {
 export const main = async (): Promise<boolean> => {
   try {
     const mainFile = process.env.NODE_ENV === 'production' ?
-      '/dist/lib/src/structures/Bot.js' :
-      '/src/structures/Bot.ts';
+      '/dist/lib/src/structures/core/Bot.js' :
+      '/src/structures/core/Bot.ts';
 
     const sharder = new Master(process.env.DISCORD_TOKEN!, mainFile, {
       stats: true,

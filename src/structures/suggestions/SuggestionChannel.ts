@@ -89,6 +89,10 @@ export default class SuggestionChannel {
     return this._count;
   }
 
+  public get initialized(): boolean {
+    return this._initialized;
+  }
+
   public async init(): Promise<void> {
     if (this._initialized) return;
     if (this.data!.locked) this._locked = this.data!.locked;
@@ -185,7 +189,7 @@ export default class SuggestionChannel {
     return this._cooldowns.has(user);
   }
 
-  private async _addRoles(roles: Array<SuggestionRole>, collection: Collection<Role>): Promise<void> {
+  private _addRoles(roles: Array<SuggestionRole>, collection: Collection<Role>): void {
     for (const r of roles) {
       const role = this.guild.roles.get(r.role);
       if (!role) continue;

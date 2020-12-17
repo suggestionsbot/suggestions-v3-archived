@@ -79,12 +79,23 @@ export default class SuggestionHandler {
     }
 
     try {
-      await new Suggestion(ctx, ctx.message.content, sChannel).post();
+      const newSuggestion = new Suggestion(this.client)
+        .setAuthor(ctx.sender)
+        .setChannel(sChannel)
+        .setMessage(ctx.message)
+        .setGuild(ctx.guild!)
+        .setSuggestion(ctx.message.content)
+        .setSettings(ctx.settings!);
+
+      await newSuggestion.post();
+
       await MessageUtils.delete(ctx.message, { timeout: 5000 });
     } catch (e) {
+      ctx.message.delete();
       if (e.message === 'Missing Access') return;
-      Logger.error(e);
-      return MessageUtils.error(ctx.client, ctx.message, e.message, true);
+      Logger.error(e.stack);
+      return MessageUtils.error(ctx.client, ctx.message, e.message, true)
+        .then(m => MessageUtils.delete(m, { timeout: 3000 }));
     }
   }
 }

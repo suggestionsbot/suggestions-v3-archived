@@ -40,7 +40,7 @@ Suggestion.method('getMessageLink', function(this: SuggestionSchema, args: Messa
   return `https://discord.com/channels/${args[0]}/${args[1]}/${args[2]}`;
 });
 
-Suggestion.method('getSuggestionID', function(this: SuggestionSchema, long = false): string {
+Suggestion.method('getSuggestionID', function(this: SuggestionSchema, long = true): string {
   if (long) return this.id;
   else return this.id.slice(33, 40);
 });

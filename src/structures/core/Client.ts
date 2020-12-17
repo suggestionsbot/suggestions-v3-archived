@@ -8,7 +8,7 @@ import {
   GuildTextableChannel,
   Member,
   Message,
-  TextableChannel,
+  TextableChannel, TextChannel,
   User
 } from 'eris';
 import { inspect } from 'util';
@@ -22,7 +22,7 @@ import {
   AwaitMessagesOptions,
   AwaitReply,
   AwaitReactionsOptions,
-  GuildSchema,
+  GuildSchema, SuggestionChannelType,
 } from '../../types';
 import config from '../../config';
 import CommandHandler from '../../handlers/CommandHandler';
@@ -319,15 +319,20 @@ export default class SuggestionsClient extends Client {
       const isInDatabase = settings.channels.map(c => c.channel).includes(message.channel.id);
       if (!isInDatabase) return;
 
-      const channel = this.suggestionChannels.get(message.channel.id);
+      let channel = this.suggestionChannels.get(message.channel.id);
       if (!channel) {
-        const msg = await MessageUtils.error(this, message,
-          `Cannot post to ${message.channel!.mention} as it's not currently available!`);
-        return Promise.all([
-          MessageUtils.delete(msg, { timeout: 3000 }),
-          message.delete()
-        ]);
+        channel = new SuggestionChannel(
+          this,
+          (<TextChannel>message.channel).guild,
+          SuggestionChannelType.SUGGESTIONS,
+            <TextChannel>message.channel,
+            settings
+        );
+        await channel.init();
+        await this.suggestionChannels.addChannel(channel);
       }
+
+      if (channel && !channel.initialized) await channel.init();
 
       const locale = this.locales.get(settings.locale);
       const ctx: Context = new Context(message, [], locale, settings);
@@ -409,7 +414,7 @@ export default class SuggestionsClient extends Client {
   public async isSupport(user: User): Promise<boolean> {
     return this.base!.ipc.fetchGuild(this.system)
       .then(async (guild: any) => {
-        const member: Member = guild.members[user.id] ?? Util.getGuildMemberByID(<Guild>guild, user.id) ?? false;
+        const member: Member = guild.members[user.id] ?? await Util.getGuildMemberByID(<Guild>guild, user.id) ?? false;
         return member.roles.some(r => this.config.supportRoles.includes(r)) ?? false;
       });
   }

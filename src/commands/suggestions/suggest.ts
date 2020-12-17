@@ -48,7 +48,16 @@ export default class SuggestCommand extends Command {
     const suggestion = argCheck ? ctx.args.slice(1).join(' ') : ctx.args.join(' ');
 
     try {
-      await new Suggestion(ctx, suggestion, sChannel).post();
+      const newSuggestion = new Suggestion(this.client)
+        .setAuthor(ctx.sender)
+        .setChannel(sChannel)
+        .setMessage(ctx.message)
+        .setGuild(ctx.guild!)
+        .setSuggestion(suggestion)
+        .setSettings(ctx.settings!);
+
+      await newSuggestion.post();
+
       MessageUtils.delete(ctx.message, { timeout: 5000 });
     } catch (e) {
       if (e.message === 'Missing Access') return;

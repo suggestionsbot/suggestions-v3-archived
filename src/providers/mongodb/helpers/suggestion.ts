@@ -1,9 +1,9 @@
 import { Guild } from 'eris';
 import { SuggestionGuild, SuggestionSchema } from '../../../types';
 import SuggestionModel from '../models/suggestion';
-import Logger from '../../../utils/Logger';
 import Util from '../../../utils/Util';
 import MongoDB from '../';
+import Suggestion from '../../../structures/suggestions/Suggestion';
 
 export default class SuggestionHelpers {
   constructor(public database: MongoDB) {}
@@ -28,13 +28,14 @@ export default class SuggestionHelpers {
     return SuggestionModel.find({ guild: Util.getGuildID(guild) });
   }
 
-  public async getSuggestion(guildID: string, query: string, guild = true): Promise<SuggestionSchema|null> {
+  public async getSuggestion(guildID: string, query: string, guild = true): Promise<Suggestion|null> {
     const fetched = await SuggestionModel.findOne({ $or: SuggestionHelpers._querySuggestion(query) });
     if (!fetched) throw new Error('SuggestionNotFound');
 
     if (guild && (fetched!.guild !== guildID)) throw new Error('GuildScope');
 
-    return fetched;
+    if (fetched) return new Suggestion(this.database.client).setData(fetched);
+    else return null;
   }
 
   public async createSuggestion(suggestion: Record<string, unknown>): Promise<SuggestionSchema> {

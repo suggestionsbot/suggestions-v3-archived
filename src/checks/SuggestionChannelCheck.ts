@@ -1,4 +1,4 @@
-import { GuildTextableChannel } from 'eris';
+import { GuildTextableChannel, TextChannel } from 'eris';
 import dayjs from 'dayjs';
 import { oneLine, stripIndents } from 'common-tags';
 
@@ -7,6 +7,7 @@ import SuggestionsClient from '../structures/core/Client';
 import CommandContext from '../structures/commands/Context';
 import Check from '../structures/commands/Check';
 import Util from '../utils/Util';
+import SuggestionChannel from '../structures/suggestions/SuggestionChannel';
 
 export default class SuggestionChannelCheck extends Check {
 
@@ -27,8 +28,19 @@ export default class SuggestionChannelCheck extends Check {
         
         Valid channels: ${channels.map(c => `<#${c}>`).join(' ')}`);
 
-    const sChannel = this.client.suggestionChannels.get(gChannel!.id);
-    if (!sChannel) throw new Error(`Cannot post to ${gChannel!.mention} as it's not currently available!`);
+    let sChannel = this.client.suggestionChannels.get(gChannel!.id);
+    if (!sChannel) {
+      sChannel = new SuggestionChannel(
+        this.client,
+        ctx.guild!,
+        SuggestionChannelType.SUGGESTIONS,
+        <TextChannel>ctx.channel,
+        ctx.settings!
+      );
+      await sChannel.init();
+      await this.client.suggestionChannels.addChannel(sChannel);
+    }
+    if (sChannel && !sChannel.initialized) await sChannel.init();
 
     if (!this.client.isAdmin(ctx.member!)) {
       const cooldown = sChannel.cooldowns.get(ctx.sender.id);

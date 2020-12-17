@@ -26,7 +26,7 @@ type ChannelType = 'regular' | 'staff' | 'logs';
  * TODO limit all logs channel to one channel type so there are no multiple/duplicate log channels
  */
 export default class ConfigChannelsCommand extends SubCommand {
-  #_channelArgOptions = ['lock', 'unlock', 'enable', 'disable', 'enablereview', 'disablereview',
+  #channelArgOptions = ['lock', 'unlock', 'enable', 'disable', 'enablereview', 'disablereview',
     'allowed', 'blocked', 'cooldown', 'emojis'];
 
   constructor(public client: SuggestionsClient) {
@@ -152,7 +152,7 @@ export default class ConfigChannelsCommand extends SubCommand {
           `I could not find these role(s): \`${missingRoles.join(', ')}\``);
       }
 
-      if (ctx.args.get(1) && (this.#_channelArgOptions.includes(ctx.args.get(1).toLowerCase()))) {
+      if (ctx.args.get(1) && (this.#channelArgOptions.includes(ctx.args.get(1).toLowerCase()))) {
         const arg = ctx.args.get(1).toLowerCase();
 
         switch (arg) {
@@ -409,7 +409,7 @@ export default class ConfigChannelsCommand extends SubCommand {
         return;
       }
 
-      if (ctx.args.get(1) && (this.#_channelArgOptions.includes(ctx.args.get(1).toLowerCase()))) {
+      if (ctx.args.get(1) && (this.#channelArgOptions.includes(ctx.args.get(1).toLowerCase()))) {
         const arg = ctx.args.get(1).toLowerCase();
 
         switch (arg) {

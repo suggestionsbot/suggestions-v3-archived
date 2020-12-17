@@ -203,7 +203,8 @@ export enum SuggestionChannelType {
   LOGS = 'logs',
   STAFF = 'staff',
   APPROVED = 'approved',
-  REJECTED = 'rejected'
+  REJECTED = 'rejected',
+  MOD_LOGS = 'modlogs'
 }
 
 export interface DisabledCommand extends Document {

@@ -24,7 +24,7 @@ export const GuildSettings = new Schema({
       channel: String,
       type: {
         type: String,
-        enum: ['suggestions', 'logs', 'approved', 'rejected', 'staff']
+        enum: ['suggestions', 'logs', 'approved', 'rejected', 'staff', 'modlogs']
       },
       allowed: { type: [SuggestionRole] },
       blocked: { type: [SuggestionRole] },

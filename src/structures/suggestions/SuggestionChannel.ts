@@ -1,159 +1,144 @@
-import { Guild, GuildTextableChannel, Role, TextChannel } from 'eris';
+import { Guild, GuildTextableChannel, Role } from 'eris';
 import { Collection } from '@augu/immutable';
 
 import {
   GuildSchema,
-  SuggestionChannel as SuggestionChannelObj,
   SuggestionChannelType,
   SuggestionRole,
 } from '../../types';
 import SuggestionsClient from '../core/Client';
-import ChannelManager from '../../managers/ChannelManager';
 import SuggestionManager from '../../managers/SuggestionManager';
+import BaseChannel from '../core/BaseChannel';
 
-export default class SuggestionChannel {
-  private readonly _suggestions: SuggestionManager;
-  private readonly _allowed: Collection<Role>;
-  private readonly _blocked: Collection<Role>;
-  private readonly _cooldowns: Map<string, { expires: number; }>;
-  private _count: number;
-  private _emojis: number;
-  private _cooldown?: number;
-  private _locked: boolean;
-  private _reviewMode: boolean;
-  private _initialized: boolean;
+export default class SuggestionChannel extends BaseChannel {
+  public initialized: boolean;
+  readonly #suggestions: SuggestionManager;
+  readonly #allowed: Collection<Role>;
+  readonly #blocked: Collection<Role>;
+  readonly #cooldowns: Map<string, { expires: number; }>;
+  #count: number;
+  #emojis: number;
+  #cooldown?: number;
+  #locked: boolean;
+  #removeMode: boolean;
 
   constructor(
-    public client: SuggestionsClient,
-    public guild: Guild,
-    public type: SuggestionChannelType,
-    private _channel: GuildTextableChannel,
-    private _settings: GuildSchema
+    client: SuggestionsClient,
+    guild: Guild,
+    type: SuggestionChannelType,
+    channel: GuildTextableChannel,
+    settings: GuildSchema
   ) {
-    this._suggestions = new SuggestionManager(this);
-    this._allowed = new Collection<Role>();
-    this._blocked = new Collection<Role>();
-    this._cooldowns = new Map<string, { expires: number; }>();
-    this._locked = false;
-    this._reviewMode = false;
-    this._emojis = 0;
-    this._count = 0;
-    this._initialized = false;
-  }
+    super(client, guild, type, channel, settings);
 
-  public get data(): SuggestionChannelObj|undefined {
-    return this._settings.channels.find(c => c.channel === this._channel.id);
+    this.initialized = false;
+    this.#suggestions = new SuggestionManager(this);
+    this.#allowed = new Collection<Role>();
+    this.#blocked = new Collection<Role>();
+    this.#cooldowns = new Map<string, { expires: number; }>();
+    this.#locked = false;
+    this.#removeMode = false;
+    this.#emojis = 0;
+    this.#count = 0;
   }
 
   public get locked(): boolean {
-    return this._locked;
+    return this.#locked;
   }
 
   public get reviewMode(): boolean {
-    return this._reviewMode;
+    return this.#removeMode;
   }
 
   public get suggestions(): SuggestionManager {
-    return this._suggestions;
+    return this.#suggestions;
   }
 
   public get allowed(): Collection<Role> {
-    return this._allowed;
+    return this.#allowed;
   }
 
   public get blocked(): Collection<Role> {
-    return this._blocked;
-  }
-
-  public get channel(): TextChannel {
-    return this._channel;
+    return this.#blocked;
   }
 
   public get cooldowns(): Map<string, { expires: number; }> {
-    return this._cooldowns;
-  }
-
-  public get manager(): ChannelManager {
-    return this.client.suggestionChannels;
+    return this.#cooldowns;
   }
 
   public get emojis(): number {
-    return this._emojis;
+    return this.#emojis;
   }
 
   public get cooldown(): number|undefined {
-    return this._cooldown;
+    return this.#cooldown;
   }
 
   public get count(): number {
-    return this._count;
-  }
-
-  public get initialized(): boolean {
-    return this._initialized;
+    return this.#count;
   }
 
   public async init(): Promise<void> {
-    if (this._initialized) return;
-    if (this.data!.locked) this._locked = this.data!.locked;
-    if (this.data!.reviewMode) this._reviewMode = this.data!.reviewMode;
-    if (this.data!.emojis) this._emojis = this.data!.emojis;
-    if (this.data!.cooldown) this._cooldown = this.data!.cooldown;
+    if (this.initialized) return;
+    if (this.data!.locked) this.#locked = this.data!.locked;
+    if (this.data!.reviewMode) this.#removeMode = this.data!.reviewMode;
+    if (this.data!.emojis) this.#emojis = this.data!.emojis;
+    if (this.data!.cooldown) this.#cooldown = this.data!.cooldown;
     this.type = this.data!.type;
-    this._addRoles(this.data!.allowed, this._allowed);
-    this._addRoles(this.data!.blocked, this._blocked);
-    this._count = await this.client.redis.helpers.getGuildSuggestionCount(this.guild, this.channel);
-    this._initialized = true;
+    this._addRoles(this.data!.allowed, this.#allowed);
+    this._addRoles(this.data!.blocked, this.#blocked);
+    this.#count = await this.client.redis.helpers.getGuildSuggestionCount(this.guild, this.channel);
+    this.initialized = true;
   }
 
   public async setReviewMode(enabled: boolean): Promise<boolean> {
-    this._reviewMode = enabled;
-    this._settings.updateChannel(this.channel.id, { reviewMode: enabled });
-    await this._settings.save();
+    this.#removeMode = enabled;
+    this.settings.updateChannel(this.channel.id, { reviewMode: enabled });
+    await this.settings.save();
     await this.client.redis.helpers.clearCachedGuild(this.guild);
-    return this._reviewMode;
+    return this.#removeMode;
   }
 
   public async lock(locked: boolean): Promise<boolean> {
-    this._locked = locked;
-    this._settings.updateChannel(this.channel.id, { locked });
-    await this._settings.save();
+    this.#locked = locked;
+    this.settings.updateChannel(this.channel.id, { locked });
+    await this.settings.save();
     await this.client.redis.helpers.clearCachedGuild(this.guild);
-    return this._locked;
+    return this.#locked;
   }
 
   public async setEmojis(id: number): Promise<number> {
-    this._emojis = id;
-    this._settings.updateChannel(this.channel.id, { emojis: id });
-    await this._settings.save();
+    this.#emojis = id;
+    this.settings.updateChannel(this.channel.id, { emojis: id });
+    await this.settings.save();
     await this.client.redis.helpers.clearCachedGuild(this.guild);
-    return this._emojis;
+    return this.#emojis;
   }
 
   public async setCooldown(cooldown: number): Promise<number|undefined> {
-    this._cooldown = cooldown === 0 ? undefined : cooldown;
-    this._settings.updateChannel(this.channel.id, { cooldown: this._cooldown });
-    await this._settings.save();
+    this.#cooldown = cooldown === 0 ? undefined : cooldown;
+    this.settings.updateChannel(this.channel.id, { cooldown: this.#cooldown });
+    await this.settings.save();
     await this.client.redis.helpers.clearCachedGuild(this.guild);
-    return this._cooldown;
+    return this.#cooldown;
   }
 
   public async updateRole(data: SuggestionRole): Promise<boolean> {
     const role = this.guild.roles.get(data.role)!;
     switch (data.type) {
       case 'allowed': {
-        this._allowed.has(data.role) ? this._allowed.delete(data.role) : this._allowed.set(data.role, role);
-        this._settings.updateChannelRoles(this.channel.id, data);
-        await this._settings.save();
+        this.#allowed.has(data.role) ? this.#allowed.delete(data.role) : this.#allowed.set(data.role, role);
+        this.settings.updateChannelRoles(this.channel.id, data);
+        await this.settings.save();
         await this.client.redis.helpers.clearCachedGuild(this.guild);
-        return this._allowed.has(data.role);
+        return this.#allowed.has(data.role);
       }
       case 'blocked': {
-        this._blocked.has(data.role) ? this._blocked.delete(data.role) : this._blocked.set(data.role, role);
-        this._settings.updateChannelRoles(this.channel.id, data);
-        await this._settings.save();
+        this.#blocked.has(data.role) ? this.#blocked.delete(data.role) : this.#blocked.set(data.role, role);
+        this.settings.updateChannelRoles(this.channel.id, data);
+        await this.settings.save();
         await this.client.redis.helpers.clearCachedGuild(this.guild);
-        return this._blocked.has(data.role);
+        return this.#blocked.has(data.role);
       }
       default: throw new Error('InvalidRoleType');
     }
@@ -161,11 +146,11 @@ export default class SuggestionChannel {
 
   public async clearRoles(type: 'allowed'|'blocked', reset?: boolean): Promise<void> {
     if (type === 'allowed') {
-      this._allowed.clear();
+      this.#allowed.clear();
       this.data!.allowed = [];
     } else {
       if (reset) {
-        this._blocked.clear();
+        this.#blocked.clear();
         this.data!.blocked = [];
       } else {
         this.data!.blocked = [<SuggestionRole>{
@@ -175,18 +160,18 @@ export default class SuggestionChannel {
         }];
       }
     }
-    await this._settings.save();
+    await this.settings.save();
     await this.client.redis.helpers.clearCachedGuild(this.guild);
   }
 
   public updateCooldowns(user: string, remove?: boolean): boolean {
-    if (remove) return this._cooldowns.delete(user);
-    this._cooldowns.set(user, { expires: this._cooldown! + Date.now() });
+    if (remove) return this.#cooldowns.delete(user);
+    this.#cooldowns.set(user, { expires: this.#cooldown! + Date.now() });
     // TODO in the future when we pull from redis directly, make sure to remove this setTimeout
     setTimeout(() => {
-      this._cooldowns.delete(user);
-    }, this._cooldown!);
-    return this._cooldowns.has(user);
+      this.#cooldowns.delete(user);
+    }, this.#cooldown!);
+    return this.#cooldowns.has(user);
   }
 
   private _addRoles(roles: Array<SuggestionRole>, collection: Collection<Role>): void {

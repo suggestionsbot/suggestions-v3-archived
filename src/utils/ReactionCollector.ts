@@ -1,6 +1,5 @@
 import { Message } from 'eris';
 import { EventEmitter } from 'events';
-
 // @ts-expect-error no typings exist for package
 import { continuousReactionStream } from 'eris-reactions';
 

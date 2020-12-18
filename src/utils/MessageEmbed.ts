@@ -1,4 +1,5 @@
 import { EmbedAuthor, EmbedField, EmbedFooter, EmbedImage } from 'eris';
+
 import { EmbedThumbnail } from '../types';
 
 export default class MessageEmbed {

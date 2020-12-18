@@ -41,6 +41,7 @@ export interface BotConfig {
     regular: number;
     logs: number;
     staff: number;
+    modlogs: number;
   };
   defaults: {
     prefixes: Array<string>;

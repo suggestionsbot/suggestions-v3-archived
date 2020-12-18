@@ -19,7 +19,7 @@ import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
 import emojis from '../../../utils/Emojis';
 
-type ChannelType = 'regular' | 'staff' | 'logs';
+type ChannelType = 'regular' | 'staff' | 'logs' | 'modlogs';
 
 /**
  * TODO implement premium guild checks for adding additional channels (limit is 2 channels)

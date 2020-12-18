@@ -1,11 +1,10 @@
-import SuggestionsClient from './Client';
 import { Guild, GuildTextableChannel } from 'eris';
+
+import SuggestionsClient from './Client';
 import { GuildSchema, SuggestionChannelType, SuggestionChannel } from '../../types';
 import ChannelManager from '../../managers/ChannelManager';
 
 export default abstract class BaseChannel {
-  abstract initialized: boolean;
-
   protected constructor(
     public client: SuggestionsClient,
     public guild: Guild,
@@ -20,6 +19,10 @@ export default abstract class BaseChannel {
 
   public get manager(): ChannelManager {
     return this.client.suggestionChannels;
+  }
+
+  public get id(): string {
+    return this.channel.id;
   }
 
   abstract async init(): Promise<void>;

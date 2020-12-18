@@ -10,17 +10,19 @@ import SuggestionsClient from '../core/Client';
 import SuggestionManager from '../../managers/SuggestionManager';
 import BaseChannel from '../core/BaseChannel';
 
+type Cooldown = { expires: number; };
+
 export default class SuggestionChannel extends BaseChannel {
-  public initialized: boolean;
   readonly #suggestions: SuggestionManager;
   readonly #allowed: Collection<Role>;
   readonly #blocked: Collection<Role>;
-  readonly #cooldowns: Map<string, { expires: number; }>;
+  readonly #cooldowns: Map<string, Cooldown>;
   #count: number;
   #emojis: number;
   #cooldown?: number;
   #locked: boolean;
   #removeMode: boolean;
+  #initialized: boolean;
 
   constructor(
     client: SuggestionsClient,
@@ -31,11 +33,11 @@ export default class SuggestionChannel extends BaseChannel {
   ) {
     super(client, guild, type, channel, settings);
 
-    this.initialized = false;
+    this.#initialized = false;
     this.#suggestions = new SuggestionManager(this);
     this.#allowed = new Collection<Role>();
     this.#blocked = new Collection<Role>();
-    this.#cooldowns = new Map<string, { expires: number; }>();
+    this.#cooldowns = new Map<string, Cooldown>();
     this.#locked = false;
     this.#removeMode = false;
     this.#emojis = 0;
@@ -62,7 +64,7 @@ export default class SuggestionChannel extends BaseChannel {
     return this.#blocked;
   }
 
-  public get cooldowns(): Map<string, { expires: number; }> {
+  public get cooldowns(): Map<string, Cooldown> {
     return this.#cooldowns;
   }
 
@@ -78,8 +80,12 @@ export default class SuggestionChannel extends BaseChannel {
     return this.#count;
   }
 
+  public get initialized(): boolean {
+    return this.#initialized;
+  }
+
   public async init(): Promise<void> {
-    if (this.initialized) return;
+    if (this.#initialized) return;
     if (this.data!.locked) this.#locked = this.data!.locked;
     if (this.data!.reviewMode) this.#removeMode = this.data!.reviewMode;
     if (this.data!.emojis) this.#emojis = this.data!.emojis;
@@ -88,7 +94,7 @@ export default class SuggestionChannel extends BaseChannel {
     this._addRoles(this.data!.allowed, this.#allowed);
     this._addRoles(this.data!.blocked, this.#blocked);
     this.#count = await this.client.redis.helpers.getGuildSuggestionCount(this.guild, this.channel);
-    this.initialized = true;
+    this.#initialized = true;
   }
 
   public async setReviewMode(enabled: boolean): Promise<boolean> {

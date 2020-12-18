@@ -5,7 +5,7 @@ import { GuildSchema, SuggestionChannelType } from '../../types';
 import SuggestionsClient from './Client';
 
 export default class ModLogChannel extends BaseChannel {
-  public initialized: boolean;
+  #initialized: boolean;
 
   constructor(
     client: SuggestionsClient,
@@ -16,12 +16,16 @@ export default class ModLogChannel extends BaseChannel {
   ) {
     super(client, guild, type, channel, settings);
 
-    this.initialized = false;
+    this.#initialized = false;
+  }
+
+  public get initialized(): boolean {
+    return this.#initialized;
   }
 
   async init(): Promise<void> {
-    if (this.initialized) return;
+    if (this.#initialized) return;
 
-    this.initialized = true;
+    this.#initialized = true;
   }
 }

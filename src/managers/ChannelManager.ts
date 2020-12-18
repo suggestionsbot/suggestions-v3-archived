@@ -1,7 +1,7 @@
 import SuggestionChannel from '../structures/suggestions/SuggestionChannel';
 import { Collection } from '@augu/immutable';
 import SuggestionsClient from '../structures/core/Client';
-import { SuggestionGuild } from '../types';
+import { SuggestionChannelType, SuggestionGuild } from '../types';
 
 export default class ChannelManager extends Collection<SuggestionChannel> {
   constructor(public client: SuggestionsClient) {
@@ -17,7 +17,10 @@ export default class ChannelManager extends Collection<SuggestionChannel> {
     return this.has(channel.channel.id);
   }
 
-  public getGuildBucket(guild: SuggestionGuild): Array<SuggestionChannel> {
-    return this.filter(c => c.guild.id === (typeof guild === 'object' ? guild.id : guild));
+  public getGuildBucket(guild: SuggestionGuild, type?: SuggestionChannelType): Array<SuggestionChannel> {
+    return this.filter(c =>
+      (c.guild.id === (typeof guild === 'object' ? guild.id : guild)) &&
+      (type ? c.type === type : true)
+    );
   }
 }

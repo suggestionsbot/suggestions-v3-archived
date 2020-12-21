@@ -14,7 +14,7 @@ export default class ChecksManager extends Collection<Check> {
     super();
   }
 
-  private static get _directory(): string {
+  private static get directory(): string {
     return `${path.join(path.dirname(require.main!.filename), 'checks', '**', '*.{ts,js}')}`;
   }
 
@@ -27,7 +27,7 @@ export default class ChecksManager extends Collection<Check> {
   }
 
   public async init(): Promise<void> {
-    return glob(ChecksManager._directory).then(async (files: any) => {
+    return glob(ChecksManager.directory).then(async (files: any) => {
       if (!files.length) return Logger.warning('CHECKS', 'Couldn\'t find any command checks files!');
 
       for (const file of files) {

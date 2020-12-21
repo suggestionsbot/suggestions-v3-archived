@@ -7,14 +7,14 @@ import SuggestionsClient from '../structures/core/Client';
 import Suggestion from '../structures/suggestions/Suggestion';
 
 export default class SuggestionManager {
-  private readonly _cache: Collection<Suggestion>;
+  readonly #cache: Collection<Suggestion>;
 
   constructor(public channel: SuggestionChannel) {
-    this._cache = new Collection<Suggestion>();
+    this.#cache = new Collection<Suggestion>();
   }
 
   public get cache(): Collection<Suggestion> {
-    return this._cache;
+    return this.#cache;
   }
 
   public get client(): SuggestionsClient {
@@ -35,7 +35,7 @@ export default class SuggestionManager {
     if (this.channel.type === SuggestionChannelType.STAFF) record.type = SuggestionType.STAFF;
 
     const data = await this.channel.client.database.helpers.suggestion.createSuggestion(record);
-    this._cache.set(suggestion.id(), suggestion);
+    this.#cache.set(suggestion.id(), suggestion);
     this.client.redis.instance!.incr(`guild:${data.guild}:member:${data.user}:suggestions:count`);
     this.client.redis.instance!.incr(`user:${data.user}:suggestions:count`);
     this.client.redis.instance!.incr(`guild:${data.guild}:suggestions:count`);
@@ -49,10 +49,10 @@ export default class SuggestionManager {
   }
 
   public async delete(query: string): Promise<boolean> {
-    const data = await this._queryFromDatabase(query);
+    const data = await this.queryFromDatabase(query);
 
     const deleted = await this.client.database.helpers.suggestion.deleteSuggestion(query);
-    if (this._cache.has(data!.id())) this._cache.delete(data!.id());
+    if (this.#cache.has(data!.id())) this.#cache.delete(data!.id());
     this.client.redis.instance!.decr(`guild:${data!.guild.id}:member:${data!.author.id}:suggestions:count`);
     this.client.redis.instance!.decr(`user:${data!.author.id}:suggestions:count`);
     this.client.redis.instance!.decr(`guild:${data!.guild.id}:suggestions:count`);
@@ -66,26 +66,26 @@ export default class SuggestionManager {
 
   public async fetch(query: string, cache: boolean = true, force: boolean = false): Promise<Suggestion|undefined|null> {
     if (query.length === 40) {
-      const suggestion = force ? await this._queryFromDatabase(query) : this._cache.get(query) ??
-          await this._queryFromDatabase(query);
-      if (cache) this._cache.set(suggestion!.id(), suggestion!);
+      const suggestion = force ? await this.queryFromDatabase(query) : this.#cache.get(query) ??
+          await this.queryFromDatabase(query);
+      if (cache) this.#cache.set(suggestion!.id(), suggestion!);
 
       return suggestion;
     }
 
     if (query.length === 7) {
-      const suggestion = force ? await this._queryFromDatabase(query) :
-        this._cache.find(s => s.id(true) === query) ?? await this._queryFromDatabase(query);
-      if (cache) this._cache.set(suggestion!.id(), suggestion!);
+      const suggestion = force ? await this.queryFromDatabase(query) :
+        this.#cache.find(s => s.id(true) === query) ?? await this.queryFromDatabase(query);
+      if (cache) this.#cache.set(suggestion!.id(), suggestion!);
 
       return suggestion;
     }
 
     const snowflake = /^(\d{17,19})$/g;
     if (query.match(snowflake)) {
-      const suggestion = force ? await this._queryFromDatabase(query) : this._cache.get(query) ??
-          await this._queryFromDatabase(query);
-      if (cache) this._cache.set(suggestion!.id(), suggestion!);
+      const suggestion = force ? await this.queryFromDatabase(query) : this.#cache.get(query) ??
+          await this.queryFromDatabase(query);
+      if (cache) this.#cache.set(suggestion!.id(), suggestion!);
 
       return suggestion;
     }
@@ -96,9 +96,9 @@ export default class SuggestionManager {
       const ids = matches[matches.length - 1].split('/');
       const messageID = ids[ids.length - 1];
 
-      const suggestion = force ? await this._queryFromDatabase(query) :
-        this._cache.find(s => s.message!.id === messageID) ?? await this._queryFromDatabase(query);
-      if (cache) this._cache.set(suggestion!.id(), suggestion!);
+      const suggestion = force ? await this.queryFromDatabase(query) :
+        this.#cache.find(s => s.message!.id === messageID) ?? await this.queryFromDatabase(query);
+      if (cache) this.#cache.set(suggestion!.id(), suggestion!);
 
       return suggestion;
     }
@@ -106,7 +106,7 @@ export default class SuggestionManager {
     return;
   }
 
-  private _queryFromDatabase(query: string): Promise<Suggestion|null> {
+  private queryFromDatabase(query: string): Promise<Suggestion|null> {
     return this.client.database.helpers.suggestion.getSuggestion(this.channel.guild.id, query);
   }
 }

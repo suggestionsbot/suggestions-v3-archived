@@ -11,7 +11,7 @@ import Redis from '../index';
 export default class RedisHelpers {
   constructor(public redis: Redis) {}
 
-  private static _formGuildKey(guild: SuggestionGuild): string {
+  private static formGuildKey(guild: SuggestionGuild): string {
     return `guild:${Util.getGuildID(guild)}:settings`;
   }
 
@@ -70,16 +70,16 @@ export default class RedisHelpers {
   }
 
   public getCachedGuild(guild: SuggestionGuild): Promise<GuildSchema> {
-    return this.redis.instance!.get(RedisHelpers._formGuildKey(guild))
+    return this.redis.instance!.get(RedisHelpers.formGuildKey(guild))
       .then((data: any) => JSON.parse(data));
   }
 
   public setCachedGuild(guild: SuggestionGuild, data: GuildSchema): Promise<boolean> {
-    return this.redis.instance!.set(RedisHelpers._formGuildKey(guild), JSON.stringify(data));
+    return this.redis.instance!.set(RedisHelpers.formGuildKey(guild), JSON.stringify(data));
   }
 
   public clearCachedGuild(guild: SuggestionGuild): Promise<boolean> {
-    return this.redis.instance!.del(RedisHelpers._formGuildKey(guild));
+    return this.redis.instance!.del(RedisHelpers.formGuildKey(guild));
   }
 
   public clearCachedData(guild: SuggestionGuild): Promise<boolean> {

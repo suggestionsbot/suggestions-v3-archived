@@ -14,7 +14,7 @@ abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> 
     super();
   }
 
-  private static get _directory(): string {
+  private static get directory(): string {
     return `${path.join(path.dirname(require.main!.filename), 'commands', '**', '*.{ts,js}')}`;
   }
 
@@ -37,7 +37,7 @@ abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> 
   }
 
   public async init(): Promise<void> {
-    return glob(BaseCommandManager._directory).then(async (files: any) => {
+    return glob(BaseCommandManager.directory).then(async (files: any) => {
       if (!files.length) return Logger.error('COMMANDS', 'Couldn\'t find any command files!');
 
       for (const file of files) {

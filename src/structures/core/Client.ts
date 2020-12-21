@@ -91,7 +91,7 @@ export default class SuggestionsClient extends Client {
   public start(): void {
     this.commands.init();
     this.events.init();
-    this._addEventListeners();
+    this.addEventListeners();
     this.locales.init();
     this.checks.init();
     super.connect();
@@ -296,16 +296,16 @@ export default class SuggestionsClient extends Client {
     }
   }
 
-  private _addEventListeners(): void {
-    this.on('messageCreate', this._runMessageOperator);
+  private addEventListeners(): void {
+    this.on('messageCreate', this.runMessageOperator);
   }
 
-  private _runMessageOperator(message: Message): void {
-    this._commandListener(message);
-    this._suggestionsListener(message);
+  private runMessageOperator(message: Message): void {
+    this.commandListener(message);
+    this.suggestionsListener(message);
   }
 
-  private async _suggestionsListener(message: Message): Promise<any> {
+  private async suggestionsListener(message: Message): Promise<any> {
     try {
       if (message.author.bot) return;
       if ((message.channel instanceof GuildChannel) &&
@@ -343,7 +343,7 @@ export default class SuggestionsClient extends Client {
     }
   }
 
-  private async _commandListener(message: Message): Promise<void> {
+  private async commandListener(message: Message): Promise<void> {
     try {
       if (message.author.bot) return;
       if ((message.channel instanceof GuildChannel) && !message.channel.permissionsOf(this.user.id).has('sendMessages')) return;

@@ -21,9 +21,9 @@ export default class MessageCollector extends EventEmitter {
 
     this.client.messageCollectors.push(this);
 
-    this._onMessageCreate = this._onMessageCreate.bind(this);
-    this._onMessageDelete = this._onMessageDelete.bind(this);
-    this._onMessageUpdate = this._onMessageUpdate.bind(this);
+    this.onMessageCreate = this.onMessageCreate.bind(this);
+    this.onMessageDelete = this.onMessageDelete.bind(this);
+    this.onMessageUpdate = this.onMessageUpdate.bind(this);
 
     this.onCollect = this.onCollect.bind(this);
     this.onDelete = this.onDelete.bind(this);
@@ -34,9 +34,9 @@ export default class MessageCollector extends EventEmitter {
     this.running = true;
     return new Promise((res) => {
       this.channel.client.setMaxListeners(this.getMaxListeners() + 1);
-      this.channel.client.on('messageCreate', this._onMessageCreate);
-      this.channel.client.on('messageUpdate', this._onMessageUpdate);
-      this.channel.client.on('messageDelete', this._onMessageDelete);
+      this.channel.client.on('messageCreate', this.onMessageCreate);
+      this.channel.client.on('messageUpdate', this.onMessageUpdate);
+      this.channel.client.on('messageDelete', this.onMessageDelete);
 
       this.setMaxListeners(this.getMaxListeners() + 1);
       this.on('collect', this.onCollect);
@@ -51,9 +51,9 @@ export default class MessageCollector extends EventEmitter {
   public stop(): this {
     this.running = false;
     this.channel.client.setMaxListeners(this.getMaxListeners() - 1);
-    this.channel.client.off('messageCreate', this._onMessageCreate);
-    this.channel.client.off('messageUpdate', this._onMessageUpdate);
-    this.channel.client.off('messageDelete', this._onMessageDelete);
+    this.channel.client.off('messageCreate', this.onMessageCreate);
+    this.channel.client.off('messageUpdate', this.onMessageUpdate);
+    this.channel.client.off('messageDelete', this.onMessageDelete);
 
     this.setMaxListeners(this.getMaxListeners() - 1);
     this.off('collect', this.onCollect);
@@ -76,14 +76,14 @@ export default class MessageCollector extends EventEmitter {
     this.collected.remove(message);
   }
 
-  private _onMessageCreate(message: Message): void {
+  private onMessageCreate(message: Message): void {
     if (!this.running) return;
     if (this.channel.id !== message.channel.id) return;
     if (!this.filter(message)) return;
     this.emit('collect', message);
   }
 
-  private _onMessageUpdate(message: Message, oldMessage: Message): Message|void|boolean {
+  private onMessageUpdate(message: Message, oldMessage: Message): Message|void|boolean {
     if (!this.running) return;
     if (this.channel.id !== message.channel.id) return;
     if (!this.filter(message)) return this.collected.remove(message);
@@ -91,7 +91,7 @@ export default class MessageCollector extends EventEmitter {
     this.emit('update', message);
   }
 
-  private _onMessageDelete(message: Message): void {
+  private onMessageDelete(message: Message): void {
     if (!this.running) return;
     if (!this.collected.has(message.id)) return;
     Logger.event('MESSAGE_DELETE', 'message was deleted');

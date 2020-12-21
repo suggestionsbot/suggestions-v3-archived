@@ -1,8 +1,8 @@
 import { Guild, GuildTextableChannel } from 'eris';
 
-import BaseChannel from './BaseChannel';
+import BaseChannel from '../core/BaseChannel';
 import { GuildSchema, SuggestionChannelType } from '../../types';
-import SuggestionsClient from './Client';
+import SuggestionsClient from '../core/Client';
 
 export default class ModLogChannel extends BaseChannel {
   #initialized: boolean;

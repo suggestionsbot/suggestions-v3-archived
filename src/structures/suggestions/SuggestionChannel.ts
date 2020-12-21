@@ -91,8 +91,8 @@ export default class SuggestionChannel extends BaseChannel {
     if (this.data!.emojis) this.#emojis = this.data!.emojis;
     if (this.data!.cooldown) this.#cooldown = this.data!.cooldown;
     this.type = this.data!.type;
-    this._addRoles(this.data!.allowed, this.#allowed);
-    this._addRoles(this.data!.blocked, this.#blocked);
+    this.addRoles(this.data!.allowed, this.#allowed);
+    this.addRoles(this.data!.blocked, this.#blocked);
     this.#count = await this.client.redis.helpers.getGuildSuggestionCount(this.guild, this.channel);
     this.#initialized = true;
   }
@@ -180,7 +180,7 @@ export default class SuggestionChannel extends BaseChannel {
     return this.#cooldowns.has(user);
   }
 
-  private _addRoles(roles: Array<SuggestionRole>, collection: Collection<Role>): void {
+  private addRoles(roles: Array<SuggestionRole>, collection: Collection<Role>): void {
     for (const r of roles) {
       const role = this.guild.roles.get(r.role);
       if (!role) continue;

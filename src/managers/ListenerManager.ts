@@ -4,7 +4,6 @@ import globFunction from 'glob';
 import { promisify } from 'util';
 
 import SuggestionsClient from '../structures/core/Client';
-// import Event from '../structures/Event';
 import Logger from '../utils/Logger';
 import { Event } from '../types';
 
@@ -15,7 +14,7 @@ export default class ListenerManager extends Collection<Event> {
     super();
   }
 
-  private static get _directory(): string {
+  private static get directory(): string {
     return `${path.join(path.dirname(require.main!.filename), 'listeners', '**', '*.{ts,js}')}`;
   }
 
@@ -24,7 +23,7 @@ export default class ListenerManager extends Collection<Event> {
   }
 
   public async init(): Promise<void> {
-    return glob(ListenerManager._directory).then(async (files: any) => {
+    return glob(ListenerManager.directory).then(async (files: any) => {
       if (!files.length) return Logger.error('LISTENERS', 'Couldn\'t find any event listener files!');
 
       for (const file of files) {

@@ -3,8 +3,8 @@ import { EmbedAuthor, EmbedField, EmbedFooter, EmbedImage } from 'eris';
 import { EmbedThumbnail } from '../types';
 
 export default class MessageEmbed {
-  private readonly _HEX_REGEX: RegExp = /^#?([a-fA-F0-9]{6})$/;
-  private readonly _URL_REGEX: RegExp = /^http(s)?:\/\/[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
+  readonly #HEX_REGEX: RegExp = /^#?([a-fA-F0-9]{6})$/;
+  readonly #URL_REGEX: RegExp = /^http(s)?:\/\/[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/;
   public title?: string;
   public description?: string;
   public url?: string;
@@ -42,7 +42,7 @@ export default class MessageEmbed {
   }
 
   public setURL(url: string): this {
-    if (!this._URL_REGEX.test(url)) throw new Error('Not a well formed URL');
+    if (!this.#URL_REGEX.test(url)) throw new Error('Not a well formed URL');
     this.url = url;
     return this;
   }
@@ -58,7 +58,7 @@ export default class MessageEmbed {
       if (color > 16777215 || color < 0) throw new RangeError('Invalid color');
       this.color = color;
     } else {
-      const match = color.match(this._HEX_REGEX);
+      const match = color.match(this.#HEX_REGEX);
       if (!match) throw new Error('Invalid color');
       this.color = parseInt(match[1], 16);
     }
@@ -71,7 +71,7 @@ export default class MessageEmbed {
     this.footer = { text };
 
     if (iconURL !== undefined) {
-      if (!iconURL.startsWith('attachment://') && !this._URL_REGEX.test(iconURL)) throw new Error('Not a well formed URL');
+      if (!iconURL.startsWith('attachment://') && !this.#URL_REGEX.test(iconURL)) throw new Error('Not a well formed URL');
       this.footer.icon_url = iconURL;
     }
 
@@ -79,13 +79,13 @@ export default class MessageEmbed {
   }
 
   public setImage(imageURL: string): this {
-    if (!imageURL.startsWith('attachment://') && !this._URL_REGEX.test(imageURL)) throw new Error('Not a well formed URL');
+    if (!imageURL.startsWith('attachment://') && !this.#URL_REGEX.test(imageURL)) throw new Error('Not a well formed URL');
     this.image = { url: imageURL };
     return this;
   }
 
   public setThumbnail(thumbnailURL: string): this {
-    if (!thumbnailURL.startsWith('attachment://') && !this._URL_REGEX.test(thumbnailURL)) throw new Error('Not a well formed URL');
+    if (!thumbnailURL.startsWith('attachment://') && !this.#URL_REGEX.test(thumbnailURL)) throw new Error('Not a well formed URL');
     this.thumbnail = { url: thumbnailURL };
     return this;
   }
@@ -95,12 +95,12 @@ export default class MessageEmbed {
     this.author = { name };
 
     if (iconURL !== undefined) {
-      if (!iconURL.startsWith('attachment://') && !this._URL_REGEX.test(iconURL)) throw new Error('Not a well formed URL');
+      if (!iconURL.startsWith('attachment://') && !this.#URL_REGEX.test(iconURL)) throw new Error('Not a well formed URL');
       this.author.icon_url = iconURL;
     }
 
     if (url !== undefined) {
-      if (!this._URL_REGEX.test(url)) throw new Error('Not a well formed URL');
+      if (!this.#URL_REGEX.test(url)) throw new Error('Not a well formed URL');
       this.author.url = url;
     }
 

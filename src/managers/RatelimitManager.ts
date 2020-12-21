@@ -11,21 +11,21 @@ import SuggestionsClient from '../structures/core/Client';
 import { SuggestionsCommand } from '../types';
 
 export default class RatelimitManager extends Collection<RatelimitBucket> {
-  private readonly _increasingRate: number;
+  readonly #increasingRate: number;
 
   constructor(public client: SuggestionsClient) {
     super();
 
-    this._increasingRate = 30;
+    this.#increasingRate = 30;
   }
 
   public getBucket(command: string): RatelimitBucket|undefined {
-    return this._initialize(command);
+    return this.initialize(command);
   }
 
   public isRatelimited(ratelimit: Ratelimit): boolean {
     if (ratelimit.ignored) {
-      this._ignoreOnce(ratelimit);
+      this.ignoreOnce(ratelimit);
       return false;
     }
 
@@ -36,15 +36,15 @@ export default class RatelimitManager extends Collection<RatelimitBucket> {
     if (this.client.isOwner(user)) return;
 
     const finishAt = (command.throttles.duration * 1000) + Date.now();
-    let ratelimit = this._getRatelimitedUser(command.name, user);
+    let ratelimit = this.getRatelimitedUser(command.name, user);
 
     if (!ratelimit) {
       ratelimit = new Ratelimit(this.client, finishAt, command.throttles.duration * 1000);
-      this._setRatelimitedUser(command.name, user, ratelimit);
+      this.setRatelimitedUser(command.name, user, ratelimit);
     }
 
     if (ratelimit.ignored) {
-      this._ignoreOnce(ratelimit);
+      this.ignoreOnce(ratelimit);
       return;
     }
 
@@ -52,7 +52,7 @@ export default class RatelimitManager extends Collection<RatelimitBucket> {
   }
 
   public handle(command: SuggestionsCommand, user: string, channel: TextableChannel): boolean {
-    const ratelimit = this._getRatelimitedUser(command.name, user)!;
+    const ratelimit = this.getRatelimitedUser(command.name, user)!;
     ratelimit.singleUsages++;
     if (ratelimit.singleUsages >= command.throttles.usages) {
       if (ratelimit.singleUsages >= command.throttles.max) ratelimit.increateRatelimit();
@@ -65,21 +65,21 @@ export default class RatelimitManager extends Collection<RatelimitBucket> {
     }
   }
 
-  private _initialize(command: string): RatelimitBucket|undefined {
+  private initialize(command: string): RatelimitBucket|undefined {
     if (!this.has(command)) this.set(command, new RatelimitBucket());
     return this.get(command);
   }
 
-  private _getRatelimitedUser(command: string, user: string): Ratelimit|undefined {
+  private getRatelimitedUser(command: string, user: string): Ratelimit|undefined {
     return this.getBucket(command)?.get(user);
   }
 
-  private _setRatelimitedUser(command: string, user: string, ratelimit: Ratelimit): Ratelimit|undefined {
+  private setRatelimitedUser(command: string, user: string, ratelimit: Ratelimit): Ratelimit|undefined {
     return this.getBucket(command)?.set(user, ratelimit).get(user);
   }
 
 
-  private _ignoreOnce(ratelimit: Ratelimit): void {
+  private ignoreOnce(ratelimit: Ratelimit): void {
     const invalidate = !ratelimit.ignored;
     ratelimit.ignoreOnce(invalidate);
   }

@@ -85,7 +85,7 @@ export default class SuggestionChannel extends BaseChannel {
   }
 
   public async init(): Promise<void> {
-    if (this.#initialized) return;
+    if (this.#initialized) throw new Error('ChannelAlreadyInitialized');
     if (this.data!.locked) this.#locked = this.data!.locked;
     if (this.data!.reviewMode) this.#removeMode = this.data!.reviewMode;
     if (this.data!.emojis) this.#emojis = this.data!.emojis;

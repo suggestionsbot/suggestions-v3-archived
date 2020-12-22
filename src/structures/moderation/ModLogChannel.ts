@@ -37,7 +37,7 @@ export default class ModLogChannel extends BaseChannel {
   }
 
   async init(): Promise<void> {
-    if (this.#initialized) return;
+    if (this.#initialized) throw new Error('ChannelAlreadyInitialized');
     this.type = this.data!.type;
     this.#count = await this.client.redis.helpers.getChannelCount(this.guild, this.type, this.channel);
     this.#initialized = true;

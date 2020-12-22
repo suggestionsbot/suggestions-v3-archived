@@ -9,7 +9,7 @@ export default class ChannelManager extends Collection<BaseChannel> {
     super();
   }
 
-  public async addChannel(channel: SuggestionChannel): Promise<void> {
+  public async addChannel(channel: BaseChannel): Promise<void> {
     this.set(channel.channel.id, channel);
   }
 

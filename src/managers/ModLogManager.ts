@@ -1,9 +1,10 @@
 import { Collection } from '@augu/immutable';
+
 import ModLog from '../structures/moderation/ModLog';
 import ModLogChannel from '../structures/moderation/ModLogChannel';
-import modlogsClient from '../structures/core/Client';
 import { ModLogSchema } from '../types';
 import Logger from '../utils/Logger';
+import SuggestionsClient from '../structures/core/Client';
 
 export default class ModLogManager {
   readonly #cache: Collection<ModLog>;
@@ -16,14 +17,14 @@ export default class ModLogManager {
     return this.#cache;
   }
 
-  public get client(): modlogsClient {
+  public get client(): SuggestionsClient {
     return this.channel.client;
   }
 
   public async add(modlog: ModLog, cache: boolean = false): Promise<ModLogSchema> {
     const record: Record<string, unknown> = {
       user: modlog.user.id,
-      moderator: modlog.moderator.id,
+      moderator: modlog.moderator?.id ?? null,
       guild: modlog.guild.id,
       channel: modlog.channel.id,
       message: modlog.message?.id ?? null,

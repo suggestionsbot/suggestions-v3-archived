@@ -6,6 +6,7 @@ import { GuildSchema, ModLogSchema, ModLogTypes } from '../../types';
 import * as crypto from 'crypto';
 import MessageEmbed from '../../utils/MessageEmbed';
 import MessageUtils from '../../utils/MessageUtils';
+import Util from '../../utils/Util';
 
 /**
  * What we need for a modlog:
@@ -19,6 +20,9 @@ import MessageUtils from '../../utils/MessageUtils';
  * - The moderator tied to the modlog
  * - The data that will be saved to the database (or even loaded from it to create the class)
  * - Type of modlog action
+ *
+ * Data that we need to pass in:
+ * - The suggestion channel, suggestion comment data, etc (dictionary object?)
  */
 
 export default class ModLog {
@@ -31,13 +35,13 @@ export default class ModLog {
   #message?: Message;
   #data!: ModLogSchema|Record<string, unknown>;
   #type!: ModLogTypes;
+  #embedData?: Record<string, any>;
 
   constructor(public client: SuggestionsClient) {}
 
   public get postable(): boolean {
     return (
       !!this.#channel &&
-      !!this.#message &&
       !!this.#id
     );
   }
@@ -114,6 +118,11 @@ export default class ModLog {
     return this;
   }
 
+  public setEmbedData(data: Record<string, any>): this {
+    this.#embedData = data;
+    return this;
+  }
+
   public async setData(data: ModLogSchema): Promise<this> {
     this.#data = data;
     if (data.user) this.#user = await this.client.getRESTUser(data.user);
@@ -139,6 +148,12 @@ export default class ModLog {
   }
 
   private buildEmbed(): MessageEmbed {
-    return MessageUtils.defaultEmbed();
+    return MessageUtils.defaultEmbed()
+      .setAuthor(`Suggestion Created | ${Util.formatUserTag(this.#user)}`, this.#user.avatarURL)
+      .addField('Channel', `<#${this.#embedData?.channel}>`, true)
+      .addField('Author', `<@${this.#embedData?.author}>`, true)
+      .addField('Suggestion ID', this.#embedData?.suggestion, true)
+      .setFooter(`User ID: ${this.#embedData?.author}`)
+      .setTimestamp();
   }
 }

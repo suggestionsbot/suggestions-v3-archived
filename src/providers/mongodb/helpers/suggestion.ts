@@ -4,11 +4,12 @@ import SuggestionModel from '../models/suggestion';
 import Util from '../../../utils/Util';
 import MongoDB from '../';
 import Suggestion from '../../../structures/suggestions/Suggestion';
+import { DocumentQuery } from 'mongoose';
 
 export default class SuggestionHelpers {
   constructor(public database: MongoDB) {}
 
-  private static _querySuggestion(query: string): Array<Record<string, unknown>> {
+  private static querySuggestion(query: string): Array<Record<string, unknown>> {
     return [
       { id: query.length !== 7 ? query : new RegExp(query, 'i') },
       { message: query }
@@ -24,12 +25,12 @@ export default class SuggestionHelpers {
     else return ctx.id.slice(33, 40);
   }
 
-  public async getSuggestions(guild: SuggestionGuild): Promise<Array<SuggestionSchema>|undefined> {
+  public getSuggestions(guild: SuggestionGuild): DocumentQuery<Array<SuggestionSchema>, SuggestionSchema, Record<string, unknown>> {
     return SuggestionModel.find({ guild: Util.getGuildID(guild) });
   }
 
   public async getSuggestion(guildID: string, query: string, guild = true): Promise<Suggestion|null> {
-    const fetched = await SuggestionModel.findOne({ $or: SuggestionHelpers._querySuggestion(query) });
+    const fetched = await SuggestionModel.findOne({ $or: SuggestionHelpers.querySuggestion(query) });
     if (!fetched) throw new Error('SuggestionNotFound');
 
     if (guild && (fetched!.guild !== guildID)) throw new Error('GuildScope');
@@ -38,17 +39,17 @@ export default class SuggestionHelpers {
     else return null;
   }
 
-  public async createSuggestion(suggestion: Record<string, unknown>): Promise<SuggestionSchema> {
+  public createSuggestion(suggestion: Record<string, unknown>): Promise<SuggestionSchema> {
     const schema = new SuggestionModel(suggestion);
     return schema.save();
   }
 
   public async deleteSuggestion(query: string): Promise<boolean> {
-    const deleted = await SuggestionModel.deleteOne({ $or: SuggestionHelpers._querySuggestion(query) });
+    const deleted = await SuggestionModel.deleteOne({ $or: SuggestionHelpers.querySuggestion(query) });
     return !!deleted.ok;
   }
 
-  public async deleteSuggestions(guild: Guild|string): Promise<boolean> {
+  public async deleteAllSuggestions(guild: Guild|string): Promise<boolean> {
     const deleted = await SuggestionModel.deleteMany({ guild: Util.getGuildID(guild) });
     return !!deleted.ok;
   }

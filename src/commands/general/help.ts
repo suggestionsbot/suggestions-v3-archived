@@ -36,8 +36,8 @@ export default class HelpCommand extends Command {
     const cmds = this.client.commands;
     const categoryOptions = { namesOnly: true, formatted: true };
 
-    const staffCheck = ctx.guild ? this.client.isStaff(ctx.member!, ctx.settings!) : null;
-    const adminCheck = ctx.guild ? this.client.isAdmin(ctx.member!) : null;
+    const staffCheck = ctx.guild ? this.client.isGuildStaff(ctx.member!, ctx.settings!) : null;
+    const adminCheck = ctx.guild ? this.client.isGuildAdmin(ctx.member!) : null;
     const supportCheck = await this.client.isSupport(ctx.sender).catch(e => new Error(e.message));
     const superSecretCheck = this.client.isSuperSecret(ctx.sender);
     const ownerCheck = this.client.isOwner(ctx.sender);

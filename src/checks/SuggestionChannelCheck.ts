@@ -28,7 +28,7 @@ export default class SuggestionChannelCheck extends Check {
         
         Valid channels: ${channels.map(c => `<#${c}>`).join(' ')}`);
 
-    let sChannel = this.client.suggestionChannels.get(gChannel!.id);
+    let sChannel = <SuggestionChannel>this.client.suggestionChannels.get(gChannel!.id);
     if (!sChannel) {
       sChannel = new SuggestionChannel(
         this.client,
@@ -42,12 +42,12 @@ export default class SuggestionChannelCheck extends Check {
     }
     if (sChannel && !sChannel.initialized) await sChannel.init();
 
-    if (!this.client.isAdmin(ctx.member!)) {
+    if (!this.client.isGuildAdmin(ctx.member!)) {
       const cooldown = sChannel.cooldowns.get(ctx.sender.id);
       if (sChannel.cooldown && cooldown)
         throw new Error(oneLine`Cannot post to ${sChannel.channel.mention} for another 
               **${dayjs.duration(cooldown.expires - Date.now()).humanize()}** as you are in a cooldown!`);
-      if (sChannel.type === SuggestionChannelType.STAFF && !this.client.isStaff(ctx.member!, ctx.settings!))
+      if (sChannel.type === SuggestionChannelType.STAFF && !this.client.isGuildStaff(ctx.member!, ctx.settings!))
         throw new Error(`Cannot post to ${sChannel.channel.mention} as it is a staff suggestion channel!`);
       if (sChannel.locked) throw new Error(`Cannot post to ${sChannel.channel.mention} as it is currently locked!`);
 

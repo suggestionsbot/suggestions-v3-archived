@@ -9,6 +9,7 @@ import MessageUtils from '../../utils/MessageUtils';
 import CommandContext from '../../structures/commands/Context';
 import Context from '../../structures/commands/Context';
 import Util from '../../utils/Util';
+import SuggestionChannel from '../../structures/suggestions/SuggestionChannel';
 
 const Permissions: { [key: string]: number } = Constants.Permissions;
 
@@ -86,8 +87,8 @@ export default class PermsCommand extends Command {
       embed.addField('User Information', [
         `Username:\n \`${Util.formatUserTag(ctx.sender)}\``,
         `User ID:\n \`${ctx.sender.id}\``,
-        `Staff Member:\n \`${this.client.isStaff(ctx.member!, ctx.settings!) ? 'Yes' : 'No'}\``,
-        `Server Admin:\n \`${this.client.isAdmin(ctx.member!) ? 'Yes' : 'No'}\``
+        `Staff Member:\n \`${this.client.isGuildStaff(ctx.member!, ctx.settings!) ? 'Yes' : 'No'}\``,
+        `Server Admin:\n \`${this.client.isGuildAdmin(ctx.member!) ? 'Yes' : 'No'}\``
       ].join('\n'), true);
       embed.addField('Bot Information', [
         `Prefixes:\n ${ctx.client.getPrefixes(false, true, ctx.settings).join(' | ')}`,
@@ -96,7 +97,7 @@ export default class PermsCommand extends Command {
         `API Latency:\n \`${Math.round(ctx.shard!.latency)}\``
       ].join('\n'), true);
       if (this.client.suggestionChannels.has(channel.id)) {
-        const data = this.client.suggestionChannels.get(channel.id)!;
+        const data = <SuggestionChannel>this.client.suggestionChannels.get(channel.id)!;
         const allowed = data.allowed.size > 0 ? data.allowed.map(r => r.mention).join(' ') : data.data!.blocked[0] && (data.data!.blocked[0].role === 'all') ? 'None' : 'All';
         const blocked = data.data!.blocked.length > 0 ? data.data!.blocked[0] && (data.data!.blocked[0].role === 'all') ?
           'All' : data.blocked.map(r => r.mention).join(' ') : 'None';

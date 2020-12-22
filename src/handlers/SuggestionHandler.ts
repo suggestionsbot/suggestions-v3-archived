@@ -7,14 +7,15 @@ import { SuggestionChannelType } from '../types';
 import MessageUtils from '../utils/MessageUtils';
 import Logger from '../utils/Logger';
 import Suggestion from '../structures/suggestions/Suggestion';
+import SuggestionChannel from '../structures/suggestions/SuggestionChannel';
 
 export default class SuggestionHandler {
   constructor(public client: SuggestionsClient) {}
 
   public async handle(ctx: CommandContext): Promise<any> {
-    const sChannel = this.client.suggestionChannels.get(ctx.channel!.id)!;
+    const sChannel = <SuggestionChannel>this.client.suggestionChannels.get(ctx.channel!.id)!;
 
-    if (!this.client.isAdmin(ctx.member!)) {
+    if (!this.client.isGuildAdmin(ctx.member!)) {
       const cooldown = sChannel.cooldowns.get(ctx.sender.id);
       if (sChannel.cooldown && cooldown) {
         const msg = await MessageUtils.error(this.client, ctx.message, oneLine`Cannot post to ${sChannel.channel.mention} for 
@@ -24,7 +25,7 @@ export default class SuggestionHandler {
           ctx.message.delete()
         ]);
       }
-      if (sChannel.type === SuggestionChannelType.STAFF && !this.client.isStaff(ctx.member!, ctx.settings!)) {
+      if (sChannel.type === SuggestionChannelType.STAFF && !this.client.isGuildStaff(ctx.member!, ctx.settings!)) {
         const msg = await  MessageUtils.error(this.client, ctx.message,
           `Cannot post to ${sChannel.channel.mention} as it is a staff suggestion channel!`);
         return Promise.all([

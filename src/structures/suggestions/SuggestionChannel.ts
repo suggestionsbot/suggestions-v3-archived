@@ -93,7 +93,7 @@ export default class SuggestionChannel extends BaseChannel {
     this.type = this.data!.type;
     this.addRoles(this.data!.allowed, this.#allowed);
     this.addRoles(this.data!.blocked, this.#blocked);
-    this.#count = await this.client.redis.helpers.getGuildSuggestionCount(this.guild, this.channel);
+    this.#count = await this.client.redis.helpers.getChannelCount(this.guild, this.type, this.channel);
     this.#initialized = true;
   }
 

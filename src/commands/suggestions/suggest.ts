@@ -11,6 +11,7 @@ import Util from '../../utils/Util';
 import Logger from '../../utils/Logger';
 import { GuildTextableChannel } from 'eris';
 import Suggestion from '../../structures/suggestions/Suggestion';
+import SuggestionChannel from '../../structures/suggestions/SuggestionChannel';
 
 export default class SuggestCommand extends Command {
   constructor(public client: SuggestionsClient) {
@@ -44,7 +45,7 @@ export default class SuggestCommand extends Command {
     const channel = ctx.message.prefix ?
       Util.getChannel(channels.length <= 1 ? channels[0] : ctx.args.get(0), ctx.guild!)! :
         <GuildTextableChannel>ctx.channel;
-    const sChannel = this.client.suggestionChannels.get(channel.id)!;
+    const sChannel = <SuggestionChannel>this.client.suggestionChannels.get(channel.id)!;
     const suggestion = argCheck ? ctx.args.slice(1).join(' ') : ctx.args.join(' ');
 
     try {

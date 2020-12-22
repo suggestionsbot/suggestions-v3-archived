@@ -39,7 +39,7 @@ export default class Suggestion {
 
   public get link(): string|undefined {
     if (!this.#suggestionMessage) return;
-    return `https://discord.com/channels/${this.#guild.id}/${this.#channel.channel.id}/${this.#suggestionMessage.id}`;
+    else return `https://discord.com/channels/${this.#guild.id}/${this.#channel.channel.id}/${this.#suggestionMessage.id}`;
   }
 
   public get author(): User {
@@ -60,6 +60,10 @@ export default class Suggestion {
 
   public get suggestion(): string|undefined {
     return this.#suggestion;
+  }
+
+  public get type(): SuggestionType {
+    return this.#type;
   }
 
   public id(short: boolean = false): string {
@@ -96,11 +100,16 @@ export default class Suggestion {
     return this;
   }
 
+  public setType(type: SuggestionType): this {
+    this.#type = type;
+    return this;
+  }
+
   public async setData(data: SuggestionSchema): Promise<this> {
     this.#data = data;
     if (data.user) this.#author = await this.client.getRESTUser(data.user);
     if (data.guild) this.#guild = await this.client.getRESTGuild(data.guild);
-    if (data.channel) this.#channel = this.client.suggestionChannels.get(data.channel)!;
+    if (data.channel) this.#channel = <SuggestionChannel>this.client.suggestionChannels.get(data.channel)!;
     if (data.suggestion) this.#suggestion = data.suggestion;
     if (data.type) this.#type = data.type;
 

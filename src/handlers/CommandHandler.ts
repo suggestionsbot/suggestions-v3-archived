@@ -34,8 +34,8 @@ export default class CommandHandler {
         `The \`${'friendly' in cmd ? cmd.friendly : cmd.name}\` command can only be used in a server!`);
     }
 
-    const staffCheck = message.guildID ? this.client.isStaff(message.member!, settings): null;
-    const adminCheck = message.guildID ? this.client.isAdmin(message.member!) : null;
+    const staffCheck = message.guildID ? this.client.isGuildStaff(message.member!, settings): null;
+    const adminCheck = message.guildID ? this.client.isGuildAdmin(message.member!) : null;
     const supportCheck = await this.client.isSupport(message.author)
       .catch(e => MessageUtils.error(this.client, message, e.message, true));
     const superSecretCheck = this.client.isSuperSecret(message.author);

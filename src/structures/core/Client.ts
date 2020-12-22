@@ -147,9 +147,9 @@ export default class SuggestionsClient extends Client {
     return guild.emojis.find((r: Emoji) => r.toString() === str)!;
   }
 
-  public isStaff(member: Member, settings: GuildSchema): boolean {
+  public isGuildStaff(member: Member, settings: GuildSchema): boolean {
     let staffCheck: boolean;
-    const adminCheck = this.isAdmin(member) || this.isOwner(member);
+    const adminCheck = this.isGuildAdmin(member) || this.isOwner(member);
     const staffRoles = settings.staffRoles;
     if (staffRoles) staffCheck = member.roles.some(r => staffRoles.map(r => r.role).includes(r)) || adminCheck;
     else staffCheck = adminCheck;
@@ -157,7 +157,7 @@ export default class SuggestionsClient extends Client {
     return staffCheck;
   }
 
-  public isAdmin(member: Member): boolean {
+  public isGuildAdmin(member: Member): boolean {
     let hasPerm = false;
     ['administrator', 'manageGuild'].map(p => {
       if (member.permission.has(p)) hasPerm = true;
@@ -319,7 +319,7 @@ export default class SuggestionsClient extends Client {
       const isInDatabase = settings.channels.map(c => c.channel).includes(message.channel.id);
       if (!isInDatabase) return;
 
-      let channel = this.suggestionChannels.get(message.channel.id);
+      let channel = <SuggestionChannel>this.suggestionChannels.get(message.channel.id);
       if (!channel) {
         channel = new SuggestionChannel(
           this,

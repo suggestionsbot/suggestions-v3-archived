@@ -226,6 +226,16 @@ export interface VoteEmoji extends Document {
 
 export type VoteEmojiArray = [string, string, string?];
 
+export interface ModLogSchema extends Document {
+  guild: string;
+  channel: string;
+  user: string;
+  moderator: string;
+  id: string;
+  time: number;
+  type: ModLogTypes
+}
+
 export interface SuggestionSchema extends Document {
   guild: string;
   channel: string;
@@ -411,3 +421,18 @@ export interface InternalVoteEmoji {
   added?: number
   addedBy?: string;
 }
+
+export type ModLogTypes = |
+'BLACKLIST_ADDED' |
+'BLACKIST_DELETED' |
+'CHANNEL_ADDED' |
+'CHANNEL_DELETED' |
+'SUGGESTION_APPROVED' |
+'SUGGESTION_COMMENT_ADDED' |
+'SUGGESTION_COMMENT_DELETED' |
+'SUGGESTION_CREATED' |
+'SUGGESTION_DELETED' |
+'SUGGESTION_EDITED' |
+'SUGGESTION_NOTE_ADDED' |
+'SUGGESTION_NOTE_DELETED' |
+'SUGGESTION_REJECTED';

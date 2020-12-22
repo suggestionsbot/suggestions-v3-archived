@@ -21,7 +21,7 @@ export default class SuggestionManager {
     return this.channel.client;
   }
 
-  public async add(suggestion: Suggestion): Promise<SuggestionSchema> {
+  public async add(suggestion: Suggestion, cache: boolean = true): Promise<SuggestionSchema> {
     const record: Record<string, unknown> = {
       user: suggestion.author.id,
       message: suggestion.message!.id,
@@ -34,15 +34,15 @@ export default class SuggestionManager {
     if (this.channel.type === SuggestionChannelType.SUGGESTIONS) record.type = SuggestionType.REGULAR;
     if (this.channel.type === SuggestionChannelType.STAFF) record.type = SuggestionType.STAFF;
 
-    const data = await this.channel.client.database.helpers.suggestion.createSuggestion(record);
-    this.#cache.set(suggestion.id(), suggestion);
+    const data = await this.client.database.helpers.suggestion.createSuggestion(record);
+    if (cache) this.#cache.set(suggestion.id(), suggestion);
     this.client.redis.instance!.incr(`guild:${data.guild}:member:${data.user}:suggestions:count`);
     this.client.redis.instance!.incr(`user:${data.user}:suggestions:count`);
     this.client.redis.instance!.incr(`guild:${data.guild}:suggestions:count`);
     this.client.redis.instance!.incr(`guild:${data.guild}:channel:${data.channel}:suggestions:count`);
     this.client.redis.instance!.incr('global:suggestions');
 
-    Logger.log(`Created suggestion ${data.getSuggestionID(false)} in the database.`);
+    Logger.log(`Created suggestion ${suggestion.id(true)} in the database.`);
 
     if (this.channel.cooldown && !this.channel.cooldowns.has(data.user)) this.channel.updateCooldowns(data.user);
     return data;

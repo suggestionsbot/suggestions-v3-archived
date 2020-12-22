@@ -2,11 +2,12 @@ import { Member, TextChannel } from 'eris';
 
 import {
   GuildSchema,
-  ShardStats,
+  ShardStats, SuggestionChannelType,
   SuggestionGuild,
 } from '../../../types';
 import Util from '../../../utils/Util';
 import Redis from '../index';
+import BaseChannel from '../../../structures/core/BaseChannel';
 
 export default class RedisHelpers {
   constructor(public redis: Redis) {}
@@ -19,9 +20,9 @@ export default class RedisHelpers {
     return this.redis.instance!.get('global:suggestions:count').then((count: any) => +count);
   }
 
-  public async getGuildSuggestionCount(guild: SuggestionGuild, channel?: TextChannel): Promise<number> {
-    const key = channel ? `guild:${Util.getGuildID(guild)}:channel:${channel.id}:suggestions:count` :
-      `guild:${Util.getGuildID(guild)}:suggestions:count`;
+  public async getChannelCount(guild: SuggestionGuild, type: SuggestionChannelType, channel?: TextChannel): Promise<number> {
+    const key = channel ? `guild:${Util.getGuildID(guild)}:channel:${channel.id}:${type}:count` :
+      `guild:${Util.getGuildID(guild)}:${type}:count`;
     return this.redis.instance!.get(key).then((count: any) => +count);
   }
 

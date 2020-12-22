@@ -116,7 +116,7 @@ export default class ConfigRolesCommand extends SubCommand {
         .map(r => r.mention)
         .join('\n');
 
-      const admins = ctx.guild!.members.filter(m => this.client.isAdmin(m) && !m.user.bot)
+      const admins = ctx.guild!.members.filter(m => this.client.isGuildAdmin(m) && !m.user.bot)
         .map(m => m.mention)
         .join('\n');
 

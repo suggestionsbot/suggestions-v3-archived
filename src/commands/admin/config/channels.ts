@@ -8,7 +8,7 @@ import {
   CommandCategory,
   CommandNextFunction,
   GuildSchema,
-  SuggestionChannel,
+  SuggestionChannel as SuggestionChannelSchema,
   SuggestionChannelType,
   SuggestionRole
 } from '../../../types';
@@ -18,6 +18,7 @@ import Util from '../../../utils/Util';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
 import emojis from '../../../utils/Emojis';
+import SuggestionChannel from '../../../structures/suggestions/SuggestionChannel';
 
 type ChannelType = 'regular' | 'staff' | 'logs' | 'modlogs';
 
@@ -103,7 +104,7 @@ export default class ConfigChannelsCommand extends SubCommand {
         `\`${ctx.args.get(0)}\` is not a valid channel!`);
       if (!channels.includes(channel.id)) return MessageUtils.error(this.client, ctx.message,
         `${channel.mention} is not a configured channel!`);
-      const sChannel = this.client.suggestionChannels.get(channel.id);
+      const sChannel = <SuggestionChannel>this.client.suggestionChannels.get(channel.id);
       if (!sChannel) return MessageUtils.error(this.client, ctx.message,
         `${channel.mention} is not currently available!`);
 
@@ -277,7 +278,7 @@ export default class ConfigChannelsCommand extends SubCommand {
     if (ctx.args.args.length === 1) {
       try {
         const channel = Util.getChannel(ctx.args.get(0), ctx.guild!)!;
-        const sChannel = this.client.suggestionChannels.get(channel.id)!;
+        const sChannel = <SuggestionChannel>this.client.suggestionChannels.get(channel.id)!;
 
         const setView = <string>await this.client.getVoteEmojisView(ctx.settings!, sChannel.emojis);
 
@@ -322,7 +323,7 @@ export default class ConfigChannelsCommand extends SubCommand {
             const channel = ctx.args.get(1);
             const gChannel = Util.getChannel(channel, ctx.guild!)!;
             const data = await this.client.database.helpers.guild.getGuild(ctx.guild!, false);
-            const updated = <SuggestionChannel>{
+            const updated = <SuggestionChannelSchema>{
               channel: gChannel.id,
               type: type ? <SuggestionChannelType>type : SuggestionChannelType.SUGGESTIONS,
               addedBy: ctx.sender.id
@@ -347,7 +348,7 @@ export default class ConfigChannelsCommand extends SubCommand {
 
     if (ctx.args.get(0) && Util.getChannel(ctx.args.get(0), ctx.guild!)) {
       const channel = Util.getChannel(ctx.args.get(0), ctx.guild!)!;
-      const sChannel = this.client.suggestionChannels.get(channel.id)!;
+      const sChannel = <SuggestionChannel>this.client.suggestionChannels.get(channel.id)!;
 
       const allowedRoles = ctx.flags.get('allowed');
       if (allowedRoles) {

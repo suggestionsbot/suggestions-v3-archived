@@ -22,7 +22,7 @@ import {
   AwaitMessagesOptions,
   AwaitReply,
   AwaitReactionsOptions,
-  GuildSchema, SuggestionChannelType,
+  GuildSchema, SuggestionChannelType, SuggestionUser,
 } from '../../types';
 import config from '../../config';
 import CommandHandler from '../../handlers/CommandHandler';
@@ -159,10 +159,14 @@ export default class SuggestionsClient extends Client {
 
   public isGuildAdmin(member: Member): boolean {
     let hasPerm = false;
-    ['administrator', 'manageGuild'].map(p => {
-      if (member.permission.has(p)) hasPerm = true;
-      return;
-    });
+    const perms = ['administrator', 'manageGuild'];
+
+    for (const perm of perms) {
+      if (member.permission.has(perm)) {
+        hasPerm = true;
+        break;
+      }
+    }
 
     return hasPerm;
   }
@@ -171,8 +175,13 @@ export default class SuggestionsClient extends Client {
     return this.config.superSecretUsers.includes(user.id);
   }
 
-  public isOwner(user: User|Member|string): boolean {
+  public isOwner(user: SuggestionUser): boolean {
     return this.config.owners.includes(typeof user === 'object' ? user.id : user);
+  }
+
+  public isPremiumGuild(guild: Guild): Promise<boolean> {
+    return this.database.helpers.guild.getGuild(guild.id)
+      .then(guild => guild?.premium ?? false);
   }
 
   public async getVoteEmojisView(settings: GuildSchema, index?: number|null, channel?: SuggestionChannel): Promise<Array<string>|string> {
@@ -239,8 +248,8 @@ export default class SuggestionsClient extends Client {
   public async awaitReply(
     message: Message,
     channel: TextableChannel,
-    question: string|undefined,
-    embed: Embed|undefined,
+    question?: string,
+    embed?: Embed,
     limit?: number
   ): Promise<AwaitReply|void> {
     const filter = (msg: Message): boolean => msg.author.id === message.author.id;
@@ -271,7 +280,7 @@ export default class SuggestionsClient extends Client {
     channel: TextableChannel,
     question: string|undefined,
     reactions: Array<any>,
-    embed: Embed|undefined,
+    embed?: Embed,
     limit?: number
   ): Promise<any> {
     const filter = (userID: string): boolean => userID === user.id;
@@ -414,8 +423,18 @@ export default class SuggestionsClient extends Client {
   public async isSupport(user: User): Promise<boolean> {
     return this.base!.ipc.fetchGuild(this.system)
       .then(async (guild: any) => {
-        const member: Member = guild.members[user.id] ?? await Util.getGuildMemberByID(<Guild>guild, user.id) ?? false;
-        return member.roles.some(r => this.config.supportRoles.includes(r)) ?? false;
+        const member: Member = guild.members[user.id] ?? await Util.getGuildMemberByID(<Guild>guild, user.id);
+        if (member) return member.roles.some(r => this.config.supportRoles.includes(r));
+        else return false;
+      });
+  }
+
+  public async isBooster(user: User): Promise<boolean> {
+    return this.base!.ipc.fetchGuild(this.system)
+      .then(async (guild: any) => {
+        const member: Member = guild.members[user.id] ?? await Util.getGuildMemberByID(<Guild>guild, user.id);
+        if (member) return member.roles.includes(this.config.boosterRole);
+        else return false;
       });
   }
 }

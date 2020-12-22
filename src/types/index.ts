@@ -53,6 +53,7 @@ export interface BotConfig {
     emojis: Array<VoteEmoji>;
   };
   supportRoles: Array<string>
+  boosterRole: string
 }
 
 export interface VoteSite {

@@ -3,11 +3,11 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 
-import Event from '../structures/core/Event';
-import SuggestionsClient from '../structures/core/Client';
-import Logger from '../utils/Logger';
-import Util from '../utils/Util';
-import MessageEmbed from '../utils/MessageEmbed';
+import Event from '../../structures/core/Event';
+import SuggestionsClient from '../../structures/core/Client';
+import Logger from '../../utils/Logger';
+import Util from '../../utils/Util';
+import MessageEmbed from '../../utils/MessageEmbed';
 
 export default class extends Event {
   constructor(client: SuggestionsClient, name: string) {

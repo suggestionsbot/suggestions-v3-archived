@@ -43,6 +43,7 @@ export default class SuggestionManager {
     this.client.redis.instance!.incr('global:suggestions');
 
     Logger.log(`Created suggestion ${suggestion.id(true)} in the database.`);
+    this.client.emit('suggestionCreate', suggestion);
 
     if (this.channel.cooldown && !this.channel.cooldowns.has(data.user)) this.channel.updateCooldowns(data.user);
     return data;

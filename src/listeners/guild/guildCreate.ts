@@ -1,10 +1,10 @@
 import { Guild, TextChannel } from 'eris';
 import dayjs from 'dayjs';
 
-import Event from '../structures/core/Event';
-import SuggestionsClient from '../structures/core/Client';
-import Logger from '../utils/Logger';
-import MessageEmbed from '../utils/MessageEmbed';
+import Event from '../../structures/core/Event';
+import SuggestionsClient from '../../structures/core/Client';
+import Logger from '../../utils/Logger';
+import MessageEmbed from '../../utils/MessageEmbed';
 
 export default class extends Event {
   constructor(client: SuggestionsClient, name: string) {

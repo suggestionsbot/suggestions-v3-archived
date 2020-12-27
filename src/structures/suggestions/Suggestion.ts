@@ -172,6 +172,7 @@ export default class Suggestion {
       .setDescription(stripIndents`
           **Submitter**
           ${Util.escapeMarkdown(Util.formatUserTag(this.#author))}
+          
           **Suggestion**
           ${this.#suggestion}
         `)

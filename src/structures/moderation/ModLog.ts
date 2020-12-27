@@ -139,21 +139,10 @@ export default class ModLog {
   public async post(): Promise<this> {
     if (!this.#id) this.#id = crypto.randomBytes(20).toString('hex');
     if (!this.postable) throw new Error('ModLogNotPostable');
-    const embed = this.buildEmbed();
 
-    this.#message = await this.#channel.channel.createMessage({ embed });
+    this.#message = await this.#channel.channel.createMessage({ embed: this.#embedData });
     this.#data = await this.#channel.modlogs.add(this);
 
     return this;
-  }
-
-  private buildEmbed(): MessageEmbed {
-    return MessageUtils.defaultEmbed()
-      .setAuthor(`Suggestion Created | ${Util.formatUserTag(this.#user)}`, this.#user.avatarURL)
-      .addField('Channel', `<#${this.#embedData?.channel}>`, true)
-      .addField('Author', `<@${this.#embedData?.author}>`, true)
-      .addField('Suggestion ID', this.#embedData?.suggestion, true)
-      .setFooter(`User ID: ${this.#embedData?.author}`)
-      .setTimestamp();
   }
 }

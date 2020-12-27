@@ -5,6 +5,8 @@ import Logger from '../../utils/Logger';
 import ModLog from '../../structures/moderation/ModLog';
 import { SuggestionChannelType } from '../../types';
 import ModLogChannel from '../../structures/moderation/ModLogChannel';
+import Util from '../../utils/Util';
+import MessageUtils from '../../utils/MessageUtils';
 
 export default class extends Event {
   constructor(client: SuggestionsClient, name: string) {
@@ -12,17 +14,18 @@ export default class extends Event {
   }
 
   public async run(suggestion: Suggestion): Promise<any> {
-    Logger.event('SUGGESTION_CREATE', `the suggestion content: ${suggestion.suggestion}`);
-
     const modlogChannel = <ModLogChannel>this.client.suggestionChannels
-      .getGuildBucket(suggestion.guild, SuggestionChannelType.MOD_LOGS)[0];
+      .getGuildBucket(suggestion.guild, SuggestionChannelType.MOD_LOGS)[0] ??
+      await this.client.suggestionChannels.fetchChannel(suggestion.guild, null, SuggestionChannelType.MOD_LOGS);
     if (!modlogChannel) throw new Error('NoModLogChannel');
 
-    const embedData = {
-      channel: suggestion.channel.id,
-      author: suggestion.author.id,
-      suggestion: suggestion.id(true)
-    };
+    const embed = MessageUtils.defaultEmbed()
+      .setAuthor(`Suggestion Created | ${Util.formatUserTag(suggestion.author)}`, suggestion.author.avatarURL)
+      .addField('Channel', suggestion.channel.channel.mention, true)
+      .addField('Author', suggestion.author.mention, true)
+      .addField('Suggestion ID', `[\`${suggestion.id(true)}\`](${suggestion.link})`, true)
+      .setFooter(`User ID: ${suggestion.author.id}`)
+      .setTimestamp();
 
     const modlog = new ModLog(this.client)
       .setUser(suggestion.author)
@@ -30,7 +33,7 @@ export default class extends Event {
       .setGuild(suggestion.guild)
       .setSettings(suggestion.channel.settings)
       .setType('SUGGESTION_CREATED')
-      .setEmbedData(embedData);
+      .setEmbedData(embed);
 
     await modlog.post().catch(e => Logger.error('SUGGESTION_CREATE', e));
   }

@@ -216,8 +216,7 @@ export interface DisabledCommand extends Document {
 }
 
 export interface VoteEmoji extends Document {
-  id: number;
-  name: string;
+  index: number;
   system: boolean;
   custom: boolean;
   emojis: VoteEmojiArray;

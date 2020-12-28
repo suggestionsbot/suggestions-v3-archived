@@ -23,15 +23,15 @@ export default class ConfigEmojisCommand extends SubCommand {
     this.description = 'Update the guild\'s vote emoji sets.';
     this.aliases = ['voteemojis'];
     this.examples = [
-      'config emojis [add/remove] <name> <emoji1> <emoji2> [emoji3]',
+      'config emojis [add/remove] <emoji1>, <emoji2> [ ,[emoji3] ]',
       'config emojis reset',
-      'config emojis default <name>'
+      'config emojis default <id>'
     ];
     this.usages = [
-      'config emojis default thumbEmojis',
+      'config emojis default 2',
       'config emojis add :upvote:, :unsure:, :downvote:',
       'config emojis add :+1:, :-1:',
-      'config emojis remove customEmojis1',
+      'config emojis remove 7',
     ];
     this.adminOnly = true;
     this.botPermissions = ['manageMessages', 'externalEmojis', 'embedLinks'];
@@ -69,8 +69,11 @@ export default class ConfigEmojisCommand extends SubCommand {
           const subArg = ctx.args.get(1);
           if (!allEmojis[+subArg]) return MessageUtils.error(this.client, ctx.message,
             `\`${subArg}\` is out of range. Please do \`${ctx.prefix + this.friendly}\` to see the options.`);
-          if ((arg === 'remove') && (allEmojis[+subArg].system)) return MessageUtils.error(this.client, ctx.message,
-            `\`${allEmojis[+subArg].name}\` is a system emoji set and cannot be removed!`);
+          if ((arg === 'remove') && (allEmojis[+subArg].system)) {
+            const emojiView = await this.client.getVoteEmojisView(ctx.settings!, +subArg) as string;
+            return MessageUtils.error(this.client, ctx.message,
+              `${emojiView} is a system emoji set and cannot be removed!`);
+          }
 
           break;
         }
@@ -136,7 +139,7 @@ export default class ConfigEmojisCommand extends SubCommand {
           });
 
           const newSet = <VoteEmoji>{
-            id: voteEmojis.length + 1,
+            index: voteEmojis.length + 1,
             emojis: emojis.map(e => typeof e === 'object' ? e.id : e),
             addedBy: ctx.sender.id,
           };
@@ -145,7 +148,7 @@ export default class ConfigEmojisCommand extends SubCommand {
 
           await data.save();
           const document = await data.save();
-          const updated = document.emojis.find(e => e.id === newSet.id);
+          const updated = document.emojis.find(e => e.index === newSet.index);
 
           await MessageUtils.success(this.client, ctx.message, oneLine`${ctx.sender.mention} has successfully 
             ${updated ? 'added' : 'removed'} an emoji set: ${emojiView.join(' ')}`);
@@ -160,7 +163,7 @@ export default class ConfigEmojisCommand extends SubCommand {
           const data = await ctx.getSettings(false)!;
           data.updateEmojis(set);
           const document = await data.save();
-          const updated = document.emojis.find(e => e.id === +subArg);
+          const updated = document.emojis.find(e => e.index === +subArg);
 
           await MessageUtils.success(this.client, ctx.message, oneLine`${ctx.sender.mention} has successfully 
             ${updated ? 'addded' : 'removed'} an emoji set: ${setView}`);

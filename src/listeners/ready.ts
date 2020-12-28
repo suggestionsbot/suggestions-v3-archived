@@ -17,7 +17,7 @@ export default class extends Event {
       `⚙ Loaded (${this.client.subCommands.size}) subcommands!`,
       `👂 Loaded (${this.client.events.size}) events!`,
       `🌐 Loaded (${this.client.locales.size}) locales!`,
-      `✅ Loaded (${this.client.checks.size}) checks!`
+      `✅ Loaded (${this.client.conditions.size}) conditions!`
     ];
 
     try {

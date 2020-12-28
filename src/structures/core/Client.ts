@@ -36,7 +36,7 @@ import LocalizationManager from '../../managers/LocalizationManager';
 import { CommandManager, SubCommandManager } from '../../managers/CommandManager';
 import ListenerManager from '../../managers/ListenerManager';
 import BotListManager from '../../managers/BotListManager';
-import ChecksManager from '../../managers/ChecksManager';
+import ConditionsManager from '../../managers/ConditionsManager';
 import RatelimitManager from '../../managers/RatelimitManager';
 import ChannelManager from '../../managers/ChannelManager';
 import SuggestionChannel from '../suggestions/SuggestionChannel';
@@ -56,7 +56,7 @@ export default class SuggestionsClient extends Client {
   public events: ListenerManager;
   public locales: LocalizationManager;
   public botlists: BotListManager;
-  public checks: ChecksManager;
+  public conditions: ConditionsManager;
   public ratelimiters: RatelimitManager;
   public suggestionChannels: ChannelManager;
   public config: BotConfig;
@@ -74,7 +74,7 @@ export default class SuggestionsClient extends Client {
     this.events = new ListenerManager(this);
     this.locales = new LocalizationManager(this);
     this.botlists = new BotListManager(this);
-    this.checks = new ChecksManager(this);
+    this.conditions = new ConditionsManager(this);
     this.ratelimiters = new RatelimitManager(this);
     this.suggestionChannels = new ChannelManager(this);
 
@@ -93,7 +93,7 @@ export default class SuggestionsClient extends Client {
     this.events.init();
     this.addEventListeners();
     this.locales.init();
-    this.checks.init();
+    this.conditions.init();
     super.connect();
   }
 

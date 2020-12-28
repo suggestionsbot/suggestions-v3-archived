@@ -66,7 +66,7 @@ export abstract class Command {
   public name!: string;
   public description!: string;
   public category!: CommandCategory;
-  public checks?: Array<string>;
+  public conditions?: Array<string>;
   public subCommands?: Array<string>;
   public usages?: Array<string>;
   public examples?: Array<string>;

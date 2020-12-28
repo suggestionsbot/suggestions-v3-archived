@@ -5,35 +5,35 @@ import globFunction from 'glob';
 import { promisify } from 'util';
 
 import Logger from '../utils/Logger';
-import Check from '../structures/commands/Check';
+import Condition from '../structures/commands/Condition';
 
 const glob = promisify(globFunction);
 
-export default class ChecksManager extends Collection<Check> {
+export default class ConditionsManager extends Collection<Condition> {
   constructor(public client: SuggestionsClient) {
     super();
   }
 
   private static get directory(): string {
-    return `${path.join(path.dirname(require.main!.filename), 'checks', '**', '*.{ts,js}')}`;
+    return `${path.join(path.dirname(require.main!.filename), 'conditions', '**', '*.{ts,js}')}`;
   }
 
-  public addCheck(name: string, check: Check): void {
+  public addCondition(name: string, check: Condition): void {
     this.set(name, check);
   }
 
-  public getCheck(name: string): Check {
+  public getCondition(name: string): Condition {
     return this.get(name)!;
   }
 
   public async init(): Promise<void> {
-    return glob(ChecksManager.directory).then(async (files: any) => {
+    return glob(ConditionsManager.directory).then(async (files: any) => {
       if (!files.length) return Logger.warning('CHECKS', 'Couldn\'t find any command checks files!');
 
       for (const file of files) {
         const { default: CheckFile } = await import(file);
         const check = new CheckFile(this.client);
-        this.client.checks.addCheck(check.name, check);
+        this.client.conditions.addCondition(check.name, check);
         delete require.cache[file];
       }
     });

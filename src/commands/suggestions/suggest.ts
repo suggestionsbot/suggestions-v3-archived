@@ -36,7 +36,7 @@ export default class SuggestCommand extends Command {
     this.botPermissions = ['manageMessages', 'embedLinks', 'addReactions', 'externalEmojis'];
     this.guarded = false;
     this.active = false;
-    this.checks = ['suggestionChannel'];
+    this.conditions = ['suggestionChannel'];
   }
 
   async run(ctx: Context): Promise<any> {

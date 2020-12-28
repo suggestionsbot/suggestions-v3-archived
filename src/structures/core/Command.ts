@@ -9,7 +9,7 @@ export default abstract class Command implements CommandClass {
   public aliases: Array<string>|undefined;
   public botPermissions: Array<string|number>|undefined;
   public category!: CommandCategory;
-  public checks: Array<string>|undefined;
+  public conditions: Array<string>|undefined;
   public description!: string;
   public examples: Array<string>|undefined;
   public guarded: boolean;

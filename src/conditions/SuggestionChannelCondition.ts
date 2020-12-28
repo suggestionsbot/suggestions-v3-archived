@@ -5,11 +5,11 @@ import { oneLine, stripIndents } from 'common-tags';
 import { SuggestionChannelType } from '../types';
 import SuggestionsClient from '../structures/core/Client';
 import CommandContext from '../structures/commands/Context';
-import Check from '../structures/commands/Check';
+import Condition from '../structures/commands/Condition';
 import Util from '../utils/Util';
 import SuggestionChannel from '../structures/suggestions/SuggestionChannel';
 
-export default class SuggestionChannelCheck extends Check {
+export default class SuggestionChannelCondition extends Condition {
 
   constructor(client: SuggestionsClient, name: string) {
     super(client, name);

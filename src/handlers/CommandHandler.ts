@@ -74,9 +74,9 @@ export default class CommandHandler {
     }
 
     // grouped command checks
-    if (cmd.checks) {
-      for (const name of cmd.checks) {
-        const check = this.client.checks.get(name) ?? null;
+    if (cmd.conditions) {
+      for (const name of cmd.conditions) {
+        const check = this.client.conditions.get(name) ?? null;
         try {
           await check!.run(ctx);
         } catch (e) {

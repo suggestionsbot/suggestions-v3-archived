@@ -437,4 +437,10 @@ export default class SuggestionsClient extends Client {
         else return false;
       });
   }
+
+  public async getBotInviter(guild: Guild): Promise<Member|{ id: string; }|undefined> {
+    return guild.getAuditLogs(undefined, undefined, 28).then(logs => {
+      return logs.entries.find(gal => gal.targetID === this.user.id)?.member ?? undefined;
+    });
+  }
 }

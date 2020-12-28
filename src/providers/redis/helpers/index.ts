@@ -7,7 +7,8 @@ import {
 } from '../../../types';
 import Util from '../../../utils/Util';
 import Redis from '../index';
-import BaseChannel from '../../../structures/core/BaseChannel';
+
+// TODO: Add methods for storing the bot inviter
 
 export default class RedisHelpers {
   constructor(public redis: Redis) {}

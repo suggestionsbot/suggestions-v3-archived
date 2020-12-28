@@ -84,9 +84,9 @@ export abstract class Command {
   public throttles!: CommandThrottling;
   public ratelimiter?: Collection<Ratelimit>;
   protected constructor(public client: SuggestionsClient) {}
-  public abstract async run(ctx: Context): Promise<any>;
-  public abstract async runPreconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
-  public abstract async runPostconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
+  public abstract run(ctx: Context): Promise<any>;
+  public abstract runPreconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
+  public abstract runPostconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
 }
 
 export abstract class SubCommand extends Command {
@@ -113,7 +113,7 @@ export type CommandNextFunction = () => void;
 
 export abstract class Event {
   protected constructor(public client?: SuggestionsClient, public name?: string, public options: EventOptions = {}) {}
-  public abstract async run(...args: Array<any>): Promise<any>;
+  public abstract run(...args: Array<any>): Promise<any>;
 }
 
 export type EventConstructor<T> = new (...args: never[]) => T;

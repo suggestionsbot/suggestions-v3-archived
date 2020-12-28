@@ -25,7 +25,7 @@ export default class SuggestionHelpers {
     else return ctx.id.slice(33, 40);
   }
 
-  public getSuggestions(guild: SuggestionGuild): DocumentQuery<Array<SuggestionSchema>, SuggestionSchema, Record<string, unknown>> {
+  public getSuggestions(guild: SuggestionGuild): DocumentQuery<Array<SuggestionSchema>, SuggestionSchema, Record<string, any>> {
     return SuggestionModel.find({ guild: Util.getGuildID(guild) });
   }
 

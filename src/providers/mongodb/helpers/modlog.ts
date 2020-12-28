@@ -20,7 +20,7 @@ export default class ModLogHelpers {
     else return ctx.id.slice(33, 40);
   }
 
-  public getModLogs(guild: SuggestionGuild): DocumentQuery<Array<ModLogSchema>, ModLogSchema, Record<string, unknown>> {
+  public getModLogs(guild: SuggestionGuild): DocumentQuery<Array<ModLogSchema>, ModLogSchema, Record<string, any>> {
     return ModLogModel.find({ guild: Util.getGuildID(guild) });
   }
 

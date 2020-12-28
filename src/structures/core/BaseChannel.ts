@@ -25,5 +25,5 @@ export default abstract class BaseChannel {
     return this.channel.id;
   }
 
-  abstract async init(): Promise<void>;
+  abstract init(): Promise<void>;
 }

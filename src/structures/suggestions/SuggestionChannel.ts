@@ -130,21 +130,21 @@ export default class SuggestionChannel extends BaseChannel {
   }
 
   public async updateRole(data: SuggestionRole): Promise<boolean> {
-    const role = this.guild.roles.get(data.role)!;
+    const role = this.guild.roles.get(data.id)!;
     switch (data.type) {
       case 'allowed': {
-        this.#allowed.has(data.role) ? this.#allowed.delete(data.role) : this.#allowed.set(data.role, role);
+        this.#allowed.has(data.id) ? this.#allowed.delete(data.id) : this.#allowed.set(data.id, role);
         this.settings.updateChannelRoles(this.channel.id, data);
         await this.settings.save();
         await this.client.redis.helpers.clearCachedGuild(this.guild);
-        return this.#allowed.has(data.role);
+        return this.#allowed.has(data.id);
       }
       case 'blocked': {
-        this.#blocked.has(data.role) ? this.#blocked.delete(data.role) : this.#blocked.set(data.role, role);
+        this.#blocked.has(data.id) ? this.#blocked.delete(data.id) : this.#blocked.set(data.id, role);
         this.settings.updateChannelRoles(this.channel.id, data);
         await this.settings.save();
         await this.client.redis.helpers.clearCachedGuild(this.guild);
-        return this.#blocked.has(data.role);
+        return this.#blocked.has(data.id);
       }
       default: throw new Error('InvalidRoleType');
     }
@@ -160,7 +160,7 @@ export default class SuggestionChannel extends BaseChannel {
         this.data!.blocked = [];
       } else {
         this.data!.blocked = [<SuggestionRole>{
-          role: 'all',
+          id: 'all',
           addedBy: this.client.user.id,
           type: 'blocked'
         }];
@@ -182,7 +182,7 @@ export default class SuggestionChannel extends BaseChannel {
 
   private addRoles(roles: Array<SuggestionRole>, collection: Collection<Role>): void {
     for (const r of roles) {
-      const role = this.guild.roles.get(r.role);
+      const role = this.guild.roles.get(r.id);
       if (!role) continue;
       collection.set(role.id, role);
     }

@@ -3,7 +3,7 @@ import { DisabledCommand, GuildSchema, SuggestionChannel, SuggestionRole, VoteEm
 import { Guild } from 'eris';
 
 const SuggestionRole = {
-  role: { type: String },
+  id: { type: String },
   type: { type: String, enum: ['allowed', 'blocked', 'staff'] },
   added: { type: Number, default: Date.now() },
   addedBy: { type: String }
@@ -21,7 +21,7 @@ export const GuildSettings = new Schema({
   premiumSince: { type: String },
   channels: {
     type: [{
-      channel: String,
+      id: String,
       type: {
         type: String,
         enum: ['suggestions', 'logs', 'approved', 'rejected', 'staff', 'modlogs']
@@ -91,7 +91,7 @@ GuildSettings.method('updateEmojis', function(this: GuildSchema, emoji: VoteEmoj
 });
 
 GuildSettings.method('updateChannels', function(this: GuildSchema, channel: SuggestionChannel) {
-  const channelInArray = this.channels.find((c: SuggestionChannel) => c.channel === channel.channel)!;
+  const channelInArray = this.channels.find((c: SuggestionChannel) => c.id === channel.id)!;
   if (channelInArray) {
     this.channels = this.channels.filter((c: SuggestionChannel) => c !== channelInArray);
   } else {
@@ -101,7 +101,7 @@ GuildSettings.method('updateChannels', function(this: GuildSchema, channel: Sugg
 
 GuildSettings.method('updateChannel', function(this: GuildSchema, channel: string, data: Record<string, unknown>) {
   this.channels = this.channels.map(chn => {
-    if (chn.channel !== channel) return chn;
+    if (chn.id !== channel) return chn;
     return <SuggestionChannel>{ ...chn.toObject(), ...data };
   });
 });
@@ -116,7 +116,7 @@ GuildSettings.method('updateCommands', function(this: GuildSchema, { command }: 
 });
 
 GuildSettings.method('updateStaffRoles', function(this: GuildSchema, role: SuggestionRole) {
-  const roleInArray = this.staffRoles.find(r => r.role === role.role);
+  const roleInArray = this.staffRoles.find(r => r.id === role.id);
   if (roleInArray) {
     this.staffRoles = this.staffRoles.filter(r => r !== role);
   } else {
@@ -125,12 +125,12 @@ GuildSettings.method('updateStaffRoles', function(this: GuildSchema, role: Sugge
 });
 
 GuildSettings.method('updateChannelRoles', function(this: GuildSchema, channel: string, role: SuggestionRole) {
-  const channelInArray = this.channels.find(c => c.channel === channel)!;
+  const channelInArray = this.channels.find(c => c.id === channel)!;
   switch (role.type) {
     case 'allowed': {
-      const roleInArray = channelInArray.allowed.find(r => r.role === role.role);
+      const roleInArray = channelInArray.allowed.find(r => r.id === role.id);
       if (roleInArray) {
-        channelInArray.allowed = channelInArray.allowed.filter(r => r.role !== role.role);
+        channelInArray.allowed = channelInArray.allowed.filter(r => r.id !== role.id);
       } else {
         channelInArray.allowed = [...channelInArray.allowed, role];
       }
@@ -138,9 +138,9 @@ GuildSettings.method('updateChannelRoles', function(this: GuildSchema, channel: 
       break;
     }
     case 'blocked': {
-      const roleInArray = channelInArray.blocked.find(r => r.role === role.role);
+      const roleInArray = channelInArray.blocked.find(r => r.id === role.id);
       if (roleInArray) {
-        channelInArray.blocked = channelInArray.blocked.filter(r => r.role !== role.role);
+        channelInArray.blocked = channelInArray.blocked.filter(r => r.id !== role.id);
       } else {
         channelInArray.blocked = [...channelInArray.blocked, role];
       }

@@ -41,7 +41,7 @@ export default class SuggestCommand extends Command {
 
   async run(ctx: Context): Promise<any> {
     const argCheck = Util.getChannel(ctx.args.get(0), ctx.guild!);
-    const channels = ctx.settings!.channels.map(c => c.channel);
+    const channels = ctx.settings!.channels.map(c => c.id);
     const channel = ctx.message.prefix ?
       Util.getChannel(channels.length <= 1 ? channels[0] : ctx.args.get(0), ctx.guild!)! :
         <GuildTextableChannel>ctx.channel;

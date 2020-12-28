@@ -151,7 +151,7 @@ export default class SuggestionsClient extends Client {
     let staffCheck: boolean;
     const adminCheck = this.isGuildAdmin(member) || this.isOwner(member);
     const staffRoles = settings.staffRoles;
-    if (staffRoles) staffCheck = member.roles.some(r => staffRoles.map(r => r.role).includes(r)) || adminCheck;
+    if (staffRoles) staffCheck = member.roles.some(r => staffRoles.map(r => r.id).includes(r)) || adminCheck;
     else staffCheck = adminCheck;
 
     return staffCheck;
@@ -325,7 +325,7 @@ export default class SuggestionsClient extends Client {
       if (this.database.connection !== null) settings = await this.database.helpers.guild.getGuild(message.guildID);
       else settings = <GuildSchema><unknown>{ ...this.config.defaults, guild: message.guildID };
 
-      const isInDatabase = settings.channels.map(c => c.channel).includes(message.channel.id);
+      const isInDatabase = settings.channels.map(c => c.id).includes(message.channel.id);
       if (!isInDatabase) return;
 
       let channel = <SuggestionChannel>this.suggestionChannels.get(message.channel.id);

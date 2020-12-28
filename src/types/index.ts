@@ -181,7 +181,7 @@ export interface GuildSchema extends Document {
 }
 
 export interface SuggestionChannel extends Document {
-  channel: string;
+  id: string;
   type: SuggestionChannelType;
   allowed: Array<SuggestionRole>;
   blocked: Array<SuggestionRole>;
@@ -194,7 +194,7 @@ export interface SuggestionChannel extends Document {
 }
 
 export interface SuggestionRole extends Document {
-  role: string;
+  id: string;
   type: 'allowed'|'blocked'|'staff';
   added: number;
   addedBy: string;

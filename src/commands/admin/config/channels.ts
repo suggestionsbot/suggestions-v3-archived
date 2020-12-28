@@ -69,7 +69,7 @@ export default class ConfigChannelsCommand extends SubCommand {
   }
 
   async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
-    const channels = ctx.settings!.channels.map(c => c.channel);
+    const channels = ctx.settings!.channels.map(c => c.id);
 
     if (ctx.args.get(0) && ['add', 'remove'].includes(ctx.args.get(0).toLowerCase())) {
       const arg = ctx.args.get(0).toLowerCase();
@@ -235,7 +235,7 @@ export default class ConfigChannelsCommand extends SubCommand {
                 oneLine`You passed in \`all\`. Did you mean to do \`${ctx.prefix + this.friendly} #${channel.name}
                     ${arg} add/remove all\`?`);
               if (!role && ['add', 'remove'].includes(subArg) && (sChannel.data![arg][0] &&
-                  (sChannel.data![arg][0].role === 'all') && roles.length === 0))
+                  (sChannel.data![arg][0].id === 'all') && roles.length === 0))
                 return MessageUtils.error(this.client, ctx.message, oneLine`All roles are already **${arg}**
                   ${arg === 'allowed' ? 'in' : 'from'} ${channel.mention}`);
 
@@ -284,9 +284,9 @@ export default class ConfigChannelsCommand extends SubCommand {
 
         const allowed = sChannel.allowed.size > 0 ?
           sChannel.allowed.map(r => r.mention).join(' ') :
-          sChannel.data!.blocked[0] && (sChannel.data!.blocked[0].role === 'all') ? 'None' : 'All';
+          sChannel.data!.blocked[0] && (sChannel.data!.blocked[0].id === 'all') ? 'None' : 'All';
         const blocked = sChannel.data!.blocked.length > 0 ? sChannel.data!.blocked[0] &&
-        (sChannel.data!.blocked[0].role === 'all') ? 'All' : sChannel.blocked.map(r => r.mention).join(' ') : 'None';
+        (sChannel.data!.blocked[0].id === 'all') ? 'All' : sChannel.blocked.map(r => r.mention).join(' ') : 'None';
 
         baseEmbed.setDescription(stripIndents`
           **Channel:** ${channel.mention}
@@ -316,7 +316,7 @@ export default class ConfigChannelsCommand extends SubCommand {
       const arg = ctx.args.get(0).toLowerCase();
       const type = ctx.args.get(2);
       const channelExists = (data: GuildSchema, channel: TextChannel): boolean => data.channels
-        .map(c => c.channel).includes(channel.id);
+        .map(c => c.id).includes(channel.id);
       switch (arg) {
         case 'add': case 'remove': {
           try {
@@ -324,7 +324,7 @@ export default class ConfigChannelsCommand extends SubCommand {
             const gChannel = Util.getChannel(channel, ctx.guild!)!;
             const data = await this.client.database.helpers.guild.getGuild(ctx.guild!, false);
             const updated = <SuggestionChannelSchema>{
-              channel: gChannel.id,
+              id: gChannel.id,
               type: type ? <SuggestionChannelType>type : SuggestionChannelType.SUGGESTIONS,
               addedBy: ctx.sender.id
             };
@@ -360,7 +360,7 @@ export default class ConfigChannelsCommand extends SubCommand {
         try {
           for (const role of roles) {
             const updated = await sChannel.updateRole(<SuggestionRole>{
-              role: role.id,
+              id: role.id,
               type: 'allowed',
               addedBy: ctx.sender.id
             });
@@ -390,7 +390,7 @@ export default class ConfigChannelsCommand extends SubCommand {
         try {
           for (const role of roles) {
             const updated = await sChannel.updateRole(<SuggestionRole>{
-              role: role.id,
+              id: role.id,
               type: 'blocked',
               addedBy: ctx.sender.id
             });
@@ -514,7 +514,7 @@ export default class ConfigChannelsCommand extends SubCommand {
                       ${channel.mention}!`);
                 } else {
                   const updated = await sChannel.updateRole(<SuggestionRole>{
-                    role: role.id,
+                    id: role.id,
                     type: arg,
                     addedBy: ctx.sender.id
                   });

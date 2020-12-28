@@ -19,7 +19,7 @@ export default class SuggestionChannelCheck extends Check {
 
   public async run(ctx: CommandContext): Promise<any> {
     if (!ctx.args.get(0)) throw new Error('Please provide text for this suggestion!');
-    const channels = ctx.settings!.channels.map(c => c.channel);
+    const channels = ctx.settings!.channels.map(c => c.id);
     const channel = channels.length <= 1 ? channels[0] : ctx.args.get(0);
     const gChannel = ctx.message.prefix ? Util.getChannel(channel, ctx.guild!) : <GuildTextableChannel>ctx.channel;
     if (!gChannel && (channels.length > 1)) throw new Error(`\`${ctx.args.get(0)}\` is not a valid channel!`);
@@ -57,7 +57,7 @@ export default class SuggestionChannelCheck extends Check {
       const blocked = (sChannel.blocked.size > 0) && isInBlockedRoles;
 
       if (allowed) return;
-      if (blocked || (sChannel.data!.blocked[0].role === 'all'))
+      if (blocked || (sChannel.data!.blocked[0].id === 'all'))
         throw new Error(`You cannot submit suggestions to ${sChannel.channel.mention} as you are in a blocked role!
           
           **Blocked:** ${sChannel.blocked.size > 1 ? sChannel.blocked.map(r => r.mention).join(' ') : 'All roles'}`);

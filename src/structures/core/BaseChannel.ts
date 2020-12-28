@@ -14,7 +14,7 @@ export default abstract class BaseChannel {
   ) {}
 
   public get data(): SuggestionChannel | undefined {
-    return this.settings.channels.find(c => c.channel === this.channel.id);
+    return this.settings.channels.find(c => c.id === this.channel.id);
   }
 
   public get manager(): ChannelManager {

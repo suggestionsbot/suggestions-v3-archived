@@ -48,7 +48,7 @@ export default class SuggestionHandler {
       const blocked = (sChannel.blocked.size > 0) && isInBlockedRoles;
 
       if (allowed) return;
-      if (blocked && (sChannel.data!.blocked[0].role === 'all')) {
+      if (blocked && (sChannel.data!.blocked[0].id === 'all')) {
         const msg = await MessageUtils.error(this.client, ctx.message,
           `You cannot submit suggestions to ${sChannel.channel.mention} as you are in a blocked role!
           

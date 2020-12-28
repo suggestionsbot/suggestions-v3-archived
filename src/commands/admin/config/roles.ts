@@ -40,7 +40,7 @@ export default class ConfigRolesCommand extends SubCommand {
   }
 
   async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
-    const roles = ctx.settings!.staffRoles.map(r => r.role);
+    const roles = ctx.settings!.staffRoles.map(r => r.id);
 
     if (!ctx.args.get(0) && !roles.length)
       return MessageUtils.error(this.client, ctx.message,'There are no staff roles to dispay!');
@@ -101,7 +101,7 @@ export default class ConfigRolesCommand extends SubCommand {
   }
 
   async run(ctx: CommandContext): Promise<any> {
-    const roleExists = (data: GuildSchema, role: Role): boolean => data.staffRoles.map(r => r.role).includes(role.id);
+    const roleExists = (data: GuildSchema, role: Role): boolean => data.staffRoles.map(r => r.id).includes(role.id);
     const docsRef = `${this.client.config.docs}/docs/configuration.html`;
 
     const baseEmbed = MessageUtils.defaultEmbed()
@@ -110,7 +110,7 @@ export default class ConfigRolesCommand extends SubCommand {
       .setTimestamp();
 
     if ([0, 1].includes(ctx.args.args.length)) {
-      const staffRoles = ctx.settings!.staffRoles.map(r => r.role);
+      const staffRoles = ctx.settings!.staffRoles.map(r => r.id);
       const roles = ctx.guild!.roles.filter(r => staffRoles.includes(r.id))
         .sort((a, b) => b.position - a.position)
         .map(r => r.mention)
@@ -137,12 +137,12 @@ export default class ConfigRolesCommand extends SubCommand {
       try {
         for (const role of roles) {
           await data.updateStaffRoles(<SuggestionRole>{
-            role: role.id,
+            id: role.id,
             type: 'staff',
             addedBy: ctx.sender.id
           });
 
-          adjustedRoles.push({ added: data.staffRoles.map(r => r.role).indexOf(role.id) !== -1, role });
+          adjustedRoles.push({ added: data.staffRoles.map(r => r.id).indexOf(role.id) !== -1, role });
         }
 
         await data.save();
@@ -166,7 +166,7 @@ export default class ConfigRolesCommand extends SubCommand {
           try {
             const data = await ctx.getSettings(false)!;
             const updated = <SuggestionRole>{
-              role: gRole.id,
+              id: gRole.id,
               type: 'staff',
               addedBy: ctx.sender.id
             };

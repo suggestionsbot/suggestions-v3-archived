@@ -24,7 +24,7 @@ export default class extends Event {
         .setTitle('Added')
         .setDescription([
           `**ID:** \`${guild.id}\``,
-          `**Name:** \`${guild.name}\``,
+          `**Name:** \`${Util.escapeMarkdown(guild.name)}\``,
           `**Members:** \`${guild.memberCount}\``,
           `**Joined:** \`${dayjs(clientUser.joinedAt).fromNow()}\``,
           `**Owner:** <@${guild.ownerID}> \`[${guild.ownerID}]\``

@@ -5,6 +5,7 @@ import Event from '../../structures/core/Event';
 import SuggestionsClient from '../../structures/core/Client';
 import Logger from '../../utils/Logger';
 import MessageEmbed from '../../utils/MessageEmbed';
+import Util from '../../utils/Util';
 
 export default class extends Event {
   constructor(client: SuggestionsClient, name: string) {
@@ -19,7 +20,7 @@ export default class extends Event {
         .setTitle('Added')
         .setDescription([
           `**ID:** \`${guild.id}\``,
-          `**Name:** \`${guild.name}\``,
+          `**Name:** \`${Util.escapeMarkdown(guild.name)}\``,
           `**Members:** \`${guild.memberCount}\``,
           `**Created:** \`${dayjs(guild.createdAt).format('MM/DD/YYYY HH:mm:ss')}\``,
           `**Owner:** <@${guild.ownerID}> \`[${guild.ownerID}]\``

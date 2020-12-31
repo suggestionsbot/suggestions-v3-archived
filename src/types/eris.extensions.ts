@@ -1,4 +1,4 @@
-import Eris, { PrivateChannel } from 'eris';
+import Eris from 'eris';
 
 declare module 'eris' {
   interface User {
@@ -26,15 +26,17 @@ Object.defineProperty(Eris.User.prototype, 'tag', {
   }
 });
 
-Object.defineProperty(Eris.User.prototype, 'createMessage', function(
-  this: Eris.User,
-  content: Eris.MessageContent,
-  file?: Eris.MessageFile) {
-  return new Promise((resolve, reject) => {
-    this.getDMChannel().then((channel: PrivateChannel) => {
-      channel.createMessage(content, file).then(resolve).catch(reject);
-    }).catch(reject);
-  });});
+Object.defineProperty(Eris.User.prototype, 'createMessage', {
+  value: function(
+    content: Eris.MessageContent,
+    file?: Eris.MessageFile) {
+    return new Promise((resolve, reject) => {
+      this.getDMChannel().then((channel: Eris.PrivateChannel) => {
+        channel.createMessage(content, file).then(resolve).catch(reject);
+      }).catch(reject);
+    });
+  }
+});
 
 Object.defineProperty(Eris.Message.prototype, 'guild', {
   get: function () {
@@ -48,8 +50,10 @@ Object.defineProperty(Eris.Member.prototype, 'displayName', {
   }
 });
 
-Object.defineProperty(Eris.Member.prototype, 'hasPermission', function(this: Eris.Member, perm: string) {
-  return this.permission.has(perm);
+Object.defineProperty(Eris.Member.prototype, 'hasPermission', {
+  value: function(this: Eris.Member, perm: string) {
+    return this.permission.has(perm);
+  }
 });
 
 Object.defineProperty(Eris.Guild.prototype, 'me', {

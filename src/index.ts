@@ -1,13 +1,12 @@
-import './types/global.extensions';
-import './types/eris.extensions';
+import { ClientOptions } from 'eris';
 import { Master } from 'eris-sharder';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
 
+import './types/global.extensions';
+import './types/eris.extensions';
 import Logger from './utils/Logger';
-import { ClientOptions } from 'eris';
-import Global = NodeJS.Global;
 
 export const CLIENT_OPTIONS: ClientOptions = {
   messageLimit: 0,

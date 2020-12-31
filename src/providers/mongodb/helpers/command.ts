@@ -57,8 +57,7 @@ export default class CommandHelpers {
 
     const data = await document.save();
 
-    const tag = Util.formatUserTag(message.author);
-    Logger.command(document.command, `${tag} ran the command ${command}`);
+    Logger.command(document.command, `${message.author.tag} ran the command ${command}`);
     return data;
   }
 }

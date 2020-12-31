@@ -292,7 +292,7 @@ export default class ConfigChannelsCommand extends SubCommand {
           **Channel:** ${channel.mention}
           **Added:** ${dayjs(sChannel.data!.added).format('MM/DD/YYYY HH:mm:ss')}
           **Added By:** <@${sChannel.data!.addedBy}>
-          **Channel Type:** ${Util.toProperCase(sChannel.type)}
+          **Channel Type:** ${sChannel.type.toProperCase()}
           
           **Suggestion Cooldown:** ${sChannel?.cooldown ? ms(sChannel.cooldown, { long: true }) : 'N/A'}
           **Review Mode:** ${sChannel.reviewMode ? 'Enabled' : 'Disabled'}
@@ -488,7 +488,7 @@ export default class ConfigChannelsCommand extends SubCommand {
           case 'allowed': case 'blocked': {
             if (!ctx.args.get(2)) {
               let i = 1;
-              baseEmbed.setDescription(stripIndents`${Util.toProperCase(arg)} roles in ${channel.mention}:
+              baseEmbed.setDescription(stripIndents`${arg.toProperCase()} roles in ${channel.mention}:
               
                 ${sChannel[arg].map(r => `**${i++})** ${r.mention}`).join('\n')}
               `);

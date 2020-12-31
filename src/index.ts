@@ -1,3 +1,5 @@
+import './types/global.extensions';
+import './types/eris.extensions';
 import { Master } from 'eris-sharder';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
@@ -5,15 +7,7 @@ dotenv.config();
 
 import Logger from './utils/Logger';
 import { ClientOptions } from 'eris';
-
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace NodeJS {
-    interface Global {
-      __rootdir__: string;
-    }
-  }
-}
+import Global = NodeJS.Global;
 
 export const CLIENT_OPTIONS: ClientOptions = {
   messageLimit: 0,
@@ -76,7 +70,11 @@ export const main = async (): Promise<boolean> => {
 
 main();
 
-global.__rootdir__ = __dirname || process.cwd();
+/**
+ * We need to look into a better method for this...
+ * Source: https://stackoverflow.com/a/42304473/10804092 (Updated Answer)
+ */
+(<any>global).__rootdir__ = __dirname || process.cwd();
 
 process.on('unhandledRejection', err => {
   Logger.error('Unhandled Rejection', err);

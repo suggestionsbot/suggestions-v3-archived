@@ -10,7 +10,6 @@ import {
 import SuggestionsClient from '../core/Client';
 import { DMOptions, GuildSchema, Promisified } from '../../types';
 import Language from '../core/Language';
-import Util from '../../utils/Util';
 import ArgumentParser from '../parsers/ArgumentParser';
 import FlagParser from '../parsers/FlagParser';
 
@@ -51,7 +50,7 @@ export default class CommandContext {
   public get prefix(): string {
     const mentionCheck = this.guild ? this.me!.mention : this.client.user.mention;
     return this.message.prefix!.trim() === mentionCheck.trim() ?
-      `@${Util.formatUserTag(this.client.user)} ` :
+      `@${this.client.user.tag} ` :
       this.message.prefix!;
   }
 
@@ -97,11 +96,10 @@ export default class CommandContext {
   }
 
   public async dm(options: DMOptions): Promise<Message> {
-    const channel = await options.user.getDMChannel();
-    return channel.createMessage({
-      content: options.content,
-      embed: options.embed
-    });
+    return options.user.createMessage(
+      { content: options.content, embed: options.embed },
+      options.file
+    );
   }
 
   public get shard(): Shard|undefined {

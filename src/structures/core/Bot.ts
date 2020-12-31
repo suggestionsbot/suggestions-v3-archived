@@ -18,7 +18,7 @@ Sentry.init({
   maxBreadcrumbs: 30,
   integrations: [
     new RewriteFrames({
-      root: global.__rootdir__
+      root: (<any>global).__rootdir__
     }),
     new CaptureConsole({
       levels: ['error']

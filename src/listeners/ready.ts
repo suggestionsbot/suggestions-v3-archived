@@ -3,7 +3,6 @@ import Event from '../structures/core/Event';
 import SuggestionsClient from '../structures/core/Client';
 import { version } from '../../package.json';
 import Logger from '../utils/Logger';
-import Util from '../utils/Util';
 
 export default class extends Event {
   constructor(public client: SuggestionsClient, public name: string) {
@@ -24,7 +23,7 @@ export default class extends Event {
       await this.client.database.init();
       this.client.redis.init();
       for (const m of readyMessages) await Logger.event(this.name, m);
-      Logger.ready(`🤖 Logged in as ${Util.formatUserTag(this.client.user)} (${this.client.user.id}).`);
+      Logger.ready(`🤖 Logged in as ${this.client.user.tag} (${this.client.user.id}).`);
       this.client.updateBotPresence();
       if (this.client.production) {
         this.client.botlists.init();

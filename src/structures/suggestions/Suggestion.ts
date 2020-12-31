@@ -171,7 +171,7 @@ export default class Suggestion {
     const embed = MessageUtils.defaultEmbed()
       .setDescription(stripIndents`
           **Submitter**
-          ${Util.escapeMarkdown(Util.formatUserTag(this.#author))}
+          ${Util.escapeMarkdown(this.#author.tag)}
           
           **Suggestion**
           ${this.#suggestion}

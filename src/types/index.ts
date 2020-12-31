@@ -1,4 +1,4 @@
-import { BotActivityType, EmbedOptions, Guild, Member, Message, User } from 'eris';
+import { BotActivityType, EmbedOptions, Guild, Member, Message, MessageFile, User } from 'eris';
 import { Commands, RedisClient } from 'redis';
 import { Document } from 'mongoose';
 
@@ -394,6 +394,7 @@ export interface DMOptions {
   user: User;
   content?: string;
   embed?: EmbedOptions;
+  file?: MessageFile;
 }
 
 export enum CommandCategory {

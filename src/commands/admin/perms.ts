@@ -85,7 +85,7 @@ export default class PermsCommand extends Command {
         `Server ID:\n \`${ctx.guild!.id}\``
       ].join('\n'), true);
       embed.addField('User Information', [
-        `Username:\n \`${Util.formatUserTag(ctx.sender)}\``,
+        `Username:\n \`${ctx.sender.tag}\``,
         `User ID:\n \`${ctx.sender.id}\``,
         `Staff Member:\n \`${this.client.isGuildStaff(ctx.member!, ctx.settings!) ? 'Yes' : 'No'}\``,
         `Server Admin:\n \`${this.client.isGuildAdmin(ctx.member!) ? 'Yes' : 'No'}\``

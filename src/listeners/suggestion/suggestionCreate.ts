@@ -5,7 +5,6 @@ import Logger from '../../utils/Logger';
 import ModLog from '../../structures/moderation/ModLog';
 import { SuggestionChannelType } from '../../types';
 import ModLogChannel from '../../structures/moderation/ModLogChannel';
-import Util from '../../utils/Util';
 import MessageUtils from '../../utils/MessageUtils';
 
 export default class extends Event {
@@ -20,7 +19,7 @@ export default class extends Event {
     if (!modlogChannel) throw new Error('NoModLogChannel');
 
     const embed = MessageUtils.defaultEmbed()
-      .setAuthor(`Suggestion Created | ${Util.formatUserTag(suggestion.author)}`, suggestion.author.avatarURL)
+      .setAuthor(`Suggestion Created | ${suggestion.author.tag}`, suggestion.author.avatarURL)
       .addField('Channel', suggestion.channel.channel.mention, true)
       .addField('Author', suggestion.author.mention, true)
       .addField('Suggestion ID', `[\`${suggestion.id(true)}\`](${suggestion.link})`, true)

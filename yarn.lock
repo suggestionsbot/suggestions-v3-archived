@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@anishshobith/deeptype/-/deeptype-1.1.0.tgz#38c8e634a563904753aedefdf0082a0b4f1b76a4"
   integrity sha512-C/NfCUQMydPrpVGVmcYjMxr4aIJ/tTps/voDSuDM3Zf0B5K5M0Kw4e9AeUppd55eH0j7DFHzc2eKsidz3qarRg==
 
-"@augu/immutable@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@augu/immutable/-/immutable-0.5.0.tgz#f7be0d0041c378a796b06caf2793901ed0364055"
-  integrity sha512-WtVQl1esYJ2D3BUW+cC/7EPA85iu2B3xSki16+H++U8BxtrEcsQNWleGlU5/++YVy6hmUIEbyLWMzTQPQ4Y51Q==
+"@augu/immutable@^0.6.0":
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/@augu/immutable/-/immutable-0.6.1.tgz#74afe64f4c3bdbe07c8bf993dc273f07bd7aca40"
+  integrity sha512-jn8DVb1BytmW5EBUQ6imM9WY33fA5zu7vW5bFsMwLjDokzx0/NvvuUriOWzdvhftqMc25ykABDIX/ineaj2ELQ==
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.12.11":
   version "7.12.11"

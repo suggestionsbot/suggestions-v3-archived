@@ -235,7 +235,7 @@ export default class ConfigChannelsCommand extends SubCommand {
                 oneLine`You passed in \`all\`. Did you mean to do \`${ctx.prefix + this.friendly} #${channel.name}
                     ${arg} add/remove all\`?`);
               if (!role && ['add', 'remove'].includes(subArg) && (sChannel.data![arg][0] &&
-                  (sChannel.data![arg][0].id === 'all') && roles.length === 0))
+                  (sChannel.data![arg][0].id === 'all') && roles.isEmpty()))
                 return MessageUtils.error(this.client, ctx.message, oneLine`All roles are already **${arg}**
                   ${arg === 'allowed' ? 'in' : 'from'} ${channel.mention}`);
 

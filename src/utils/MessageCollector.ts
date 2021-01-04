@@ -83,7 +83,7 @@ export default class MessageCollector extends EventEmitter {
     this.emit('collect', message);
   }
 
-  private onMessageUpdate(message: Message, oldMessage: Message): Message|void|boolean {
+  private onMessageUpdate(message: Message, oldMessage: Message): Message|void|null|boolean {
     if (!this.running) return;
     if (this.channel.id !== message.channel.id) return;
     if (!this.filter(message)) return this.collected.remove(message);

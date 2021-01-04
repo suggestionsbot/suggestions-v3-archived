@@ -90,16 +90,16 @@ export default class MessageEmbed {
     return this;
   }
 
-  public setAuthor(name: string, iconURL?: string, url?: string): this {
+  public setAuthor(name: string, iconURL?: string|null, url?: string): this {
     if (name.length > 256) throw new RangeError('Embed footer texts cannot exceed 2048 characters');
     this.author = { name };
 
-    if (iconURL !== undefined) {
+    if (iconURL) {
       if (!iconURL.startsWith('attachment://') && !this.#URL_REGEX.test(iconURL)) throw new Error('Not a well formed URL');
       this.author.icon_url = iconURL;
     }
 
-    if (url !== undefined) {
+    if (url) {
       if (!this.#URL_REGEX.test(url)) throw new Error('Not a well formed URL');
       this.author.url = url;
     }

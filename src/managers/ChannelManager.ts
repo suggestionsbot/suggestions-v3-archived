@@ -28,7 +28,7 @@ export default class ChannelManager extends Collection<BaseChannel> {
   }
 
   public async fetchChannel(guild: Guild, channelID?: string|null, type?: SuggestionChannelType|null): Promise<BaseChannel | undefined> {
-    if (channelID && this.has(channelID)) return this.get(channelID)
+    if (channelID && this.has(channelID)) return this.get(channelID);
     const settings = await this.client.redis.helpers.getCachedGuild(guild.id);
     const dbChannel = channelID ? settings.channels.find(c => c.id === channelID) : settings.channels.filter(c => c.type === type)[0];
     if (!dbChannel) throw new Error('NoChannelInDatabase');

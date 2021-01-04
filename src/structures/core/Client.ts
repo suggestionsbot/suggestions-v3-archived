@@ -162,7 +162,7 @@ export default class SuggestionsClient extends Client {
     const perms = ['administrator', 'manageGuild'];
 
     for (const perm of perms) {
-      if (member.permission.has(perm)) {
+      if (member.permissions.has(perm)) {
         hasPerm = true;
         break;
       }
@@ -346,6 +346,8 @@ export default class SuggestionsClient extends Client {
       const locale = this.locales.get(settings.locale);
       const ctx: Context = new Context(message, [], locale, settings);
 
+      // TODO: Implement check for various suggestion-related commands + arg checking for said commands
+      if (this.commands.isCommand(message)) return;
       await this.suggestionHandler.handle(ctx);
     } catch (e) {
       Logger.error('SUGGESTIONS LISTENER', e);
@@ -440,7 +442,7 @@ export default class SuggestionsClient extends Client {
 
   public async getBotInviter(guild: Guild): Promise<Member|{ id: string; }|undefined> {
     return guild.getAuditLogs(undefined, undefined, 28).then(logs => {
-      return logs.entries.find(gal => gal.targetID === this.user.id)?.member ?? undefined;
+      return logs.entries.find(gal => gal.targetID === this.user.id)?.member as Member ?? undefined;
     });
   }
 }

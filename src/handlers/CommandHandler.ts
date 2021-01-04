@@ -27,6 +27,26 @@ export default class CommandHandler {
     const locale = this.client.locales.get(settings.locale);
     const ctx: Context = new Context(message, args, locale, settings);
 
+    /**
+     * Make sure to properly go through each command below so they are properly accounted for:
+     * [x] - suggest
+     * [ ] - sid
+     * [ ] - edit
+     * [ ] - delete
+     * [ ] - comment
+     * [ ] - comment
+     * [ ] - response
+     * [ ] - approve
+     * [ ] - reject
+     * [ ] - note
+     * [ ] - considered
+     * [ ] - implemented
+     */
+    const validCommands = ['suggest', 'sid', 'edit', 'delete', 'comment', 'response', 'approve', 'reject',
+      'note', 'considered', 'implemented'];
+    if (settings.channels.map(c => c.id).includes(message.channel.id) && !validCommands.includes(cmd.name))
+      return message.delete();
+
     if (!message.guildID && cmd.guildOnly) {
       return MessageUtils.error(
         this.client,
@@ -34,8 +54,8 @@ export default class CommandHandler {
         `The \`${'friendly' in cmd ? cmd.friendly : cmd.name}\` command can only be used in a server!`);
     }
 
-    const staffCheck = message.guildID ? this.client.isGuildStaff(message.member!, settings): null;
-    const adminCheck = message.guildID ? this.client.isGuildAdmin(message.member!) : null;
+    const staffCheck = message.guildID ? this.client.isGuildStaff(message.member!, settings): true;
+    const adminCheck = message.guildID ? this.client.isGuildAdmin(message.member!) : true;
     const supportCheck = await this.client.isSupport(message.author)
       .catch(e => MessageUtils.error(this.client, message, e.message, true));
     const superSecretCheck = this.client.isSuperSecret(message.author);

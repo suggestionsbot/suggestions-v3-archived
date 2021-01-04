@@ -20,6 +20,7 @@ export default class SuggestCommand extends Command {
     this.name = 'suggest';
     this.category = CommandCategory.SUGGESTIONS;
     this.description = 'Submit a new suggestion in a suggestion channel.';
+    this.aliases = ['suggestion'];
     this.usages = [
       'suggest <suggestion>',
       'suggestion [channel] <suggestion>'
@@ -42,9 +43,10 @@ export default class SuggestCommand extends Command {
   async run(ctx: Context): Promise<any> {
     const argCheck = Util.getChannel(ctx.args.get(0), ctx.guild!);
     const channels = ctx.settings!.channels.map(c => c.id);
-    const channel = ctx.message.prefix ?
-      Util.getChannel(channels.length <= 1 ? channels[0] : ctx.args.get(0), ctx.guild!)! :
-        <GuildTextableChannel>ctx.channel;
+    const isSuggestionChannel = channels.includes(ctx.channel.id);
+    // TODO: Make sure to explicity note that if the command is ran in a suggestion channel, the suggestion will be sent in that channel, regardless of the argument
+    const channel = isSuggestionChannel ? ctx.channel :
+      Util.getChannel(channels.length <= 1 ? channels[0] : ctx.args.get(0), ctx.guild!)!;
     const sChannel = <SuggestionChannel>this.client.suggestionChannels.get(channel.id)!;
     const suggestion = argCheck ? ctx.args.slice(1).join(' ') : ctx.args.join(' ');
 

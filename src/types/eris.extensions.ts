@@ -1,5 +1,7 @@
 import Eris from 'eris';
 
+import { SuggestionsCommand } from './';
+
 declare module 'eris' {
   interface User {
     tag: string;
@@ -7,12 +9,14 @@ declare module 'eris' {
   }
 
   interface Message {
-    guild: Eris.Guild;
+    command?: SuggestionsCommand;
+    guild?: Eris.Guild;
+    prefix?: string;
   }
 
   interface Member {
     displayName: string;
-    hasPermission: boolean
+    hasPermission: boolean;
   }
 
   interface Guild {
@@ -52,7 +56,7 @@ Object.defineProperty(Eris.Member.prototype, 'displayName', {
 
 Object.defineProperty(Eris.Member.prototype, 'hasPermission', {
   value: function(this: Eris.Member, perm: string) {
-    return this.permission.has(perm);
+    return this.permissions.has(perm);
   }
 });
 

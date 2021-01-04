@@ -1,4 +1,4 @@
-import { Guild, Member, Message, MessageFile, User } from 'eris';
+import { Emoji, Guild, Member, Message, MessageFile, User } from 'eris';
 import fetch from 'node-fetch';
 import * as crypto from 'crypto';
 import { stripIndents } from 'common-tags';
@@ -124,7 +124,7 @@ export default class Suggestion {
     const voteEmojis = [...emojis, ...this.#settings.emojis];
     const setEmojis = voteEmojis[this.#channel.emojis];
     const guild = setEmojis.system ? await this.client.base!.ipc.fetchGuild(this.client.system) : this.#guild;
-    const reactions = setEmojis.emojis.map(e => e && Util.matchUnicodeEmoji(e) ? e : guild.emojis.find(ge => ge.id === e));
+    const reactions = setEmojis.emojis.map(e => e && Util.matchUnicodeEmoji(e) ? e : (<Array<Emoji>>guild.emojis).find(ge => ge.id === e));
     const embed = this.buildEmbed();
 
     // TODO dont forget to re-enable this when we implement (dm) responses

@@ -1,10 +1,10 @@
 import { model, Schema } from 'mongoose';
-import { ModLogSchema } from '../../../types';
+import { ActionLogSchema } from '../../../types';
 
-export const ModLog = new Schema({
+export const Actionlog = new Schema({
   guild: { type: String },
-  user: { type: String },
-  moderator: { type: String },
+  executor: { type: String },
+  target: { type: String },
   channel: { type: String },
   id: { type: String },
   time: { type: Number, default: Date.now() },
@@ -25,4 +25,4 @@ export const ModLog = new Schema({
   ] }
 });
 
-export default model<ModLogSchema>('ModLog', ModLog, 'modlogs');
+export default model<ActionLogSchema>('ActionLog', Actionlog, 'actionlogs');

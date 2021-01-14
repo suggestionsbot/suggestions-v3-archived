@@ -2,9 +2,9 @@ import Event from '../../structures/core/Event';
 import SuggestionsClient from '../../structures/core/Client';
 import Suggestion from '../../structures/suggestions/Suggestion';
 import Logger from '../../utils/Logger';
-import ModLog from '../../structures/moderation/ModLog';
+import ActionLog from '../../structures/actions/ActionLog';
 import { SuggestionChannelType } from '../../types';
-import ModLogChannel from '../../structures/moderation/ModLogChannel';
+import ActionLogChannel from '../../structures/actions/ActionLogChannel';
 import MessageUtils from '../../utils/MessageUtils';
 
 export default class extends Event {
@@ -13,10 +13,10 @@ export default class extends Event {
   }
 
   public async run(suggestion: Suggestion): Promise<any> {
-    const modlogChannel = <ModLogChannel>this.client.suggestionChannels
-      .getGuildBucket(suggestion.guild, SuggestionChannelType.MOD_LOGS)[0] ??
-      await this.client.suggestionChannels.fetchChannel(suggestion.guild, null, SuggestionChannelType.MOD_LOGS);
-    if (!modlogChannel) throw new Error('NoModLogChannel');
+    const modlogChannel = <ActionLogChannel>this.client.suggestionChannels
+      .getGuildBucket(suggestion.guild, SuggestionChannelType.ACTION_LOGS)[0] ??
+      await this.client.suggestionChannels.fetchChannel(suggestion.guild, null, SuggestionChannelType.ACTION_LOGS);
+    if (!modlogChannel) throw new Error('NoActionLogChannel');
 
     const embed = MessageUtils.defaultEmbed()
       .setAuthor(`Suggestion Created | ${suggestion.author.tag}`, suggestion.author.avatarURL)
@@ -26,8 +26,8 @@ export default class extends Event {
       .setFooter(`User ID: ${suggestion.author.id}`)
       .setTimestamp();
 
-    const modlog = new ModLog(this.client)
-      .setUser(suggestion.author)
+    const modlog = new ActionLog(this.client)
+      .setExecutor(suggestion.author)
       .setChannel(modlogChannel)
       .setGuild(suggestion.guild)
       .setSettings(suggestion.channel.settings)

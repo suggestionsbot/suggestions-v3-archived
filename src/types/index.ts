@@ -41,7 +41,7 @@ export interface BotConfig {
     regular: number;
     logs: number;
     staff: number;
-    modlogs: number;
+    actionlogs: number;
   };
   defaults: {
     prefixes: Array<string>;
@@ -206,7 +206,7 @@ export enum SuggestionChannelType {
   STAFF = 'staff',
   APPROVED = 'approved',
   REJECTED = 'rejected',
-  MOD_LOGS = 'modlogs'
+  ACTION_LOGS = 'actionlogs'
 }
 
 export interface DisabledCommand extends Document {
@@ -226,14 +226,14 @@ export interface VoteEmoji extends Document {
 
 export type VoteEmojiArray = [string, string, string?];
 
-export interface ModLogSchema extends Document {
+export interface ActionLogSchema extends Document {
   guild: string;
   channel: string;
-  user: string;
-  moderator: string;
+  executor: string;
+  target?: string;
   id: string;
   time: number;
-  type: ModLogTypes
+  type: ActionLogTypes
 }
 
 export interface SuggestionSchema extends Document {
@@ -423,7 +423,7 @@ export interface InternalVoteEmoji {
   addedBy?: string;
 }
 
-export type ModLogTypes = |
+export type ActionLogTypes = |
 'BLACKLIST_ADDED' |
 'BLACKIST_DELETED' |
 'CHANNEL_ADDED' |

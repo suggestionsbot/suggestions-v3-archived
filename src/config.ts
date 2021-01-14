@@ -43,7 +43,7 @@ const config: BotConfig = {
     regular: 355392,
     logs: 84992,
     staff: 85056,
-    modlogs: 84992
+    actionlogs: 84992
   },
   defaults: {
     prefixes: [','],

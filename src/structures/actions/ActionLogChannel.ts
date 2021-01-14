@@ -3,10 +3,10 @@ import { Guild, GuildTextableChannel } from 'eris';
 import BaseChannel from '../core/BaseChannel';
 import { GuildSchema, SuggestionChannelType } from '../../types';
 import SuggestionsClient from '../core/Client';
-import ModLogManager from '../../managers/ModLogManager';
+import ActionLogManager from '../../managers/ActionLogManager';
 
-export default class ModLogChannel extends BaseChannel {
-  readonly #modlogs: ModLogManager;
+export default class ActionLogChannel extends BaseChannel {
+  readonly #actionlogs: ActionLogManager;
   #initialized: boolean;
   #count: number;
 
@@ -20,12 +20,12 @@ export default class ModLogChannel extends BaseChannel {
     super(client, guild, type, channel, settings);
 
     this.#initialized = false;
-    this.#modlogs = new ModLogManager(this);
+    this.#actionlogs = new ActionLogManager(this);
     this.#count = 0;
   }
 
-  public get modlogs(): ModLogManager {
-    return this.#modlogs;
+  public get actionlogs(): ActionLogManager {
+    return this.#actionlogs;
   }
 
   public get count(): number {

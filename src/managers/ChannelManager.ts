@@ -1,10 +1,11 @@
-import SuggestionChannel from '../structures/suggestions/SuggestionChannel';
+import { Guild, GuildTextableChannel } from 'eris';
 import { Collection } from '@augu/immutable';
+
 import SuggestionsClient from '../structures/core/Client';
+import SuggestionChannel from '../structures/suggestions/SuggestionChannel';
 import { SuggestionChannelType, SuggestionGuild } from '../types';
 import BaseChannel from '../structures/core/BaseChannel';
-import { Guild, GuildTextableChannel } from 'eris';
-import ModLogChannel from '../structures/moderation/ModLogChannel';
+import ActionLogChannel from '../structures/actions/ActionLogChannel';
 
 export default class ChannelManager extends Collection<BaseChannel> {
   constructor(public client: SuggestionsClient) {
@@ -42,8 +43,8 @@ export default class ChannelManager extends Collection<BaseChannel> {
         this.client.suggestionChannels.addChannel(channel);
         return channel;
       }
-      case SuggestionChannelType.MOD_LOGS: {
-        const channel = new ModLogChannel(this.client, guild, dbChannel.type, text, settings);
+      case SuggestionChannelType.ACTION_LOGS: {
+        const channel = new ActionLogChannel(this.client, guild, dbChannel.type, text, settings);
         await channel.init();
         this.client.suggestionChannels.addChannel(channel);
         return channel;

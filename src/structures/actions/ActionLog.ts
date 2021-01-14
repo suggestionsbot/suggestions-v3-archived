@@ -1,40 +1,40 @@
 import { Guild, Member, Message, User } from 'eris';
+import * as crypto from 'crypto';
 
 import SuggestionsClient from '../core/Client';
-import ModLogChannel from './ModLogChannel';
-import { GuildSchema, ModLogSchema, ModLogTypes } from '../../types';
-import * as crypto from 'crypto';
+import ActionLogChannel from './ActionLogChannel';
+import { GuildSchema, ActionLogSchema, ActionLogTypes } from '../../types';
 import MessageEmbed from '../../utils/MessageEmbed';
 import MessageUtils from '../../utils/MessageUtils';
 import Util from '../../utils/Util';
 
 /**
- * What we need for a modlog:
+ * What we need for a actionlog:
  *
  * - The client
- * - The channel of the modlog
- * - The guld of the modlog
+ * - The channel of the actionlog
+ * - The guild of the actionlog
  * - The guild's settings
- * - The message associated with the mod log (only relevant when posting modlog)
- * - The user tied to the modlog
- * - The moderator tied to the modlog
+ * - The message associated with the actionlog (only relevant when posting actionlog)
+ * - The executor tied to the actionlog (ex. the user who approved a suggestion)
+ * - The target tied to the actionlog (ex. the user who submitted the suggestion that was approved)
  * - The data that will be saved to the database (or even loaded from it to create the class)
- * - Type of modlog action
+ * - Type of actionlog
  *
  * Data that we need to pass in:
  * - The suggestion channel, suggestion comment data, etc (dictionary object?)
  */
 
-export default class ModLog {
-  #user!: User;
-  #moderator!: User;
-  #channel!: ModLogChannel;
+export default class ActionLog {
+  #executor!: User;
+  #target?: User;
+  #channel!: ActionLogChannel;
   #guild!: Guild;
   #id!: string;
   #settings!: GuildSchema;
   #message?: Message;
-  #data!: ModLogSchema|Record<string, unknown>;
-  #type!: ModLogTypes;
+  #data!: ActionLogSchema|Record<string, unknown>;
+  #type!: ActionLogTypes;
   #embedData?: Record<string, any>;
 
   constructor(public client: SuggestionsClient) {}
@@ -46,7 +46,7 @@ export default class ModLog {
     );
   }
 
-  public get data(): ModLogSchema|Record<string, unknown> {
+  public get data(): ActionLogSchema|Record<string, unknown> {
     return this.#data;
   }
 
@@ -55,19 +55,19 @@ export default class ModLog {
     else return `https://discord.com/channels/${this.#guild.id}/${this.#channel.id}/${this.#message.id}`;
   }
 
-  public get user(): User {
-    return this.#user;
+  public get executor(): User {
+    return this.#executor;
   }
 
-  public get moderator(): User {
-    return this.#moderator;
+  public get target(): User|undefined {
+    return this.#target;
   }
 
   public get guild(): Guild {
     return this.#guild;
   }
 
-  public get channel(): ModLogChannel {
+  public get channel(): ActionLogChannel {
     return this.#channel;
   }
 
@@ -75,7 +75,7 @@ export default class ModLog {
     return this.#message;
   }
 
-  public get type(): ModLogTypes {
+  public get type(): ActionLogTypes {
     return this.#type;
   }
 
@@ -83,13 +83,13 @@ export default class ModLog {
     return short ? this.#id.slice(33, 40) : this.#id;
   }
 
-  public setUser(user: User | Member): this {
-    this.#user = 'user' in user ? user.user : user;
+  public setExecutor(executor: User | Member): this {
+    this.#executor = 'user' in executor ? executor.user : executor;
     return this;
   }
 
-  public setModerator(moderator: User | Member): this {
-    this.#moderator = 'user' in moderator ? moderator.user : moderator;
+  public setTarget(target: User | Member): this {
+    this.#target = 'user' in target ? target.user : target;
     return this;
   }
 
@@ -98,7 +98,7 @@ export default class ModLog {
     return this;
   }
 
-  public setChannel(channel: ModLogChannel): this {
+  public setChannel(channel: ActionLogChannel): this {
     this.#channel = channel;
     return this;
   }
@@ -113,7 +113,7 @@ export default class ModLog {
     return this;
   }
 
-  public setType(type: ModLogTypes): this {
+  public setType(type: ActionLogTypes): this {
     this.#type = type;
     return this;
   }
@@ -123,12 +123,12 @@ export default class ModLog {
     return this;
   }
 
-  public async setData(data: ModLogSchema): Promise<this> {
+  public async setData(data: ActionLogSchema): Promise<this> {
     this.#data = data;
-    if (data.user) this.#user = await this.client.getRESTUser(data.user);
-    if (data.moderator) this.#moderator = await this.client.getRESTUser(data.moderator);
+    if (data.executor) this.#executor = await this.client.getRESTUser(data.executor);
+    if (data.target) this.#target = await this.client.getRESTUser(data.target);
     if (data.guild) this.#guild = await this.client.getRESTGuild(data.guild);
-    if (data.channel) this.#channel = <ModLogChannel>this.client.suggestionChannels.get(data.channel);
+    if (data.channel) this.#channel = <ActionLogChannel>this.client.suggestionChannels.get(data.channel);
     if (data.type) this.#type = data.type;
 
     return new Promise(resolve => {
@@ -141,7 +141,7 @@ export default class ModLog {
     if (!this.postable) throw new Error('ModLogNotPostable');
 
     this.#message = await this.#channel.channel.createMessage({ embed: this.#embedData });
-    this.#data = await this.#channel.modlogs.add(this);
+    this.#data = await this.#channel.actionlogs.add(this);
 
     return this;
   }

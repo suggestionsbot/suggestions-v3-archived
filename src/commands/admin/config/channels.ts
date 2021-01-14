@@ -86,7 +86,7 @@ export default class ConfigChannelsCommand extends SubCommand {
       if ((arg === 'remove') && !channels.includes(gChannel.id))
         return MessageUtils.error(this.client, ctx.message, `${gChannel.mention} is not a configured channel!`);
       if (arg === 'add') {
-        const defaultPermissions = new Permission(this.client.config.permissions[ConfigChannelsCommand._getPermsType(channelType)], 0);
+        const defaultPermissions = new Permission(this.client.config.permissions[ConfigChannelsCommand.getPermsType(channelType)], 0);
         const missingPermissions = Util.getMissingPermissions(defaultPermissions, gChannel, ctx.me!);
 
         if (missingPermissions.length > 0)
@@ -542,7 +542,7 @@ export default class ConfigChannelsCommand extends SubCommand {
     next();
   }
 
-  private static _getPermsType(t: string): ChannelType {
+  private static getPermsType(t: string): ChannelType {
     let returnedPerm: ChannelType = 'regular';
     switch (t) {
       case 'suggestions': return returnedPerm = 'regular';

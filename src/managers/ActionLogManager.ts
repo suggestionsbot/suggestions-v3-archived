@@ -59,16 +59,14 @@ export default class ActionLogManager {
 
   public async fetch(query: string, cache: boolean = true, force: boolean = false): Promise<ActionLog|undefined|null> {
     if (query.length === 40) {
-      const actionlog = force ? await this.queryFromDatabase(query) : this.#cache.get(query) ??
-          await this.queryFromDatabase(query);
+      const actionlog = force ? await this.queryFromDatabase(query) : this.#cache.get(query);
       if (cache) this.#cache.set(actionlog!.id(), actionlog!);
 
       return actionlog;
     }
 
     if (query.length === 7) {
-      const actionlog = force ? await this.queryFromDatabase(query) :
-        this.#cache.find(s => s.id(true) === query) ?? await this.queryFromDatabase(query);
+      const actionlog = force ? await this.queryFromDatabase(query) : this.#cache.find(s => s.id(true) === query);
       if (cache) this.#cache.set(actionlog!.id(), actionlog!);
 
       return actionlog;
@@ -76,8 +74,7 @@ export default class ActionLogManager {
 
     const snowflake = /^(\d{17,19})$/g;
     if (query.match(snowflake)) {
-      const actionlog = force ? await this.queryFromDatabase(query) : this.#cache.get(query) ??
-          await this.queryFromDatabase(query);
+      const actionlog = force ? await this.queryFromDatabase(query) : this.#cache.get(query);
       if (cache) this.#cache.set(actionlog!.id(), actionlog!);
 
       return actionlog;

@@ -67,16 +67,14 @@ export default class SuggestionManager {
 
   public async fetch(query: string, cache: boolean = true, force: boolean = false): Promise<Suggestion|undefined|null> {
     if (query.length === 40) {
-      const suggestion = force ? await this.queryFromDatabase(query) : this.#cache.get(query) ??
-          await this.queryFromDatabase(query);
+      const suggestion = force ? await this.queryFromDatabase(query) : this.#cache.get(query);
       if (cache) this.#cache.set(suggestion!.id(), suggestion!);
 
       return suggestion;
     }
 
     if (query.length === 7) {
-      const suggestion = force ? await this.queryFromDatabase(query) :
-        this.#cache.find(s => s.id(true) === query) ?? await this.queryFromDatabase(query);
+      const suggestion = force ? await this.queryFromDatabase(query) : this.#cache.find(s => s.id(true) === query);
       if (cache) this.#cache.set(suggestion!.id(), suggestion!);
 
       return suggestion;
@@ -84,8 +82,7 @@ export default class SuggestionManager {
 
     const snowflake = /^(\d{17,19})$/g;
     if (query.match(snowflake)) {
-      const suggestion = force ? await this.queryFromDatabase(query) : this.#cache.get(query) ??
-          await this.queryFromDatabase(query);
+      const suggestion = force ? await this.queryFromDatabase(query) : this.#cache.get(query);
       if (cache) this.#cache.set(suggestion!.id(), suggestion!);
 
       return suggestion;
@@ -97,8 +94,7 @@ export default class SuggestionManager {
       const ids = matches[matches.length - 1].split('/');
       const messageID = ids[ids.length - 1];
 
-      const suggestion = force ? await this.queryFromDatabase(query) :
-        this.#cache.find(s => s.message!.id === messageID) ?? await this.queryFromDatabase(query);
+      const suggestion = force ? await this.queryFromDatabase(query) : this.#cache.find(s => s.message!.id === messageID);
       if (cache) this.#cache.set(suggestion!.id(), suggestion!);
 
       return suggestion;

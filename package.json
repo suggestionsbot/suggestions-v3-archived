@@ -89,9 +89,9 @@
   "dependencies": {
     "@anishshobith/deeptype": "^1.0.0",
     "@augu/immutable": "^0.6.0",
-    "@sentry/integrations": "^5.24.2",
-    "@sentry/node": "^5.24.2",
-    "@sentry/tracing": "^5.24.2",
+    "@sentry/integrations": "^6.0.0",
+    "@sentry/node": "^6.0.0",
+    "@sentry/tracing": "^6.0.0",
     "async-redis": "^1.1.7",
     "bufferutil": "^4.0.1",
     "common-tags": "^1.8.0",

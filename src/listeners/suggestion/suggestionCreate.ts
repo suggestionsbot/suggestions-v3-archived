@@ -3,7 +3,7 @@ import SuggestionsClient from '../../structures/core/Client';
 import Suggestion from '../../structures/suggestions/Suggestion';
 import Logger from '../../utils/Logger';
 import ActionLog from '../../structures/actions/ActionLog';
-import { SuggestionChannelType } from '../../types';
+import { ActionLogChange, SuggestionChannelType } from '../../types';
 import ActionLogChannel from '../../structures/actions/ActionLogChannel';
 import MessageUtils from '../../utils/MessageUtils';
 
@@ -26,7 +26,7 @@ export default class extends Event {
       .setFooter(`User ID: ${suggestion.author.id}`)
       .setTimestamp();
 
-    const modlog = new ActionLog(this.client)
+    const actionlog = new ActionLog(this.client)
       .setExecutor(suggestion.author)
       .setChannel(modlogChannel)
       .setGuild(suggestion.guild)
@@ -34,6 +34,6 @@ export default class extends Event {
       .setType('SUGGESTION_CREATED')
       .setEmbedData(embed);
 
-    await modlog.post().catch(e => Logger.error('SUGGESTION_CREATE', e));
+    await actionlog.post().catch(e => Logger.error('SUGGESTION_CREATE', e));
   }
 }

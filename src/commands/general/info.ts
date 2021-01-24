@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { VERSION as erisVersion } from 'eris';
 
 import Command from '../../structures/core/Command';
 import SuggestionsClient from '../../structures/core/Client';
@@ -10,9 +11,6 @@ import MessageUtils from '../../utils/MessageUtils';
 import { CommandCategory, ShardStats } from '../../types';
 import Context from '../../structures/commands/Context';
 import Util from '../../utils/Util';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { version: erisVersion }  = require('../../../node_modules/eris/package.json');
 
 export default class InfoCommand extends Command {
   constructor(public client: SuggestionsClient) {
@@ -68,7 +66,7 @@ export default class InfoCommand extends Command {
           `**❯ Node:** \`${process.version}\``,
           `**❯ Eris:** \`v${erisVersion}\``,
         ].join('\n'), true)
-        .setFooter(`© 2020 Anthony Collier | PID ${process.pid} | Cluster ${cluster} | Shard ${shard}`);
+        .setFooter(`© 2021 Anthony Collier | PID ${process.pid} | Cluster ${cluster} | Shard ${shard}`);
 
       await ctx.embed(embed);
     } catch (e) {

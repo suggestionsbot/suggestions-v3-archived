@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 
 import SuggestionsClient from '../core/Client';
 import ActionLogChannel from './ActionLogChannel';
-import { GuildSchema, ActionLogSchema, ActionLogTypes } from '../../types';
+import { GuildSchema, ActionLogSchema, ActionLogTypes, ActionLogChange } from '../../types';
 import MessageEmbed from '../../utils/MessageEmbed';
 import MessageUtils from '../../utils/MessageUtils';
 import Util from '../../utils/Util';
@@ -36,8 +36,11 @@ export default class ActionLog {
   #data!: ActionLogSchema|Record<string, unknown>;
   #type!: ActionLogTypes;
   #embedData?: Record<string, any>;
+  #changes: Array<ActionLogChange>;
 
-  constructor(public client: SuggestionsClient) {}
+  constructor(public client: SuggestionsClient) {
+    this.#changes = [];
+  }
 
   public get postable(): boolean {
     return (
@@ -77,6 +80,10 @@ export default class ActionLog {
 
   public get type(): ActionLogTypes {
     return this.#type;
+  }
+
+  public get changes(): Array<ActionLogChange> {
+    return this.#changes;
   }
 
   public id(short: boolean = false): string {
@@ -123,6 +130,11 @@ export default class ActionLog {
     return this;
   }
 
+  public setChanges(changes: Array<ActionLogChange>): this {
+    this.#changes = changes;
+    return this;
+  }
+
   public async setData(data: ActionLogSchema): Promise<this> {
     this.#data = data;
     if (data.executor) this.#executor = await this.client.getRESTUser(data.executor);
@@ -130,6 +142,7 @@ export default class ActionLog {
     if (data.guild) this.#guild = await this.client.getRESTGuild(data.guild);
     if (data.channel) this.#channel = <ActionLogChannel>this.client.suggestionChannels.get(data.channel);
     if (data.type) this.#type = data.type;
+    if (data.changes) this.#changes = data.changes;
 
     return new Promise(resolve => {
       resolve(this);

@@ -233,7 +233,8 @@ export interface ActionLogSchema extends Document {
   target?: string;
   id: string;
   time: number;
-  type: ActionLogTypes
+  type: ActionLogTypes;
+  changes: Array<ActionLogChange>;
 }
 
 export interface SuggestionSchema extends Document {
@@ -437,3 +438,9 @@ export type ActionLogTypes = |
 'SUGGESTION_NOTE_ADDED' |
 'SUGGESTION_NOTE_DELETED' |
 'SUGGESTION_REJECTED';
+
+export type ActionLogChange = {
+  key: string;
+  before: any;
+  after: any;
+};

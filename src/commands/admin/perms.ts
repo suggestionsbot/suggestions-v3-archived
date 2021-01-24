@@ -58,8 +58,8 @@ export default class PermsCommand extends Command {
       const getObjectKeys = (obj: any): Array<string> => Object.keys(obj);
       const getObjectValues = (obj: any): Array<unknown> => Object.values(obj);
 
-      const botPermKeys = Object.keys(ctx.me!.permission.json);
-      const botPermValues = Object.values(ctx.me!.permission.json);
+      const botPermKeys = Object.keys(ctx.me!.permissions.json);
+      const botPermValues = Object.values(ctx.me!.permissions.json);
 
       const channelPerms = Object.keys(finalChannelPermissions)
         .sort((a: string , b: string) => Permissions[a] - Permissions[b])

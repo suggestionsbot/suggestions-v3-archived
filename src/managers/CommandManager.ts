@@ -1,14 +1,11 @@
 import { Message } from 'eris';
 import { Collection } from '@augu/immutable';
 import path from 'path';
-import globFunction from 'glob';
-import { promisify } from 'util';
 
 import SuggestionsClient from '../structures/core/Client';
 import { Command, CommandCategory, GuildSchema, SubCommand, SuggestionsCommand } from '../types';
 import Logger from '../utils/Logger';
-
-const glob = promisify(globFunction);
+import Util from '../utils/Util';
 
 abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> {
   protected constructor(public client: SuggestionsClient) {
@@ -16,7 +13,7 @@ abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> 
   }
 
   private static get directory(): string {
-    return `${path.join(path.dirname(require.main!.filename), 'commands', '**', '*.{ts,js}')}`;
+    return `${path.join(path.dirname(require.main!.filename), 'commands')}`;
   }
 
   public addCommand(name: string, command: T): void {
@@ -57,17 +54,16 @@ abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> 
   }
 
   public async init(): Promise<void> {
-    return glob(BaseCommandManager.directory).then(async (files: any) => {
-      if (!files.length) return Logger.error('COMMANDS', 'Couldn\'t find any command files!');
+    const files = Util.walk(BaseCommandManager.directory, ['.js', '.ts']);
+    if (!files.length) return Logger.error('COMMANDS', 'Couldn\'t find any command files!');
 
-      for (const file of files) {
-        const { default: CommandFile } = await import(file);
-        const command: SuggestionsCommand = new CommandFile(this.client);
-        if ('friendly' in command) this.client.subCommands.addCommand(command.name, command);
-        else this.client.commands.addCommand(command.name, command);
-        delete require.cache[file];
-      }
-    });
+    for (const file of files) {
+      delete require.cache[file];
+      const { default: CommandFile } = await import(file);
+      const command: SuggestionsCommand = new CommandFile(this.client);
+      if ('friendly' in command) this.client.subCommands.addCommand(command.name, command);
+      else this.client.commands.addCommand(command.name, command);
+    }
   }
 }
 

@@ -1,6 +1,8 @@
 import { Emoji, Guild, GuildChannel, Member, Permission, Role, TextChannel, User } from 'eris';
 import GiphyAPI, { Giphy } from 'giphy-api';
 import { execSync } from 'child_process';
+import path from 'path';
+import { lstatSync, readdirSync } from 'fs';
 
 import Permissions from './Permissions';
 import { SuggestionGuild, SuggestionUser } from '../types';
@@ -199,5 +201,19 @@ export default class Util {
 
   public static getGuildMemberByID(guild: Guild, id: string): Promise<Member> {
     return guild.fetchMembers({ userIDs: [id] }).then(res => res[0]);
+  }
+
+  public static walk(directory: string, extensions: Array<string>): Array<string> {
+    const read = (dir: string, files: Array<string> = []): Array<string> => {
+      for (const file of readdirSync(dir)) {
+        const filePath = path.join(dir, file), stats = lstatSync(filePath);
+        if (stats.isFile() && extensions.some(ext => filePath.endsWith(ext))) files.push(filePath);
+        else if (stats.isDirectory()) files = files.concat(read(filePath));
+      }
+
+      return files;
+    };
+
+    return read(directory);
   }
 }

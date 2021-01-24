@@ -1,13 +1,10 @@
-import globFunction from 'glob';
-import { promisify } from 'util';
 import { Collection } from '@augu/immutable';
 import path from 'path';
 
 import SuggestionsClient from '../structures/core/Client';
 import Language from '../structures/core/Language';
 import Logger from '../utils/Logger';
-
-const glob = promisify(globFunction);
+import Util from '../utils/Util';
 
 export default class LocalizationManager extends Collection<Language> {
   constructor(public client: SuggestionsClient) {
@@ -15,7 +12,7 @@ export default class LocalizationManager extends Collection<Language> {
   }
 
   private static get directory(): string {
-    return `${path.join(process.cwd(), 'locales', '**', '*.json')}`;
+    return `${path.join(process.cwd(), 'locales')}`;
   }
 
   public addLanguage(locale: Language): void {
@@ -23,15 +20,14 @@ export default class LocalizationManager extends Collection<Language> {
   }
 
   public async init(): Promise<void> {
-    return glob(LocalizationManager.directory).then(async (files: any) => {
-      if (!files.length) return Logger.warning('LOCALIZATION', 'Couldn\'t find any localization files!');
+    const files = Util.walk(LocalizationManager.directory, ['.json']);
+    if (!files.length) return Logger.warning('LOCALIZATION', 'Couldn\'t find any localization files!');
 
-      for (const file of files) {
-        const lang: Language = await import(file);
-        const locale = new Language(lang);
-        this.addLanguage(locale);
-      }
-    });
+    for (const file of files) {
+      const lang: Language = await import(file);
+      const locale = new Language(lang);
+      this.addLanguage(locale);
+    }
   }
 
   public getLocale(code: string): Language {

@@ -36,6 +36,7 @@ export default class SuggestionManager {
 
     const data = await this.client.database.helpers.suggestion.createSuggestion(record);
     if (cache) this.#cache.set(suggestion.id(), suggestion);
+    this.channel.updateCount('incr');
     this.client.redis.instance!.incr(`guild:${data.guild}:member:${data.user}:suggestions:count`);
     this.client.redis.instance!.incr(`user:${data.user}:suggestions:count`);
     this.client.redis.instance!.incr(`guild:${data.guild}:suggestions:count`);
@@ -54,6 +55,7 @@ export default class SuggestionManager {
 
     const deleted = await this.client.database.helpers.suggestion.deleteSuggestion(query);
     if (this.#cache.has(data!.id())) this.#cache.delete(data!.id());
+    this.channel.updateCount('decr');
     this.client.redis.instance!.decr(`guild:${data!.guild.id}:member:${data!.author.id}:suggestions:count`);
     this.client.redis.instance!.decr(`user:${data!.author.id}:suggestions:count`);
     this.client.redis.instance!.decr(`guild:${data!.guild.id}:suggestions:count`);

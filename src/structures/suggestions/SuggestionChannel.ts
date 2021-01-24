@@ -180,6 +180,12 @@ export default class SuggestionChannel extends BaseChannel {
     return this.#cooldowns.has(user);
   }
 
+  public updateCount(type: 'incr' | 'decr'): number {
+    if (type === 'incr') this.#count++;
+    else this.#count--;
+    return this.#count;
+  }
+
   private addRoles(roles: Array<SuggestionRole>, collection: Collection<Role>): void {
     for (const r of roles) {
       const role = this.guild.roles.get(r.id);

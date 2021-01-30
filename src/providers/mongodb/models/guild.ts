@@ -57,7 +57,19 @@ export const GuildSettings = new Schema({
     command: String,
     added: { type: Number, default: Date.now() },
     addedBy: String
-  }]
+  }],
+  selfVoting: {
+    type: Boolean,
+    default: false
+  },
+  uniqueVoting: {
+    type: Boolean,
+    default: true
+  },
+  restrictVoting: {
+    type: Boolean,
+    default: true
+  }
 });
 
 GuildSettings.method('setGuild', function(this: GuildSchema, guild: Guild|string) {
@@ -149,9 +161,22 @@ GuildSettings.method('updateChannelRoles', function(this: GuildSchema, channel: 
   }
 });
 
+GuildSettings.method('setSelfVoting', function(this: GuildSchema, status: boolean) {
+  this.selfVoting = status;
+});
+
+GuildSettings.method('setUniqueVoting', function(this: GuildSchema, status: boolean) {
+  this.uniqueVoting = status;
+});
+
+GuildSettings.method('setRestrictVoting', function(this: GuildSchema, status: boolean) {
+  this.restrictVoting = status;
+});
+
 GuildSettings.pre('save', function(next) {
   this.increment();
   next();
 });
+
 
 export default model<GuildSchema>('Settings', GuildSettings, 'settings');

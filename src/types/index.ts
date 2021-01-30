@@ -168,9 +168,15 @@ export interface GuildSchema extends Document {
   responseRequired: boolean;
   dmResponses: boolean;
   disabledCommands: Array<DisabledCommand>;
+  selfVoting: boolean;
+  uniqueVoting: boolean;
+  restrictVoting: boolean;
   setGuild(guild: Guild|string): void;
   setLocale(locale: string): void;
   setDefaultEmojis(index: number): void
+  setSelfVoting(status: boolean): void;
+  setUniqueVoting(status: boolean): void;
+  setRestrictVoting(status: boolean): void;
   updatePrefixes(prefix: string): void;
   updateEmojis(emoji: VoteEmoji): void;
   updateChannel(channel: string, data: Record<string, unknown>): void;

@@ -1,4 +1,4 @@
-import { Emoji, Guild, GuildChannel, Member, Permission, Role, TextChannel, User } from 'eris';
+import { Emoji, Guild, GuildChannel, Member, PartialEmoji, Permission, Role, TextChannel, User } from 'eris';
 import GiphyAPI, { Giphy } from 'giphy-api';
 import { execSync } from 'child_process';
 import path from 'path';
@@ -177,7 +177,7 @@ export default class Util {
     return missingPermissions;
   }
 
-  public static parseEmoji(text: string ): { animated: boolean, name: string, id: string|null }|null {
+  public static parseEmoji(text: string): PartialEmoji|null {
     if (text.includes('%')) text = decodeURIComponent(text);
     if (!text.includes(':')) return { animated: false, name: text, id: null };
     const m = text.match(/<?(?:(a):)?(\w{2,32}):(\d{17,19})?>?/);
@@ -185,12 +185,12 @@ export default class Util {
     return { animated: Boolean(m[1]), name: m[2], id: m[3] || null };
   }
 
-  public static getEmojiString(emoji: Emoji): string {
+  public static getEmojiString(emoji: Emoji|PartialEmoji): string {
     if (emoji.animated) return `<a:${emoji.name}:${emoji.id}>`;
     else return `<:${emoji.name}:${emoji.id}>`;
   }
 
-  public static getReactionString(emoji: Emoji): string {
+  public static getReactionString(emoji: Emoji|PartialEmoji): string {
     if (emoji.animated) return `a:${emoji.name}:${emoji.id}`;
     else return `:${emoji.name}:${emoji.id}`;
   }

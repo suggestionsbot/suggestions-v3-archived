@@ -127,8 +127,6 @@ export default class Suggestion {
     const reactions = setEmojis.emojis.map(e => e && Util.matchUnicodeEmoji(e) ? e : (<Array<Emoji>>guild.emojis).find(ge => ge.id === e));
     const embed = this.buildEmbed();
 
-    // TODO dont forget to re-enable this when we implement (dm) responses
-    // this.#author.getDMChannel().then(c => c.createMessage({ embed: this.buildDMEmbed() }))
 
     let file: MessageFile|undefined;
     if (this.#message && (this.#message.attachments.length > 0)) {
@@ -140,6 +138,8 @@ export default class Suggestion {
     }
 
     this.#suggestionMessage = await this.#channel.channel.createMessage({ embed }, file);
+    // TODO dont forget to re-enable this when we implement (dm) responses
+    // this.#author.getDMChannel().then(c => c.createMessage({ embed: this.buildDMEmbed() }));
 
     for (const react of reactions) {
       if (react) await this.#suggestionMessage.addReaction(typeof react === 'string' ? react : Util.getReactionString(react));
@@ -157,7 +157,7 @@ export default class Suggestion {
           
           Please wait until it get approved or rejected by a staff member.
           
-          [[Jump to Suggestion]](${this.link!})
+          *Jump to Suggestion* → [\`[${this.id(true)}]\`](${this.link!})
           
           Your suggestion ID (sID) for reference is **${this.id(true)}**
         `)
@@ -172,7 +172,7 @@ export default class Suggestion {
       .setDescription(stripIndents`
           **Submitter**
           ${Util.escapeMarkdown(this.#author.tag)}
-          
+
           **Suggestion**
           ${this.#suggestion}
         `)

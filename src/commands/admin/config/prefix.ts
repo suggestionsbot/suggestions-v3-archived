@@ -63,11 +63,11 @@ export default class ConfigPrefixCommand extends SubCommand {
       }
 
       const prefixExists = ctx.settings!.prefixes.includes(ctx.args.get(0));
-      baseEmbed.setDescription(oneLine`The prefix \`${ctx.args.get(0)}\` has been 
-        **${prefixExists ? 'removed from' : 'added to'}** the guild's prefixes.`);
-      const guildData = await this.client.database.helpers.guild.getGuild(ctx.guild!, false);
+      const guildData = await ctx.getSettings(false)!;
       guildData.updatePrefixes(ctx.args.get(0));
       await guildData.save();
+      baseEmbed.setDescription(oneLine`The prefix \`${ctx.args.get(0)}\` has been 
+        **${prefixExists ? 'removed from' : 'added to'}** the guild's prefixes.`);
       await ctx.embed(baseEmbed);
     } catch (error) {
       Logger.error(error.stack);

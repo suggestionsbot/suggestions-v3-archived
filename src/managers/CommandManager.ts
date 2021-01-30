@@ -34,16 +34,7 @@ abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> 
     return cmd!;
   }
 
-  public async isCommand(message: Message): Promise<boolean> {
-    let settings!: GuildSchema;
-    if (message.guild) {
-      if (this.client.database.connection)
-        settings = <GuildSchema><unknown>{ ...this.client.config.defaults, guild: message.guild.id };
-      else settings = await this.client.database.helpers.guild.getGuild(message.guild);
-    } else {
-      settings = <GuildSchema><unknown>this.client.config.defaults;
-    }
-
+  public async isCommand(message: Message, settings: GuildSchema): Promise<boolean> {
     const prefixes = this.client.getPrefixes(true, false, settings);
     const prefixRegex = new RegExp(`(${prefixes.join('|')})`);
     const prefix =  message.content.match(prefixRegex) ? message.content.match(prefixRegex)![0] : undefined;

@@ -347,7 +347,7 @@ export default class SuggestionsClient extends Client {
       const ctx: Context = new Context(message, [], locale, settings);
 
       // TODO: Implement check for various suggestion-related commands + arg checking for said commands
-      if (this.commands.isCommand(message)) return;
+      if (await this.commands.isCommand(message, settings)) return;
       await this.suggestionHandler.handle(ctx);
     } catch (e) {
       Logger.error('SUGGESTIONS LISTENER', e);

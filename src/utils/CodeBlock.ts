@@ -2,7 +2,7 @@ export default class CodeBlock {
   public content: string;
   public lang: string;
 
-  constructor(content: string, lang: string) {
+  constructor(content?: string, lang?: string) {
     this.content = content || '';
     this.lang = lang || '';
   }

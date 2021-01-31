@@ -34,7 +34,8 @@ export default class ChannelManager extends Collection<BaseChannel> {
     const dbChannel = channelID ? settings.channels.find(c => c.id === channelID) : settings.channels.filter(c => c.type === type)[0];
     if (!dbChannel) throw new Error('NoChannelInDatabase');
 
-    const text = <GuildTextableChannel>guild.channels.get(dbChannel.id);
+    const text = <GuildTextableChannel>this.client.getChannel(dbChannel.id);
+    if (!text) throw new Error('TextChannelNotFound');
 
     switch (dbChannel.type) {
       case SuggestionChannelType.SUGGESTIONS: case SuggestionChannelType.LOGS: {

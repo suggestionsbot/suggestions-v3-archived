@@ -59,31 +59,31 @@ export default class ActionLogManager {
 
   public async fetch(query: string, cache: boolean = true, force: boolean = false): Promise<ActionLog|undefined|null> {
     if (query.length === 40) {
-      const actionlog = force ? await this.queryFromDatabase(query) : this.#cache.get(query);
-      if (cache) this.#cache.set(actionlog!.id(), actionlog!);
+      if (!force) {
+        const existing = this.#cache.get(query);
+        if (existing) return existing;
+      }
 
+      const actionlog = await this.queryFromDatabase(query);
+      if (cache) this.#cache.set(actionlog!.id(), actionlog!);
       return actionlog;
     }
 
     if (query.length === 7) {
-      const actionlog = force ? await this.queryFromDatabase(query) : this.#cache.find(s => s.id(true) === query);
+      if (!force) {
+        const existing = this.#cache.find(a => a.id(true) === query);
+        if (existing) return existing;
+      }
+
+      const actionlog = await this.queryFromDatabase(query);
       if (cache) this.#cache.set(actionlog!.id(), actionlog!);
-
-      return actionlog;
-    }
-
-    const snowflake = /^(\d{17,19})$/g;
-    if (query.match(snowflake)) {
-      const actionlog = force ? await this.queryFromDatabase(query) : this.#cache.get(query);
-      if (cache) this.#cache.set(actionlog!.id(), actionlog!);
-
       return actionlog;
     }
 
     return;
   }
 
-  private queryFromDatabase(query: string): Promise<ActionLog|null> {
-    return this.client.database.helpers.actionlog.getActionLog(this.channel.guild.id, query);
+  private queryFromDatabase(query: string): Promise<ActionLog|undefined> {
+    return this.client.database.helpers.actionlog.getActionLog(query);
   }
 }

@@ -25,14 +25,12 @@ export default class ActionLogHelpers {
     return ActionLogModel.find({ guild: Util.getGuildID(guild) });
   }
 
-  public async getActionLog(guildID: string, query: string, guild: boolean = true): Promise<ActionLog|null> {
+  public async getActionLog(query: string): Promise<ActionLog|undefined> {
     const fetched = await ActionLogModel.findOne({ $or: ActionLogHelpers.queryActionLog(query) });
     if (!fetched) throw new Error('ActionLogNotFound');
 
-    if (guild && (fetched.guild !== guildID)) throw new Error('GuildScope');
-
     if (fetched) return new ActionLog(this.database.client).setData(fetched);
-    else return null;
+    else return;
   }
 
   public createActionLog(modlog: Record<string, unknown>): Promise<ActionLogSchema> {

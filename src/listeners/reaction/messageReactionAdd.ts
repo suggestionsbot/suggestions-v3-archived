@@ -26,8 +26,7 @@ export default class extends Event {
         const sChannel = <SuggestionChannel>(this.client.suggestionChannels.get(message.channel.id) ??
             await this.client.suggestionChannels.fetchChannel(suggestionMessage.guild, channel.id, channel.type))!;
 
-        const suggestion = await this.client.database.helpers.suggestion
-          .getSuggestion(suggestionMessage.guild.id, message.id, true);
+        const suggestion = await this.client.database.helpers.suggestion.getSuggestion(message.id);
         if (!suggestion) return;
 
         const restrictVote = suggestion && settings.restrictVoting;

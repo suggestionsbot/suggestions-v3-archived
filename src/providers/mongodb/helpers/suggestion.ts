@@ -5,15 +5,31 @@ import Util from '../../../utils/Util';
 import MongoDB from '../';
 import Suggestion from '../../../structures/suggestions/Suggestion';
 import { DocumentQuery } from 'mongoose';
+import Logger from '../../../utils/Logger';
 
 export default class SuggestionHelpers {
   constructor(public database: MongoDB) {}
 
-  private static querySuggestion(query: string): Array<Record<string, unknown>> {
-    return [
-      { id: query.length !== 7 ? query : new RegExp(query, 'i') },
-      { message: query }
-    ];
+  public static getSuggestionQuery(query: string): Array<Record<string, string|RegExp>> {
+    if (query.length === 40) {
+      return [{ id: query }];
+    }
+
+    if (query.length === 7) {
+      return [{ id: new RegExp(query, 'i') }];
+    }
+
+    const snowflake = /^(\d{17,19})$/g;
+    if (query.match(snowflake)) {
+      return [{ message: query }];
+    }
+
+    const messageLink = /(https?:\/\/)?(www\.)?((canary|ptb)\.?|(discordapp|discord\.com)\/channels)\/(.+[[0-9])/g;
+    if (query.match(messageLink)) {
+      return [{ message: Util.getMessageIDFromLink(query) }];
+    }
+
+    return [];
   }
 
   public static getMessageLink(ctx: SuggestionSchema): string {
@@ -29,14 +45,12 @@ export default class SuggestionHelpers {
     return SuggestionModel.find({ guild: Util.getGuildID(guild) });
   }
 
-  public async getSuggestion(guildID: string, query: string, guild = true): Promise<Suggestion|null> {
-    const fetched = await SuggestionModel.findOne({ $or: SuggestionHelpers.querySuggestion(query) });
+  public async getSuggestion(query: string): Promise<Suggestion|undefined> {
+    const fetched = await SuggestionModel.findOne({ $or: SuggestionHelpers.getSuggestionQuery(query) });
     if (!fetched) throw new Error('SuggestionNotFound');
 
-    if (guild && (fetched!.guild !== guildID)) throw new Error('GuildScope');
-
     if (fetched) return new Suggestion(this.database.client).setData(fetched);
-    else return null;
+    else return;
   }
 
   public createSuggestion(suggestion: Record<string, unknown>): Promise<SuggestionSchema> {
@@ -45,7 +59,7 @@ export default class SuggestionHelpers {
   }
 
   public async deleteSuggestion(query: string): Promise<boolean> {
-    const deleted = await SuggestionModel.deleteOne({ $or: SuggestionHelpers.querySuggestion(query) });
+    const deleted = await SuggestionModel.deleteOne({ $or: SuggestionHelpers.getSuggestionQuery(query) });
     return !!deleted.ok;
   }
 

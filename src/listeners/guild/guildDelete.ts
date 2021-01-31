@@ -26,7 +26,7 @@ export default class extends Event {
           `**ID:** \`${guild.id}\``,
           `**Name:** \`${Util.escapeMarkdown(guild.name)}\``,
           `**Members:** \`${guild.memberCount}\``,
-          `**Joined:** \`${dayjs(clientUser.joinedAt).fromNow()}\``,
+          `**Joined:** \`${dayjs(clientUser!.joinedAt).fromNow()}\``,
           `**Owner:** <@${guild.ownerID}> \`[${guild.ownerID}]\``
         ].join('\n'))
         .setColor(color)

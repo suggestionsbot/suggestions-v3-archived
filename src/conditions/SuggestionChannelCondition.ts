@@ -18,27 +18,24 @@ export default class SuggestionChannelCondition extends Condition {
   }
 
   public async run(ctx: CommandContext): Promise<any> {
-    if (!ctx.args.get(0)) throw new Error('Please provide text for this suggestion!');
-    const channels = ctx.settings!.channels.map(c => c.id);
-    const channel = channels.length <= 1 ? channels[0] : ctx.args.get(0);
+    const argCheck = Util.getChannel(ctx.args.get(0), ctx.guild!);
+    const suggestion = argCheck ? ctx.args.slice(1).join(' ') : ctx.args.join(' ');
+    if (!suggestion) throw new Error('Please provide text for this suggestion!');
+    const channels = ctx.settings!.channels;
+    const ids = channels.map(c => c.id);
+    const channel = channels.length <= 1 ? channels[0].id : ctx.args.get(0);
     const gChannel = ctx.message.prefix ? Util.getChannel(channel, ctx.guild!) : <GuildTextableChannel>ctx.channel;
     if (!gChannel && (channels.length > 1)) throw new Error(`\`${ctx.args.get(0)}\` is not a valid channel!`);
-    if (gChannel && (channels.length > 1) && !channels.includes(gChannel.id))
+    if (gChannel && (channels.length > 1) && !ids.includes(gChannel.id))
       throw new Error(stripIndents`${gChannel.mention} is not a valid suggestions channel!
         
         Valid channels: ${channels.map(c => `<#${c}>`).join(' ')}`);
 
+    const docChannel = channels.find(c => c.id === gChannel!.id)!;
     let sChannel = <SuggestionChannel>this.client.suggestionChannels.get(gChannel!.id);
     if (!sChannel) {
-      sChannel = new SuggestionChannel(
-        this.client,
-        ctx.guild!,
-        SuggestionChannelType.SUGGESTIONS,
-        <TextChannel>ctx.channel,
-        ctx.settings!
-      );
-      await sChannel.init();
-      await this.client.suggestionChannels.addChannel(sChannel);
+      sChannel = <SuggestionChannel>await this.client.suggestionChannels
+        .fetchChannel(ctx.guild!, gChannel!.id, docChannel.type);
     }
     if (sChannel && !sChannel.initialized) await sChannel.init();
 
@@ -51,19 +48,21 @@ export default class SuggestionChannelCondition extends Condition {
         throw new Error(`Cannot post to ${sChannel.channel.mention} as it is a staff suggestion channel!`);
       if (sChannel.locked) throw new Error(`Cannot post to ${sChannel.channel.mention} as it is currently locked!`);
 
-      const isInAllowedRoles =  sChannel.allowed.some(r => ctx.member!.roles.includes(r.id));
-      const isInBlockedRoles =  sChannel.blocked.some(r => ctx.member!.roles.includes(r.id));
-      const allowed = (sChannel.allowed.size > 0) && isInAllowedRoles;
-      const blocked = (sChannel.blocked.size > 0) && isInBlockedRoles;
+      const allowedExists = sChannel.allowed.size > 0;
+      const blockedExists = sChannel.blocked.size > 0;
+      const isInAllowedRoles = allowedExists ? sChannel.allowed.some(r => ctx.member!.roles.includes(r.id)) : true;
+      const isInBlockedRoles = blockedExists ? sChannel.blocked.some(r => ctx.member!.roles.includes(r.id)) : false;
+      const allowed = allowedExists && isInAllowedRoles;
+      const blocked = blockedExists && isInBlockedRoles;
 
       if (allowed) return;
-      if (blocked || (sChannel.data!.blocked[0].id === 'all'))
+      if (blocked || (blockedExists && (sChannel.data!.blocked[0].id === 'all')))
         throw new Error(`You cannot submit suggestions to ${sChannel.channel.mention} as you are in a blocked role!
-          
+
           **Blocked:** ${sChannel.blocked.size > 1 ? sChannel.blocked.map(r => r.mention).join(' ') : 'All roles'}`);
-      if ((sChannel.allowed.size > 0) && (!sChannel.allowed.some(r => ctx.member!.roles.includes(r.id))))
+      if (allowedExists && (!sChannel.allowed.some(r => ctx.member!.roles.includes(r.id))))
         throw new Error(`You cannot submit suggestions to ${sChannel.channel.mention} as you are not in an allowed role!
-        
+
         **Allowed:** ${sChannel.allowed.map(r => r.mention).join(' ')}`);
     }
     if (![SuggestionChannelType.SUGGESTIONS, SuggestionChannelType.STAFF].includes(sChannel.type))

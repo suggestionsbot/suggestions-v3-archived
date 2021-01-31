@@ -199,7 +199,8 @@ export default class Util {
     return /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/i.exec(emoji);
   }
 
-  public static getGuildMemberByID(guild: Guild, id: string): Promise<Member> {
+  // TODO: See why we have a bug here cause random errors being thrown
+  public static getGuildMemberByID(guild: Guild, id: string): Promise<Member|undefined> {
     return guild.fetchMembers({ userIDs: [id] }).then(res => res[0]);
   }
 
@@ -215,5 +216,12 @@ export default class Util {
     };
 
     return read(directory);
+  }
+
+  public static getMessageIDFromLink(link: string): string {
+    const regex = /(https?:\/\/)?(www\.)?((canary|ptb)\.?|(discordapp|discord\.com)\/channels)\/(.+[[0-9])/g;
+    const matches = regex.exec(link)!;
+    const ids = matches.reverse()[0].split('/');
+    return ids.reverse()[0];
   }
 }

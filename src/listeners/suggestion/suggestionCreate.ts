@@ -23,7 +23,7 @@ export default class extends Event {
       .addField('Channel', suggestion.channel.channel.mention, true)
       .addField('Author', suggestion.author.mention, true)
       .addField('Suggestion ID', `[\`${suggestion.id(true)}\`](${suggestion.link})`, true)
-      .setFooter(`User ID: ${suggestion.author.id}`)
+      .setFooter(`Author ID: ${suggestion.author.id}`)
       .setTimestamp();
 
     const actionlog = new ActionLog(this.client)

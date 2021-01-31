@@ -33,7 +33,7 @@ export default class ActionLog {
   #id!: string;
   #settings!: GuildSchema;
   #message?: Message;
-  #data!: ActionLogSchema|Record<string, unknown>;
+  #data!: ActionLogSchema;
   #type!: ActionLogTypes;
   #embedData?: Record<string, any>;
   #changes: Array<ActionLogChange>;
@@ -49,7 +49,7 @@ export default class ActionLog {
     );
   }
 
-  public get data(): ActionLogSchema|Record<string, unknown> {
+  public get data(): ActionLogSchema {
     return this.#data;
   }
 
@@ -137,6 +137,7 @@ export default class ActionLog {
 
   public async setData(data: ActionLogSchema): Promise<this> {
     this.#data = data;
+    if (data.id) this.#id = data.id;
     if (data.executor) this.#executor = await this.client.getRESTUser(data.executor);
     if (data.target) this.#target = await this.client.getRESTUser(data.target);
     if (data.guild) this.#guild = await this.client.getRESTGuild(data.guild);

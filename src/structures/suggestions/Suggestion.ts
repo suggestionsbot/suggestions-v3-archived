@@ -20,7 +20,7 @@ export default class Suggestion {
   #message?: Message;
   #suggestionMessage?: Message;
   #suggestion!: string;
-  #data!: SuggestionSchema|Record<string, unknown>;
+  #data!: SuggestionSchema;
   #type!: SuggestionType;
 
   constructor(public client: SuggestionsClient) {}
@@ -33,7 +33,7 @@ export default class Suggestion {
     );
   }
 
-  public get data(): SuggestionSchema|Record<string, unknown> {
+  public get data(): SuggestionSchema {
     return this.#data;
   }
 
@@ -107,6 +107,7 @@ export default class Suggestion {
 
   public async setData(data: SuggestionSchema): Promise<this> {
     this.#data = data;
+    if (data.id) this.#id = data.id;
     if (data.user) this.#author = await this.client.getRESTUser(data.user);
     if (data.guild) this.#guild = await this.client.getRESTGuild(data.guild);
     if (data.channel) this.#channel = <SuggestionChannel>this.client.suggestionChannels.get(data.channel)!;

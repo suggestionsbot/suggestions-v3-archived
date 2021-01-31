@@ -24,7 +24,7 @@ export const GuildSettings = new Schema({
       id: String,
       type: {
         type: String,
-        enum: ['suggestions', 'logs', 'approved', 'rejected', 'staff', 'modlogs']
+        enum: ['suggestions', 'logs', 'approved', 'rejected', 'staff', 'actionlogs']
       },
       allowed: { type: [SuggestionRole] },
       blocked: { type: [SuggestionRole] },

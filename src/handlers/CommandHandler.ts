@@ -106,8 +106,9 @@ export default class CommandHandler {
     }
 
     // run preconditions
-    const preConditionNext = async (): Promise<any> => {
+    const preConditionNext = async (data?: any): Promise<any> => {
       try {
+        if (data) ctx.local = data;
         await cmd.run(ctx);
         if (cmd.runPostconditions) await cmd.runPostconditions(ctx, postConditionNext);
         // TODO make sure to eventually set this to only run in production in the future

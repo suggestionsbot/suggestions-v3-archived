@@ -109,7 +109,7 @@ export interface CommandThrottling {
   duration: number;
 }
 
-export type CommandNextFunction = () => void;
+export type CommandNextFunction = (data?: any) => void;
 
 export abstract class Event {
   protected constructor(public client?: SuggestionsClient, public name?: string, public options: EventOptions = {}) {}

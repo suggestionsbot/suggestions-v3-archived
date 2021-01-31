@@ -22,7 +22,12 @@ export const Actionlog = new Schema({
     'SUGGESTION_NOTE_ADDED',
     'SUGGESTION_NOTE_DELETED',
     'SUGGESTION_REJECTED'
-  ] }
+  ] },
+  changes: [{
+    key: { type: String },
+    before: { type: Schema.Types.Mixed },
+    after: { type: Schema.Types.Mixed }
+  }]
 });
 
 export default model<ActionLogSchema>('ActionLog', Actionlog, 'actionlogs');

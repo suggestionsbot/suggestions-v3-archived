@@ -1,7 +1,3 @@
-import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-dayjs.extend(duration);
-
 import Command from '../../structures/core/Command';
 import SuggestionsClient from '../../structures/core/Client';
 import Context from '../../structures/commands/Context';
@@ -9,7 +5,6 @@ import { CommandCategory } from '../../types';
 import MessageUtils from '../../utils/MessageUtils';
 import Util from '../../utils/Util';
 import Logger from '../../utils/Logger';
-import { GuildTextableChannel } from 'eris';
 import Suggestion from '../../structures/suggestions/Suggestion';
 import SuggestionChannel from '../../structures/suggestions/SuggestionChannel';
 

@@ -1,10 +1,14 @@
-import { oneLine } from 'common-tags';
+import { TextChannel } from 'eris';
+import { stripIndents } from 'common-tags';
 
 import Command from '../../structures/core/Command';
 import SuggestionsClient from '../../structures/core/Client';
 import Logger from '../../utils/Logger';
 import Context from '../../structures/commands/Context';
 import { CommandCategory } from '../../types';
+import MessageUtils from '../../utils/MessageUtils';
+import { ALLOWED_MENTIONS } from '../../utils/Constants';
+import Util from '../../utils/Util';
 
 export default class PingCommand extends Command {
   constructor(client: SuggestionsClient) {
@@ -19,11 +23,34 @@ export default class PingCommand extends Command {
 
   async run(ctx: Context): Promise<any> {
     try {
-      const msg = await ctx.send('🏓 Ping!');
-      return msg.edit(oneLine`
-        Pong!
-        Latency is \`${msg.timestamp - ctx.message.timestamp}ms\`.
-        API Latency is \`${Math.round(ctx.shard!.latency)}ms\`.`);
+      const missingEmbedPermissions = Util.getMissingPermissions(['embedLinks'], <TextChannel>ctx.channel, ctx.me!);
+      if (missingEmbedPermissions.isEmpty()) {
+        const msg = await ctx.embed(
+          MessageUtils.defaultEmbed().setDescription('🏓 Ping!'),
+          { messageReferenceID: ctx.message.id }
+        );
+        return msg.edit({
+          embed: MessageUtils.defaultEmbed()
+            .setAuthor('Pong!', this.client.user.avatarURL)
+            .setDescription(stripIndents`
+            **Latency:** ${msg.timestamp - ctx.message.timestamp}ms 
+            **Shard ${ctx.shard!.id}**: ${Math.round(ctx.shard!.latency)}ms
+          `),
+          messageReferenceID: ctx.message.id,
+          allowedMentions: ALLOWED_MENTIONS
+        });
+      } else {
+        const msg = await ctx.send('🎈 Ping!', { messageReferenceID: ctx.message.id });
+        return msg.edit({
+          content: stripIndents`
+            Pong!
+            **Latency:** ${msg.timestamp - ctx.message.timestamp}ms 
+            **Shard ${ctx.shard!.id}**: ${Math.round(ctx.shard!.latency)}ms
+          `,
+          messageReferenceID: ctx.message.id,
+          allowedMentions: ALLOWED_MENTIONS
+        });
+      }
     } catch (error) {
       Logger.error(`CMD:${this.name.toUpperCase()}`, error.stack);
     }

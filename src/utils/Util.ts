@@ -1,4 +1,14 @@
-import { Emoji, Guild, GuildChannel, Member, PartialEmoji, Permission, Role, TextChannel, User } from 'eris';
+import {
+  Emoji,
+  Guild,
+  GuildChannel,
+  Member,
+  PartialEmoji,
+  Permission,
+  Role,
+  TextChannel,
+  User
+} from 'eris';
 import GiphyAPI, { Giphy } from 'giphy-api';
 import { execSync } from 'child_process';
 import path from 'path';
@@ -199,7 +209,6 @@ export default class Util {
     return /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/i.exec(emoji);
   }
 
-  // TODO: See why we have a bug here cause random errors being thrown
   static getGuildMemberByID(guild: Guild, id: string): Promise<Member>|undefined {
     if (!Object.prototype.hasOwnProperty.call(guild, 'fetchMembers')) return;
     return guild.fetchMembers({ userIDs: [id] }).then(res => res[0]);

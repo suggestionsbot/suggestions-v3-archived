@@ -49,6 +49,6 @@ export default class ConfigCommand extends Command {
   }
 
   public async run(ctx: Context): Promise<any> {
-
+    return ctx.send('hello world');
   }
 }

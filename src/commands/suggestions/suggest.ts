@@ -9,7 +9,7 @@ import Suggestion from '../../structures/suggestions/Suggestion';
 import SuggestionChannel from '../../structures/suggestions/SuggestionChannel';
 
 export default class SuggestCommand extends Command {
-  constructor(public client: SuggestionsClient) {
+  constructor(client: SuggestionsClient) {
     super(client);
 
     this.name = 'suggest';

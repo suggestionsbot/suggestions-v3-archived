@@ -12,7 +12,7 @@ export default class extends Event {
     super(client, name);
   }
 
-  public async run(guild: Guild): Promise<any> {
+  async run(guild: Guild): Promise<any> {
     const { guild: { created: color } } = this.client.config.colors;
 
     try {

@@ -9,13 +9,13 @@ import MessageUtils from '../utils/MessageUtils';
 import Context from '../structures/commands/Context';
 
 export default class CommandHandler {
-  public minimumPermissions: Array<string|number>;
+  minimumPermissions: Array<string|number>;
 
   constructor(public client: SuggestionsClient) {
     this.minimumPermissions = ['readMessages', 'sendMessages'];
   }
 
-  public async handle(message: Message, settings: GuildSchema): Promise<any> {
+  async handle(message: Message, settings: GuildSchema): Promise<any> {
     let args = message.content.slice(message.prefix!.length).trim().split(/ +/g);
     const command = args.shift()!.toLowerCase();
 

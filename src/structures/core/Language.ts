@@ -3,16 +3,16 @@ import { LanguageInfo, LanguageStatus, Translation } from '../../types';
 import LanguageError from '../../errors/LanguageError';
 
 export default class Language {
-  public translator: string;
-  public contributors: Array<string>;
-  public completion: LanguageStatus;
-  public aliases: Array<string>;
-  public strings: { [x: string]: StoreData };
-  public code: string;
-  public flag: string;
-  public friendly: string;
+  translator: string;
+  contributors: Array<string>;
+  completion: LanguageStatus;
+  aliases: Array<string>;
+  strings: { [x: string]: StoreData };
+  code: string;
+  flag: string;
+  friendly: string;
 
-  constructor(public info: LanguageInfo) {
+  constructor(info: LanguageInfo) {
     this.translator = info.translator;
     this.contributors = info.contributors;
     this.completion = info.completion;
@@ -31,7 +31,7 @@ export default class Language {
     });
   }
 
-  public get percentage(): number {
+  get percentage(): number {
     switch (this.completion) {
       case LanguageStatus.INCOMPLETE: return 50;
       case LanguageStatus.COMPLETED: return 100;
@@ -39,11 +39,11 @@ export default class Language {
     }
   }
 
-  public translate(key: string, args?: { [x: string]: string|number }|undefined): string {
+  translate(key: string, args?: { [x: string]: string|number }|undefined): string {
     return frenchkiss.t(key, args, this.code);
   }
 
-  public lazyTranslate(translation: Translation): string {
+  lazyTranslate(translation: Translation): string {
     return this.translate(translation.key, translation.args);
   }
 }

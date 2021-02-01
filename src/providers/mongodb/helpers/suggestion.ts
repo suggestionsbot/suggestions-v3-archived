@@ -5,12 +5,11 @@ import Util from '../../../utils/Util';
 import MongoDB from '../';
 import Suggestion from '../../../structures/suggestions/Suggestion';
 import { DocumentQuery } from 'mongoose';
-import Logger from '../../../utils/Logger';
 
 export default class SuggestionHelpers {
   constructor(public database: MongoDB) {}
 
-  public static getSuggestionQuery(query: string): Array<Record<string, string|RegExp>> {
+  static getSuggestionQuery(query: string): Array<Record<string, string|RegExp>> {
     if (query.length === 40) {
       return [{ id: query }];
     }
@@ -32,20 +31,20 @@ export default class SuggestionHelpers {
     return [];
   }
 
-  public static getMessageLink(ctx: SuggestionSchema): string {
+  static getMessageLink(ctx: SuggestionSchema): string {
     return `https://discord.com/channels/${ctx.guild}/${ctx.channel}/${ctx.message}`;
   }
 
-  public static getSuggestionID(ctx: SuggestionSchema, long = false): string {
+  static getSuggestionID(ctx: SuggestionSchema, long = false): string {
     if (long) return ctx.id;
     else return ctx.id.slice(33, 40);
   }
 
-  public getSuggestions(guild: SuggestionGuild): DocumentQuery<Array<SuggestionSchema>, SuggestionSchema, Record<string, any>> {
+  getSuggestions(guild: SuggestionGuild): DocumentQuery<Array<SuggestionSchema>, SuggestionSchema, Record<string, any>> {
     return SuggestionModel.find({ guild: Util.getGuildID(guild) });
   }
 
-  public async getSuggestion(query: string): Promise<Suggestion|undefined> {
+  async getSuggestion(query: string): Promise<Suggestion|undefined> {
     const fetched = await SuggestionModel.findOne({ $or: SuggestionHelpers.getSuggestionQuery(query) });
     if (!fetched) throw new Error('SuggestionNotFound');
 
@@ -53,17 +52,17 @@ export default class SuggestionHelpers {
     else return;
   }
 
-  public createSuggestion(suggestion: Record<string, unknown>): Promise<SuggestionSchema> {
+  createSuggestion(suggestion: Record<string, unknown>): Promise<SuggestionSchema> {
     const schema = new SuggestionModel(suggestion);
     return schema.save();
   }
 
-  public async deleteSuggestion(query: string): Promise<boolean> {
+  async deleteSuggestion(query: string): Promise<boolean> {
     const deleted = await SuggestionModel.deleteOne({ $or: SuggestionHelpers.getSuggestionQuery(query) });
     return !!deleted.ok;
   }
 
-  public async deleteAllSuggestions(guild: Guild|string): Promise<boolean> {
+  async deleteAllSuggestions(guild: Guild|string): Promise<boolean> {
     const deleted = await SuggestionModel.deleteMany({ guild: Util.getGuildID(guild) });
     return !!deleted.ok;
   }

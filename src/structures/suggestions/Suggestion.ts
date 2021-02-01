@@ -25,7 +25,7 @@ export default class Suggestion {
 
   constructor(public client: SuggestionsClient) {}
 
-  public get postable(): boolean {
+  get postable(): boolean {
     return (
       !!this.#channel &&
       !!this.#message &&
@@ -33,79 +33,79 @@ export default class Suggestion {
     );
   }
 
-  public get data(): SuggestionSchema {
+  get data(): SuggestionSchema {
     return this.#data;
   }
 
-  public get link(): string|undefined {
+  get link(): string|undefined {
     if (!this.#suggestionMessage) return;
     else return `https://discord.com/channels/${this.#guild.id}/${this.#channel.channel.id}/${this.#suggestionMessage.id}`;
   }
 
-  public get author(): User {
+  get author(): User {
     return this.#author;
   }
 
-  public get guild(): Guild {
+  get guild(): Guild {
     return this.#guild;
   }
 
-  public get channel(): SuggestionChannel {
+  get channel(): SuggestionChannel {
     return this.#channel;
   }
 
-  public get message(): Message|undefined {
+  get message(): Message|undefined {
     return this.#suggestionMessage;
   }
 
-  public get suggestion(): string|undefined {
+  get suggestion(): string|undefined {
     return this.#suggestion;
   }
 
-  public get type(): SuggestionType {
+  get type(): SuggestionType {
     return this.#type;
   }
 
-  public id(short: boolean = false): string {
+  id(short: boolean = false): string {
     return short ? this.#id.slice(33, 40) : this.#id;
   }
 
-  public setAuthor(user: User | Member): this {
+  setAuthor(user: User | Member): this {
     this.#author = 'user' in user ? user.user : user;
     return this;
   }
 
-  public setGuild(guild: Guild): this {
+  setGuild(guild: Guild): this {
     this.#guild = guild;
     return this;
   }
 
-  public setChannel(channel: SuggestionChannel): this {
+  setChannel(channel: SuggestionChannel): this {
     this.#channel = channel;
     return this;
   }
 
-  public setSettings(settings: GuildSchema): this {
+  setSettings(settings: GuildSchema): this {
     this.#settings = settings;
     return this;
   }
 
-  public setMessage(message: Message): this {
+  setMessage(message: Message): this {
     this.#message = message;
     return this;
   }
 
-  public setSuggestion(suggestion: string): this {
+  setSuggestion(suggestion: string): this {
     this.#suggestion = suggestion;
     return this;
   }
 
-  public setType(type: SuggestionType): this {
+  setType(type: SuggestionType): this {
     this.#type = type;
     return this;
   }
 
-  public async setData(data: SuggestionSchema): Promise<this> {
+  async setData(data: SuggestionSchema): Promise<this> {
     this.#data = data;
     if (data.id) this.#id = data.id;
     if (data.user) this.#author = await this.client.getRESTUser(data.user);
@@ -119,7 +119,7 @@ export default class Suggestion {
     });
   }
 
-  public async post(): Promise<this> {
+  async post(): Promise<this> {
     if (!this.#id) this.#id = crypto.randomBytes(20).toString('hex');
     if (!this.postable) throw new Error('SuggestionNotPostable');
     const voteEmojis = [...emojis, ...this.#settings.emojis];

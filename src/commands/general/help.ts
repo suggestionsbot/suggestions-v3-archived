@@ -7,7 +7,7 @@ import MessageUtils from '../../utils/MessageUtils';
 import { CommandCategory } from '../../types';
 
 export default class HelpCommand extends Command {
-  constructor(public client: SuggestionsClient) {
+  constructor(client: SuggestionsClient) {
     super(client);
 
     this.name = 'help';

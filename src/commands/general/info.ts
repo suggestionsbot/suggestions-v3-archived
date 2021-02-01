@@ -13,7 +13,7 @@ import Context from '../../structures/commands/Context';
 import Util from '../../utils/Util';
 
 export default class InfoCommand extends Command {
-  constructor(public client: SuggestionsClient) {
+  constructor(client: SuggestionsClient) {
     super(client);
 
     this.name = 'info';
@@ -23,7 +23,7 @@ export default class InfoCommand extends Command {
     this.guildOnly = false;
   }
 
-  public async run(ctx: Context): Promise<any> {
+  async run(ctx: Context): Promise<any> {
     const { colors: { main }, owners: ownerIDs } = this.client.config;
 
     try {

@@ -15,7 +15,7 @@ export default class extends Event {
     super(client, name);
   }
   // TODO: DM user when suggestion is deleted (account for silent and config value)
-  public async run(suggestion: Suggestion, executor: User, reason?: string|false): Promise<any> {
+  async run(suggestion: Suggestion, executor: User, reason?: string|false): Promise<any> {
     const actionlogs = suggestion.channel.settings.channels.find(c => c.type === SuggestionChannelType.ACTION_LOGS);
     if (!actionlogs) throw new Error('NoActionLogChannel');
     const actionlogsChannel = <ActionLogChannel>(this.client.suggestionChannels.get(actionlogs.id) ??

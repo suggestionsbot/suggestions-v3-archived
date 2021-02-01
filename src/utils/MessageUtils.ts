@@ -6,7 +6,7 @@ import MessageEmbed from './MessageEmbed';
 import config from '../config';
 
 export default class MessageUtils {
-  public static async error(client: SuggestionsClient, data: Message|string, error: string, prefix = false): Promise<Message> {
+  static async error(client: SuggestionsClient, data: Message|string, error: string, prefix = false): Promise<Message> {
     const { colors: { suggestion: { rejected: color } } } = client.config;
     let channel: Textable;
 
@@ -22,7 +22,7 @@ export default class MessageUtils {
     });
   }
 
-  public static async success(client: SuggestionsClient, data: Message|string, message: string): Promise<Message> {
+  static async success(client: SuggestionsClient, data: Message|string, message: string): Promise<Message> {
     const { colors: { suggestion: { approved: color } } } = client.config;
     let channel: Textable;
 
@@ -37,12 +37,12 @@ export default class MessageUtils {
     });
   }
 
-  public static defaultEmbed(): MessageEmbed {
+  static defaultEmbed(): MessageEmbed {
     return new MessageEmbed()
       .setColor(config.colors.main);
   }
 
-  public static delete(message: Message, options: { timeout?: number, reason?: string } = {}): Promise<void> {
+  static delete(message: Message, options: { timeout?: number, reason?: string } = {}): Promise<void> {
     const { timeout = 0, reason } = options;
     if (timeout <= 0) {
       return message.delete(reason);

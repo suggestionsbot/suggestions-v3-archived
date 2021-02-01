@@ -13,15 +13,15 @@ export default class ActionLogManager {
     this.#cache = new Collection<ActionLog>();
   }
 
-  public get cache(): Collection<ActionLog> {
+  get cache(): Collection<ActionLog> {
     return this.#cache;
   }
 
-  public get client(): SuggestionsClient {
+  get client(): SuggestionsClient {
     return this.channel.client;
   }
 
-  public async add(actionlog: ActionLog, cache: boolean = false): Promise<ActionLogSchema> {
+  async add(actionlog: ActionLog, cache: boolean = false): Promise<ActionLogSchema> {
     const record: Record<string, unknown> = {
       executor: actionlog.executor.id,
       target: actionlog.target?.id ?? null,
@@ -43,7 +43,7 @@ export default class ActionLogManager {
     return data;
   }
 
-  public async delete(query: string): Promise<boolean> {
+  async delete(query: string): Promise<boolean> {
     const data = await this.queryFromDatabase(query);
 
     const deleted = await this.client.database.helpers.actionlog.deleteActionLog(query);
@@ -57,7 +57,7 @@ export default class ActionLogManager {
     return deleted;
   }
 
-  public async fetch(query: string, cache: boolean = true, force: boolean = false): Promise<ActionLog|undefined|null> {
+  async fetch(query: string, cache: boolean = true, force: boolean = false): Promise<ActionLog|undefined|null> {
     if (query.length === 40) {
       if (!force) {
         const existing = this.#cache.get(query);

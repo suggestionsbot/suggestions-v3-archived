@@ -16,11 +16,11 @@ abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> 
     return `${path.join(path.dirname(require.main!.filename), 'commands')}`;
   }
 
-  public addCommand(name: string, command: T): void {
+  addCommand(name: string, command: T): void {
     this.set(name, command);
   }
 
-  public getCommand(command: string, ...args: Array<string>): SuggestionsCommand {
+  getCommand(command: string, ...args: Array<string>): SuggestionsCommand {
     let cmd: SuggestionsCommand;
     const mainCmd: Command = this.client.commands.get(command) ||
         this.client.commands.filter(c => c.aliases!.includes(command))[0];
@@ -34,7 +34,7 @@ abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> 
     return cmd!;
   }
 
-  public async isCommand(message: Message, settings: GuildSchema): Promise<boolean> {
+  async isCommand(message: Message, settings: GuildSchema): Promise<boolean> {
     const prefixes = this.client.getPrefixes(true, false, settings);
     const prefixRegex = new RegExp(`(${prefixes.join('|')})`);
     const prefix =  message.content.match(prefixRegex) ? message.content.match(prefixRegex)![0] : undefined;
@@ -44,7 +44,7 @@ abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> 
     return !!this.getCommand(command, ...args);
   }
 
-  public async init(): Promise<void> {
+  async init(): Promise<void> {
     const files = Util.walk(BaseCommandManager.directory, ['.js', '.ts']);
     if (!files.length) return Logger.error('COMMANDS', 'Couldn\'t find any command files!');
 
@@ -59,11 +59,11 @@ abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> 
 }
 
 export class CommandManager extends BaseCommandManager<Command> {
-  constructor(public client: SuggestionsClient) {
+  constructor(client: SuggestionsClient) {
     super(client);
   }
 
-  public getCategory(category: CommandCategory, options?: {
+  getCategory(category: CommandCategory, options?: {
     namesOnly?: boolean,
     formatted?: boolean,
   }): Array<Command|string> {
@@ -79,11 +79,11 @@ export class CommandManager extends BaseCommandManager<Command> {
 }
 
 export class SubCommandManager extends BaseCommandManager<SubCommand> {
-  constructor(public client: SuggestionsClient) {
+  constructor(client: SuggestionsClient) {
     super(client);
   }
 
-  public async init(): Promise<void> {
+  async init(): Promise<void> {
     throw new Error('You cannot run the init method from the subcommand manager class!');
   }
 }

@@ -14,7 +14,7 @@ import SuggestionChannel from '../../structures/suggestions/SuggestionChannel';
 const Permissions: { [key: string]: number } = Constants.Permissions;
 
 export default class PermsCommand extends Command {
-  constructor(public client: SuggestionsClient) {
+  constructor(client: SuggestionsClient) {
     super(client);
 
     this.name = 'perms';
@@ -33,7 +33,7 @@ export default class PermsCommand extends Command {
     next();
   }
 
-  public async run(ctx: CommandContext): Promise<any> {
+  async run(ctx: CommandContext): Promise<any> {
     try {
       const channel = <GuildTextableChannel>Util.getChannel(ctx.args.get(0) || ctx.channel.id, ctx.guild!);
 

@@ -37,7 +37,7 @@ export default class ConfigResponsesCommand extends SubCommand {
     this.#commandOptions = ['approve', 'reject', 'consider', 'implement', 'delete', 'all', 'none'];
   }
 
-  public async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
+  async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
     const docResponses = ctx.settings!.requiredResponses || [];
     const command = <RequiredResponseCommand>ctx.args.get(0)?.toLowerCase();
     const option = ctx.args.get(1)?.toLowerCase();
@@ -61,7 +61,7 @@ export default class ConfigResponsesCommand extends SubCommand {
     next();
   }
 
-  public async run(ctx: CommandContext): Promise<any> {
+  async run(ctx: CommandContext): Promise<any> {
     try {
       const docsRef = `${this.client.config.docs}/docs/configuration.html`;
       const command = <RequiredResponseCommand>ctx.args.get(0);
@@ -124,7 +124,7 @@ export default class ConfigResponsesCommand extends SubCommand {
     }
   }
 
-  public async runPostconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
+  async runPostconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
     if (ctx.args.get(0)) await this.client.redis.helpers.clearCachedGuild(ctx.guild!.id);
     next();
   }

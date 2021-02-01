@@ -1,7 +1,7 @@
 export default class ArgumentParser {
-  public args: Array<string>;
+  args: Array<string>;
 
-  constructor(public raw: Array<string>) {
+  constructor(raw: Array<string>) {
     this.args = [];
 
     for (const arg of raw) {
@@ -10,19 +10,19 @@ export default class ArgumentParser {
     }
 
   }
-  public get(i: number): string {
+  get(i: number): string {
     return this.args[i];
   }
 
-  public has(i: number): boolean {
+  has(i: number): boolean {
     return !!this.args[i];
   }
 
-  public join(sep = ' '): string {
+  join(sep = ' '): string {
     return this.args.join(sep);
   }
 
-  public slice(start?: number, end?: number): Array<string> {
+  slice(start?: number, end?: number): Array<string> {
     return this.args.slice(start, end);
   }
 }

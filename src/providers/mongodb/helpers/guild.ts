@@ -18,7 +18,7 @@ export default class GuildHelpers {
   }
 
   // TODO make sure default data isn't be saved to database. only persist if a config value was changed
-  public async getGuild(guild: SuggestionGuild, cached = true, newGuild = false): Promise<GuildSchema> {
+  async getGuild(guild: SuggestionGuild, cached = true, newGuild = false): Promise<GuildSchema> {
     const guildID = GuildHelpers._getGuildID(guild);
     let data;
     const defaultData = <GuildSchema><unknown>{
@@ -44,7 +44,7 @@ export default class GuildHelpers {
     return <GuildSchema>data;
   }
 
-  public async createGuild(guild: SuggestionGuild, newData = {}): Promise<GuildSchema> {
+  async createGuild(guild: SuggestionGuild, newData = {}): Promise<GuildSchema> {
     const guildID = GuildHelpers._getGuildID(guild);
     // TODO make sure to test this
     const schema = new GuildModel(Object.assign({ guild: guildID, emojis: [] }, newData));
@@ -56,7 +56,7 @@ export default class GuildHelpers {
     return data;
   }
 
-  public async deleteGuild(guild: SuggestionGuild): Promise<boolean> {
+  async deleteGuild(guild: SuggestionGuild): Promise<boolean> {
     await GuildModel.deleteMany({ guild: Util.getGuildID(guild) });
     await this.database.client.redis.helpers.clearCachedGuild(guild);
     return true;

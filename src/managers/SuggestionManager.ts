@@ -15,15 +15,15 @@ export default class SuggestionManager {
     this.#cache = new Collection<Suggestion>();
   }
 
-  public get cache(): Collection<Suggestion> {
+  get cache(): Collection<Suggestion> {
     return this.#cache;
   }
 
-  public get client(): SuggestionsClient {
+  get client(): SuggestionsClient {
     return this.channel.client;
   }
 
-  public async add(suggestion: Suggestion, cache: boolean = true): Promise<SuggestionSchema> {
+  async add(suggestion: Suggestion, cache: boolean = true): Promise<SuggestionSchema> {
     const record: Record<string, unknown> = {
       user: suggestion.author.id,
       message: suggestion.message!.id,
@@ -52,7 +52,7 @@ export default class SuggestionManager {
     return data;
   }
 
-  public async delete(suggestion: Suggestion|string, executor: User, reason?: string|boolean): Promise<boolean> {
+  async delete(suggestion: Suggestion|string, executor: User, reason?: string|boolean): Promise<boolean> {
     let data: Suggestion|undefined;
     if (suggestion instanceof Suggestion) data = suggestion;
     else data = await this.fetch(suggestion, false, true);
@@ -76,7 +76,7 @@ export default class SuggestionManager {
     return deleted;
   }
 
-  public async fetch(query: string, cache: boolean = true, force: boolean = false): Promise<Suggestion|undefined> {
+  async fetch(query: string, cache: boolean = true, force: boolean = false): Promise<Suggestion|undefined> {
     if (query.length === 40) {
       if (!force) {
         const existing = this.#cache.get(query);

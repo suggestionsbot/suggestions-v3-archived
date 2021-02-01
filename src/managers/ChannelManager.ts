@@ -12,23 +12,23 @@ export default class ChannelManager extends Collection<BaseChannel> {
     super();
   }
 
-  public async addChannel(channel: BaseChannel): Promise<void> {
+  async addChannel(channel: BaseChannel): Promise<void> {
     this.set(channel.channel.id, channel);
   }
 
-  public removeChannel(channel: SuggestionChannel): boolean {
+  removeChannel(channel: SuggestionChannel): boolean {
     this.delete(channel.channel.id);
     return this.has(channel.channel.id);
   }
 
-  public getGuildBucket(guild: SuggestionGuild, type?: SuggestionChannelType): Array<BaseChannel> {
+  getGuildBucket(guild: SuggestionGuild, type?: SuggestionChannelType): Array<BaseChannel> {
     return this.filter(c =>
       (c.guild.id === (typeof guild === 'object' ? guild.id : guild)) &&
       (type ? c.type === type : true)
     );
   }
 
-  public async fetchChannel(guild: Guild, channelID?: string|null, type?: SuggestionChannelType|null): Promise<BaseChannel | undefined> {
+  async fetchChannel(guild: Guild, channelID?: string|null, type?: SuggestionChannelType|null): Promise<BaseChannel | undefined> {
     if (channelID && this.has(channelID)) return this.get(channelID);
     const settings = await this.client.redis.helpers.getCachedGuild(guild.id);
     const dbChannel = channelID ? settings.channels.find(c => c.id === channelID) : settings.channels.filter(c => c.type === type)[0];

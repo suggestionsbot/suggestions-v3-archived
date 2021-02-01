@@ -33,16 +33,16 @@ setDefaults({
 });
 
 export default class Bot extends Base {
-  public client: SuggestionsClient;
+  client: SuggestionsClient;
 
-  constructor(public bot: boolean) {
+  constructor(bot: boolean) {
     super(bot);
 
     this.client = new SuggestionsClient(process.env.DISCORD_TOKEN!, CLIENT_OPTIONS);
     this.client.start();
   }
 
-  public launch(): any {
+  launch(): any {
     this.client.base = this;
 
     this.ipc.register('changeStatus', (status: StatusEvent) => {

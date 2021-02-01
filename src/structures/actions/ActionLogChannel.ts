@@ -24,15 +24,15 @@ export default class ActionLogChannel extends BaseChannel {
     this.#count = 0;
   }
 
-  public get actionlogs(): ActionLogManager {
+  get actionlogs(): ActionLogManager {
     return this.#actionlogs;
   }
 
-  public get count(): number {
+  get count(): number {
     return this.#count;
   }
 
-  public get initialized(): boolean {
+  get initialized(): boolean {
     return this.#initialized;
   }
 

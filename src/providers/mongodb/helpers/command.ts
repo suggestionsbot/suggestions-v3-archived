@@ -7,14 +7,14 @@ import Util from '../../../utils/Util';
 import MongoDB from '../';
 
 export default class CommandHelpers {
-  constructor(public database: MongoDB) {}
+  constructor(database: MongoDB) {}
 
-  public async deleteCommands(guild: SuggestionGuild): Promise<boolean> {
+  async deleteCommands(guild: SuggestionGuild): Promise<boolean> {
     await Command.deleteMany({ guild: Util.getGuildID(guild) });
     return true;
   }
 
-  public async getCommand(command: string, user: User, guild?: SuggestionGuild): Promise<{ command: string; count: number }> {
+  async getCommand(command: string, user: User, guild?: SuggestionGuild): Promise<{ command: string; count: number }> {
     const documents = await Command.find({
       user: user.id,
       guild: Util.getGuildID(guild!),
@@ -27,7 +27,7 @@ export default class CommandHelpers {
     };
   }
 
-  public async getCommands(user: User, guild?: SuggestionGuild): Promise<Array<{ command: string; count: number; }>> {
+  async getCommands(user: User, guild?: SuggestionGuild): Promise<Array<{ command: string; count: number; }>> {
     const documents = await Command.find({ user: user.id, guild: Util.getGuildID(guild!) });
     const commands = documents.map(d => d.command);
     const unique = [...new Set(commands)];
@@ -47,7 +47,7 @@ export default class CommandHelpers {
     return arr;
   }
 
-  public async createCommand(message: Message, command: string): Promise<CommandSchema> {
+  async createCommand(message: Message, command: string): Promise<CommandSchema> {
     const document = new Command({});
     document.guild = message.guildID!;
     document.channel = message.channel.id;

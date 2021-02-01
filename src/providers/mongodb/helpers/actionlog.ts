@@ -16,16 +16,16 @@ export default class ActionLogHelpers {
     ];
   }
 
-  public static getActionLogID(ctx: ActionLogSchema, long = false): string {
+  static getActionLogID(ctx: ActionLogSchema, long = false): string {
     if (long) return ctx.id;
     else return ctx.id.slice(33, 40);
   }
 
-  public getActionLogs(guild: SuggestionGuild): DocumentQuery<Array<ActionLogSchema>, ActionLogSchema, Record<string, any>> {
+  getActionLogs(guild: SuggestionGuild): DocumentQuery<Array<ActionLogSchema>, ActionLogSchema, Record<string, any>> {
     return ActionLogModel.find({ guild: Util.getGuildID(guild) });
   }
 
-  public async getActionLog(query: string): Promise<ActionLog|undefined> {
+  async getActionLog(query: string): Promise<ActionLog|undefined> {
     const fetched = await ActionLogModel.findOne({ $or: ActionLogHelpers.queryActionLog(query) });
     if (!fetched) throw new Error('ActionLogNotFound');
 
@@ -33,17 +33,17 @@ export default class ActionLogHelpers {
     else return;
   }
 
-  public createActionLog(modlog: Record<string, unknown>): Promise<ActionLogSchema> {
+  createActionLog(modlog: Record<string, unknown>): Promise<ActionLogSchema> {
     const schema = new ActionLogModel(modlog);
     return schema.save();
   }
 
-  public async deleteActionLog(query: string): Promise<boolean> {
+  async deleteActionLog(query: string): Promise<boolean> {
     const deleted = await ActionLogModel.deleteOne({ $or: ActionLogHelpers.queryActionLog(query) });
     return !!deleted.ok;
   }
 
-  public async deleteAllActionLogs(guild: SuggestionGuild): Promise<boolean> {
+  async deleteAllActionLogs(guild: SuggestionGuild): Promise<boolean> {
     const deleted = await ActionLogModel.deleteMany({ guild: Util.getGuildID(guild) });
     return !!deleted.ok;
   }

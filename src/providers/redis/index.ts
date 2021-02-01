@@ -7,12 +7,12 @@ import Logger from '../../utils/Logger';
 import RedisHelpers from './helpers';
 
 export default class Redis {
-  public instance!: Promisified;
-  public helpers!: RedisHelpers;
+  instance!: Promisified;
+  helpers!: RedisHelpers;
 
   constructor(public client: SuggestionsClient) {}
 
-  public init(): void {
+  init(): void {
     this.instance = asyncRedis.decorate(createClient({
       host: process.env.REDIS_HOSTNAME,
       password: process.env.REDIS_PASSWORD,

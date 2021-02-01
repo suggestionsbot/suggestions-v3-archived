@@ -48,7 +48,7 @@ export default class ConfigCommand extends Command {
     this.botPermissions = ['manageMessages', 'externalEmojis'];
   }
 
-  public async run(ctx: Context): Promise<any> {
+  async run(ctx: Context): Promise<any> {
     return ctx.send('hello world');
   }
 }

@@ -9,7 +9,7 @@ import Context from '../../structures/commands/Context';
 import { CommandCategory } from '../../types';
 
 export default class InfoCommand extends Command {
-  constructor(public client: SuggestionsClient) {
+  constructor(client: SuggestionsClient) {
     super(client);
 
     this.name = 'invite';

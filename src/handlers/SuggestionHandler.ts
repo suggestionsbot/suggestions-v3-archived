@@ -12,7 +12,7 @@ import SuggestionChannel from '../structures/suggestions/SuggestionChannel';
 export default class SuggestionHandler {
   constructor(public client: SuggestionsClient) {}
 
-  public async handle(ctx: CommandContext): Promise<any> {
+  async handle(ctx: CommandContext): Promise<any> {
     const sChannel = <SuggestionChannel>this.client.suggestionChannels.get(ctx.channel!.id)!;
 
     if (!this.client.isGuildAdmin(ctx.member!)) {

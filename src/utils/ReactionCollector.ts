@@ -7,10 +7,10 @@ import SuggestionsClient from '../structures/core/Client';
 import { AwaitReactionsOptions, CollectorFilter } from '../types';
 
 export default class ReactionCollector extends EventEmitter {
-  public collected: Array<any>;
-  public running: boolean;
-  public handler: continuousReactionStream;
-  public ended?: boolean;
+  collected: Array<any>;
+  running: boolean;
+  handler: continuousReactionStream;
+  ended?: boolean;
 
   constructor(
     public client: SuggestionsClient,
@@ -23,7 +23,7 @@ export default class ReactionCollector extends EventEmitter {
     this.running = false;
   }
 
-  public run(): Promise<this> {
+  run(): Promise<this> {
     this.running = true;
     if (!this.running) this.setMaxListeners(this.getMaxListeners() + 1);
     const ReactionHandler = continuousReactionStream;
@@ -44,7 +44,7 @@ export default class ReactionCollector extends EventEmitter {
     });
   }
 
-  public stop(): void {
+  stop(): void {
     if (this.running) this.setMaxListeners(this.getMaxListeners() - 1);
     this.running = false;
 

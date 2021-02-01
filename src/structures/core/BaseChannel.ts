@@ -13,15 +13,15 @@ export default abstract class BaseChannel {
     public settings: GuildSchema
   ) {}
 
-  public get data(): SuggestionChannel | undefined {
+  get data(): SuggestionChannel | undefined {
     return this.settings.channels.find(c => c.id === this.channel.id);
   }
 
-  public get manager(): ChannelManager {
+  get manager(): ChannelManager {
     return this.client.suggestionChannels;
   }
 
-  public get id(): string {
+  get id(): string {
     return this.channel.id;
   }
 

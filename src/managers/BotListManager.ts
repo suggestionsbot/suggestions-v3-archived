@@ -3,11 +3,11 @@ import { Poster } from 'dbots';
 import SuggestionsClient from '../structures/core/Client';
 
 export default class BotListManager {
-  public poster!: Poster;
+  poster!: Poster;
 
   constructor(public client: SuggestionsClient) {}
 
-  public init(): void {
+  init(): void {
     this.poster = new Poster({
       client: this.client,
       apiKeys: {
@@ -24,7 +24,7 @@ export default class BotListManager {
     });
   }
 
-  public start(enable = true): number | void {
+  start(enable = true): number | void {
     return enable ? this.poster.startInterval() : this.poster.stopInterval();
   }
 }

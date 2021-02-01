@@ -5,9 +5,9 @@ import Logger from '../../../utils/Logger';
 import MongoDB from '../';
 
 export default class BlacklistHelpers {
-  constructor(public database: MongoDB) {}
+  constructor(database: MongoDB) {}
 
-  public async addBlacklist(blacklist: Record<string, unknown>): Promise<BlacklistSchema> {
+  async addBlacklist(blacklist: Record<string, unknown>): Promise<BlacklistSchema> {
     const document = new Blacklist(blacklist);
     const data = await document.save();
 
@@ -15,7 +15,7 @@ export default class BlacklistHelpers {
     return data;
   }
 
-  public async removeBlacklist(data: BlacklistQueryType): Promise<boolean> {
+  async removeBlacklist(data: BlacklistQueryType): Promise<boolean> {
     const document = await Blacklist
       .findOne({ $and: data.query })
       .sort({ case: -1 });
@@ -30,7 +30,7 @@ export default class BlacklistHelpers {
     return saved.isModified();
   }
 
-  public async getBlacklists(user?: SuggestionUser, guild?: SuggestionGuild, status = false): Promise<Array<BlacklistSchema>> {
+  async getBlacklists(user?: SuggestionUser, guild?: SuggestionGuild, status = false): Promise<Array<BlacklistSchema>> {
     return Blacklist.find({
       user: Util.getUserID(user!),
       guild: Util.getGuildID(guild!),
@@ -38,11 +38,11 @@ export default class BlacklistHelpers {
     });
   }
 
-  public async getBlacklistCount(guild?: SuggestionGuild, status = false): Promise<number> {
+  async getBlacklistCount(guild?: SuggestionGuild, status = false): Promise<number> {
     return Blacklist.find({ guild: Util.getGuildID(guild!) ?? null, status }).then(res => res.length);
   }
 
-  public async isUserBlacklisted(user: SuggestionUser, guild?: SuggestionGuild, cached = true): Promise<boolean> {
+  async isUserBlacklisted(user: SuggestionUser, guild?: SuggestionGuild, cached = true): Promise<boolean> {
     return Blacklist.findOne({
       $and: [
         { guild: Util.getGuildID(guild!) ?? null },

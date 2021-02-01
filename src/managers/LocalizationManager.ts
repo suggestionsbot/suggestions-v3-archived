@@ -15,11 +15,11 @@ export default class LocalizationManager extends Collection<Language> {
     return `${path.join(process.cwd(), 'locales')}`;
   }
 
-  public addLanguage(locale: Language): void {
+  addLanguage(locale: Language): void {
     this.set(locale.code, locale);
   }
 
-  public async init(): Promise<void> {
+  async init(): Promise<void> {
     const files = Util.walk(LocalizationManager.directory, ['.json']);
     if (!files.length) return Logger.warning('LOCALIZATION', 'Couldn\'t find any localization files!');
 
@@ -30,7 +30,7 @@ export default class LocalizationManager extends Collection<Language> {
     }
   }
 
-  public getLocale(code: string): Language {
+  getLocale(code: string): Language {
     return this.find(x => x.code === code || x.aliases.includes(code))!;
   }
 }

@@ -2,9 +2,9 @@ import SuggestionsClient from './Client';
 import RatelimitManager from '../../managers/RatelimitManager';
 
 export default class Ratelimit {
-  public ignored: boolean;
-  public current: boolean;
-  public singleUsages: number;
+  ignored: boolean;
+  current: boolean;
+  singleUsages: number;
   public totalUsages: number;
 
   constructor(public client: SuggestionsClient, public finishAt: number, public increasingRate: number) {
@@ -14,15 +14,15 @@ export default class Ratelimit {
     this.totalUsages = 0;
   }
 
-  public get manager(): RatelimitManager {
+  get manager(): RatelimitManager {
     return this.client.ratelimiters;
   }
 
-  public ignoreOnce(ignored: boolean): void {
+  ignoreOnce(ignored: boolean): void {
     this.ignored = ignored;
   }
 
-  public increateRatelimit(): void {
+  increateRatelimit(): void {
     this.finishAt += this.increasingRate * this.singleUsages;
     if (!this.current) {
       this.totalUsages++;
@@ -30,7 +30,7 @@ export default class Ratelimit {
     }
   }
 
-  public updateRatelimit(finishAt: number, increasingRate: number): void {
+  updateRatelimit(finishAt: number, increasingRate: number): void {
     this.finishAt = finishAt;
     this.increasingRate = increasingRate;
     this.singleUsages = 0;

@@ -1,13 +1,13 @@
 type FlagDictionary = { [x: string]: string | true };
 
 export default class FlagParser {
-  public flags: string;
+  flags: string;
 
-  constructor(public raw: Array<string>) {
+  constructor(raw: Array<string>) {
     this.flags = raw.join(' ');
   }
 
-  public parse(): FlagDictionary {
+  parse(): FlagDictionary {
     const parsed: FlagDictionary = {};
     if (!this.flags.includes('-')) return {};
 
@@ -29,12 +29,12 @@ export default class FlagParser {
     return parsed;
   }
 
-  public get(flag: string): string|boolean {
+  get(flag: string): string|boolean {
     const flags = this.parse();
     return flags[flag];
   }
 
-  public has(flag: string): boolean {
+  has(flag: string): boolean {
     const flags = this.parse();
     // eslint-disable-next-line no-prototype-builtins
     return flags.hasOwnProperty(flag);

@@ -12,7 +12,7 @@ export default class extends Event {
     super(client, name);
   }
 
-  public async run(suggestion: Suggestion): Promise<any> {
+  async run(suggestion: Suggestion): Promise<any> {
     const actionlogs = suggestion.channel.settings.channels.find(c => c.type === SuggestionChannelType.ACTION_LOGS);
     if (!actionlogs) throw new Error('NoActionLogChannel');
     const actionlogsChannel = <ActionLogChannel>(this.client.suggestionChannels.get(actionlogs.id) ??

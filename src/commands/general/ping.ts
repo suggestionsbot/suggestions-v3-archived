@@ -7,7 +7,7 @@ import Context from '../../structures/commands/Context';
 import { CommandCategory } from '../../types';
 
 export default class PingCommand extends Command {
-  constructor(public client: SuggestionsClient) {
+  constructor(client: SuggestionsClient) {
     super(client);
 
     this.name = 'ping';
@@ -17,7 +17,7 @@ export default class PingCommand extends Command {
     this.guildOnly = false;
   }
 
-  public async run(ctx: Context): Promise<any> {
+  async run(ctx: Context): Promise<any> {
     try {
       const msg = await ctx.send('🏓 Ping!');
       return msg.edit(oneLine`

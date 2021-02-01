@@ -15,11 +15,11 @@ export default class ListenerManager extends Collection<Event> {
     return `${path.join(path.dirname(require.main!.filename), 'listeners')}`;
   }
 
-  public addEvent(name: string, event: Event): void {
+  addEvent(name: string, event: Event): void {
     this.set(name, event);
   }
 
-  public async init(): Promise<void> {
+  async init(): Promise<void> {
     const files = Util.walk(ListenerManager.directory, ['.js', '.ts']);
     if (!files.length) return Logger.error('LISTENERS', 'Couldn\'t find any event listener files!');
 

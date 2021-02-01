@@ -31,39 +31,39 @@ export default class Logger {
     return data.join(' ');
   }
 
-  public static log(...body: Array<any>): void {
+  static log(...body: Array<any>): void {
     console.log(`${chalk.bold.white('[ LOG ] ') + Logger._formMessage(...body)}`);
   }
 
-  public static success(title: string, ...body: Array<any>): void {
+  static success(title: string, ...body: Array<any>): void {
     console.log(chalk.bold.green(`[ SUCCESS ] [ ${title} ] `) + Logger._formMessage(...body));
   }
 
-  public static warning(title: string, ...body: Array<any>): void {
+  static warning(title: string, ...body: Array<any>): void {
     const formedMessage = Logger._formMessage(...body);
     console.warn(chalk.bold.yellow(`[ WARNING ] [ ${title} ] `) + formedMessage);
     Sentry.captureMessage(formedMessage, { level: Severity.Warning });
   }
 
-  public static error(title: string, ...body: Array<any>): void {
+  static error(title: string, ...body: Array<any>): void {
     const formedMessage = Logger._formMessage(...body);
     console.error(chalk.bold.red(`[ ERROR ] [ ${title} ] `) + formedMessage);
     Sentry.captureException(formedMessage, { level: Severity.Error });
   }
 
-  public static debug(title: string, ...body: Array<any>): void {
+  static debug(title: string, ...body: Array<any>): void {
     console.debug(chalk.bold.magenta(`[ DEBUG ] [ ${title} ] `) + Logger._formMessage(...body));
   }
 
-  public static event(event: string, ...body: Array<any>): void {
+  static event(event: string, ...body: Array<any>): void {
     console.log(chalk.bold.yellow(`[ EVENT ] [ ${event.toUpperCase()} ] `) + Logger._formMessage(...body));
   }
 
-  public static command(command: string, ...body: Array<any>): void {
+  static command(command: string, ...body: Array<any>): void {
     console.log(chalk.bold.green(`[ COMMAND ] [ ${command.toUpperCase()} ] `) + Logger._formMessage(...body));
   }
 
-  public static ready(...body: Array<any>): void {
+  static ready(...body: Array<any>): void {
     console.log(chalk.bold.blue('[ READY ] ') + Logger._formMessage(...body));
   }
 }

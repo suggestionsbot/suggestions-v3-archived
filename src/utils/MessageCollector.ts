@@ -6,8 +6,8 @@ import { AwaitMessagesOptions, CollectorFilter } from '../types';
 import Logger from './Logger';
 
 export default class MessageCollector extends EventEmitter {
-  public collected: Collection<Message>;
-  public running: boolean;
+  collected: Collection<Message>;
+  running: boolean;
 
   constructor(
     public client: SuggestionsClient,
@@ -30,7 +30,7 @@ export default class MessageCollector extends EventEmitter {
     this.onUpdate = this.onUpdate.bind(this);
   }
 
-  public run(): Promise<this> {
+  run(): Promise<this> {
     this.running = true;
     return new Promise((res) => {
       this.channel.client.setMaxListeners(this.getMaxListeners() + 1);
@@ -48,7 +48,7 @@ export default class MessageCollector extends EventEmitter {
     });
   }
 
-  public stop(): this {
+  stop(): this {
     this.running = false;
     this.channel.client.setMaxListeners(this.getMaxListeners() - 1);
     this.channel.client.off('messageCreate', this.onMessageCreate);
@@ -63,16 +63,16 @@ export default class MessageCollector extends EventEmitter {
     return this;
   }
 
-  public onCollect(message: Message): void {
+  onCollect(message: Message): void {
     this.collected.add(message);
     if (this.options.max && this.collected.size === this.options.max) this.stop();
   }
 
-  public onUpdate(message: Message): void {
+  onUpdate(message: Message): void {
     this.collected.update(message);
   }
 
-  public onDelete(message: Message): void {
+  onDelete(message: Message): void {
     this.collected.remove(message);
   }
 

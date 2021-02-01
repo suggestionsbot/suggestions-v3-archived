@@ -5,11 +5,11 @@ import { version } from '../../package.json';
 import Logger from '../utils/Logger';
 
 export default class extends Event {
-  constructor(public client: SuggestionsClient, public name: string) {
+  constructor(client: SuggestionsClient, name: string) {
     super(client, name);
   }
 
-  public async run(): Promise<any> {
+  async run(): Promise<any> {
     const readyMessages: Array<string> = [
       `🔖 Version ${version} of the bot loaded in ${this.client.production ? 'PRODUCTION' : 'DEVELOPMENT'}.`,
       `⚙ Loaded (${this.client.commands.size}) commands!`,

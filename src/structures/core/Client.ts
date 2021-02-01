@@ -48,25 +48,25 @@ import Util from '../../utils/Util';
  * TODO Rewrite all emoji search methods to support sharding/clustering
  */
 export default class SuggestionsClient extends Client {
-  public readonly production: boolean;
-  public readonly system: string;
-  public base: Base|undefined;
-  public commands: CommandManager;
-  public subCommands: SubCommandManager;
-  public events: ListenerManager;
-  public locales: LocalizationManager;
-  public botlists: BotListManager;
-  public conditions: ConditionsManager;
-  public ratelimiters: RatelimitManager;
-  public suggestionChannels: ChannelManager;
-  public config: BotConfig;
-  public commandHandler: CommandHandler;
-  public suggestionHandler: SuggestionHandler;
-  public database: MongoDB;
-  public redis: Redis;
-  public messageCollectors: Array<MessageCollector>;
+  readonly production: boolean;
+  readonly system: string;
+  base: Base|undefined;
+  commands: CommandManager;
+  subCommands: SubCommandManager;
+  events: ListenerManager;
+  locales: LocalizationManager;
+  botlists: BotListManager;
+  conditions: ConditionsManager;
+  ratelimiters: RatelimitManager;
+  suggestionChannels: ChannelManager;
+  config: BotConfig;
+  commandHandler: CommandHandler;
+  suggestionHandler: SuggestionHandler;
+  database: MongoDB;
+  redis: Redis;
+  messageCollectors: Array<MessageCollector>;
 
-  constructor(public token: string, options?: ClientOptions) {
+  constructor(token: string, options?: ClientOptions) {
     super(token, options);
 
     this.commands = new CommandManager(this);
@@ -88,7 +88,7 @@ export default class SuggestionsClient extends Client {
     this.system = this.production ? '601219766258106399' : '737166408525283348';
   }
 
-  public start(): void {
+  start(): void {
     this.commands.init();
     this.events.init();
     this.addEventListeners();
@@ -97,7 +97,7 @@ export default class SuggestionsClient extends Client {
     super.connect();
   }
 
-  public getPrefixes(regex = false, formatted = false, settings?: GuildSchema): ReadonlyArray<string> {
+  getPrefixes(regex = false, formatted = false, settings?: GuildSchema): ReadonlyArray<string> {
     const prefixes: Array<string> = settings ?
       [...settings.prefixes, 'mention'] :
       [...this.config.prefixes, 'mention'];
@@ -117,7 +117,7 @@ export default class SuggestionsClient extends Client {
     return Object.freeze(modified);
   }
 
-  public updateBotPresence(): void {
+  updateBotPresence(): void {
     const prefix = this.getPrefixes()[0];
 
     if (this.production) {
@@ -135,19 +135,19 @@ export default class SuggestionsClient extends Client {
     }
   }
 
-  public findEmojiByName(name: string, guild: Guild): Emoji {
+  findEmojiByName(name: string, guild: Guild): Emoji {
     return guild.emojis.find((r: Emoji) => r.name === name)!;
   }
 
-  public findEmojiByID(id: string, guild: Guild): Emoji {
+  findEmojiByID(id: string, guild: Guild): Emoji {
     return guild.emojis.find((r: Emoji) => r.id === id)!;
   }
 
-  public findEmojiByString(str: string, guild: Guild): Emoji {
+  findEmojiByString(str: string, guild: Guild): Emoji {
     return guild.emojis.find((r: Emoji) => r.toString() === str)!;
   }
 
-  public isGuildStaff(member: Member, settings: GuildSchema): boolean {
+  isGuildStaff(member: Member, settings: GuildSchema): boolean {
     let staffCheck: boolean;
     const adminCheck = this.isGuildAdmin(member) || this.isOwner(member);
     const staffRoles = settings.staffRoles;
@@ -157,7 +157,7 @@ export default class SuggestionsClient extends Client {
     return staffCheck;
   }
 
-  public isGuildAdmin(member: Member): boolean {
+  isGuildAdmin(member: Member): boolean {
     let hasPerm = false;
     const perms = ['administrator', 'manageGuild'];
 
@@ -171,20 +171,20 @@ export default class SuggestionsClient extends Client {
     return hasPerm;
   }
 
-  public isSuperSecret(user: User): boolean {
+  isSuperSecret(user: User): boolean {
     return this.config.superSecretUsers.includes(user.id);
   }
 
-  public isOwner(user: SuggestionUser): boolean {
+  isOwner(user: SuggestionUser): boolean {
     return this.config.owners.includes(typeof user === 'object' ? user.id : user);
   }
 
-  public isPremiumGuild(guild: Guild): Promise<boolean> {
+  isPremiumGuild(guild: Guild): Promise<boolean> {
     return this.database.helpers.guild.getGuild(guild.id)
       .then(guild => guild?.premium ?? false);
   }
 
-  public async getVoteEmojisView(settings: GuildSchema, index?: number|null, channel?: SuggestionChannel): Promise<Array<string>|string> {
+  async getVoteEmojisView(settings: GuildSchema, index?: number|null, channel?: SuggestionChannel): Promise<Array<string>|string> {
     let allEmojis = [...emojis];
     if (settings.emojis) allEmojis = [...emojis, ...settings.emojis];
 
@@ -237,15 +237,15 @@ export default class SuggestionsClient extends Client {
     return Promise.all(emojiSets);
   }
 
-  public async awaitChannelMessages(channel: TextableChannel, filter: CollectorFilter<Message>, options: AwaitMessagesOptions): Promise<MessageCollector> {
+  async awaitChannelMessages(channel: TextableChannel, filter: CollectorFilter<Message>, options: AwaitMessagesOptions): Promise<MessageCollector> {
     return new MessageCollector(this, channel, filter, options).run();
   }
 
-  public async awaitMessageReactions(message: Message, filter: CollectorFilter<any>, options: AwaitReactionsOptions): Promise<ReactionCollector> {
+  async awaitMessageReactions(message: Message, filter: CollectorFilter<any>, options: AwaitReactionsOptions): Promise<ReactionCollector> {
     return new ReactionCollector(this, message, filter, options).run();
   }
 
-  public async awaitReply(
+  async awaitReply(
     message: Message,
     channel: TextableChannel,
     question?: string,
@@ -275,7 +275,7 @@ export default class SuggestionsClient extends Client {
     }
   }
 
-  public async awaitReactions(
+  async awaitReactions(
     user: User,
     channel: TextableChannel,
     question: string|undefined,
@@ -398,7 +398,7 @@ export default class SuggestionsClient extends Client {
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  public async clean(text: any): Promise<any> {
+  async clean(text: any): Promise<any> {
     if (text && text.constructor.name === 'Promise') text = await text;
     if (typeof text !== 'string') {
       text = inspect(text, {
@@ -422,7 +422,7 @@ export default class SuggestionsClient extends Client {
     return text;
   }
 
-  public async isSupport(user: User): Promise<boolean> {
+  async isSupport(user: User): Promise<boolean> {
     return this.base!.ipc.fetchGuild(this.system)
       .then(async (guild: any) => {
         const member: Member = guild.members[user.id] ?? await Util.getGuildMemberByID(<Guild>guild, user.id);
@@ -431,7 +431,7 @@ export default class SuggestionsClient extends Client {
       });
   }
 
-  public async isBooster(user: User): Promise<boolean> {
+  async isBooster(user: User): Promise<boolean> {
     return this.base!.ipc.fetchGuild(this.system)
       .then(async (guild: any) => {
         const member: Member = guild.members[user.id] ?? await Util.getGuildMemberByID(<Guild>guild, user.id);
@@ -440,7 +440,7 @@ export default class SuggestionsClient extends Client {
       });
   }
 
-  public async getBotInviter(guild: Guild): Promise<Member|{ id: string; }|undefined> {
+  async getBotInviter(guild: Guild): Promise<Member|{ id: string; }|undefined> {
     return guild.getAuditLogs(undefined, undefined, 28).then(logs => {
       return logs.entries.find(gal => gal.targetID === this.user.id)?.member as Member ?? undefined;
     });

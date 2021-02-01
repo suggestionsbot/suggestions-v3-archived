@@ -44,47 +44,47 @@ export default class SuggestionChannel extends BaseChannel {
     this.#count = 0;
   }
 
-  public get locked(): boolean {
+  get locked(): boolean {
     return this.#locked;
   }
 
-  public get reviewMode(): boolean {
+  get reviewMode(): boolean {
     return this.#removeMode;
   }
 
-  public get suggestions(): SuggestionManager {
+  get suggestions(): SuggestionManager {
     return this.#suggestions;
   }
 
-  public get allowed(): Collection<Role> {
+  get allowed(): Collection<Role> {
     return this.#allowed;
   }
 
-  public get blocked(): Collection<Role> {
+  get blocked(): Collection<Role> {
     return this.#blocked;
   }
 
-  public get cooldowns(): Map<string, Cooldown> {
+  get cooldowns(): Map<string, Cooldown> {
     return this.#cooldowns;
   }
 
-  public get emojis(): number {
+  get emojis(): number {
     return this.#emojis;
   }
 
-  public get cooldown(): number|undefined {
+  get cooldown(): number|undefined {
     return this.#cooldown;
   }
 
-  public get count(): number {
+  get count(): number {
     return this.#count;
   }
 
-  public get initialized(): boolean {
+  get initialized(): boolean {
     return this.#initialized;
   }
 
-  public async init(): Promise<void> {
+  async init(): Promise<void> {
     if (this.#initialized) throw new Error('ChannelAlreadyInitialized');
     if (this.data!.locked) this.#locked = this.data!.locked;
     if (this.data!.reviewMode) this.#removeMode = this.data!.reviewMode;
@@ -97,7 +97,7 @@ export default class SuggestionChannel extends BaseChannel {
     this.#initialized = true;
   }
 
-  public async setReviewMode(enabled: boolean): Promise<boolean> {
+  async setReviewMode(enabled: boolean): Promise<boolean> {
     this.#removeMode = enabled;
     this.settings.updateChannel(this.channel.id, { reviewMode: enabled });
     await this.settings.save();
@@ -105,7 +105,7 @@ export default class SuggestionChannel extends BaseChannel {
     return this.#removeMode;
   }
 
-  public async lock(locked: boolean): Promise<boolean> {
+  async lock(locked: boolean): Promise<boolean> {
     this.#locked = locked;
     this.settings.updateChannel(this.channel.id, { locked });
     await this.settings.save();
@@ -113,7 +113,7 @@ export default class SuggestionChannel extends BaseChannel {
     return this.#locked;
   }
 
-  public async setEmojis(id: number): Promise<number> {
+  async setEmojis(id: number): Promise<number> {
     this.#emojis = id;
     this.settings.updateChannel(this.channel.id, { emojis: id });
     await this.settings.save();
@@ -121,7 +121,7 @@ export default class SuggestionChannel extends BaseChannel {
     return this.#emojis;
   }
 
-  public async setCooldown(cooldown: number): Promise<number|undefined> {
+  async setCooldown(cooldown: number): Promise<number|undefined> {
     this.#cooldown = cooldown === 0 ? undefined : cooldown;
     this.settings.updateChannel(this.channel.id, { cooldown: this.#cooldown });
     await this.settings.save();
@@ -129,7 +129,7 @@ export default class SuggestionChannel extends BaseChannel {
     return this.#cooldown;
   }
 
-  public async updateRole(data: SuggestionRole): Promise<boolean> {
+  async updateRole(data: SuggestionRole): Promise<boolean> {
     const role = this.guild.roles.get(data.id)!;
     switch (data.type) {
       case 'allowed': {
@@ -150,7 +150,7 @@ export default class SuggestionChannel extends BaseChannel {
     }
   }
 
-  public async clearRoles(type: 'allowed'|'blocked', reset?: boolean): Promise<void> {
+  async clearRoles(type: 'allowed'|'blocked', reset?: boolean): Promise<void> {
     if (type === 'allowed') {
       this.#allowed.clear();
       this.data!.allowed = [];
@@ -170,7 +170,7 @@ export default class SuggestionChannel extends BaseChannel {
     await this.client.redis.helpers.clearCachedGuild(this.guild);
   }
 
-  public updateCooldowns(user: string, remove?: boolean): boolean {
+  updateCooldowns(user: string, remove?: boolean): boolean {
     if (remove) return this.#cooldowns.delete(user);
     this.#cooldowns.set(user, { expires: this.#cooldown! + Date.now() });
     // TODO in the future when we pull from redis directly, make sure to remove this setTimeout
@@ -180,7 +180,7 @@ export default class SuggestionChannel extends BaseChannel {
     return this.#cooldowns.has(user);
   }
 
-  public updateCount(type: 'incr' | 'decr'): number {
+  updateCount(type: 'incr' | 'decr'): number {
     if (type === 'incr') this.#count++;
     else this.#count--;
     return this.#count;

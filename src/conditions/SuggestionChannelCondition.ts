@@ -17,7 +17,7 @@ export default class SuggestionChannelCondition extends Condition {
     this.name = 'suggestionChannel';
   }
 
-  public async run(ctx: CommandContext): Promise<any> {
+  async run(ctx: CommandContext): Promise<any> {
     const argCheck = Util.getChannel(ctx.args.get(0), ctx.guild!);
     const suggestion = argCheck ? ctx.args.slice(1).join(' ') : ctx.args.join(' ');
     if (!suggestion) throw new Error('Please provide text for this suggestion!');

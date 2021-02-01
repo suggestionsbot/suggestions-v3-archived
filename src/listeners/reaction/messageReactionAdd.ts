@@ -13,7 +13,7 @@ export default class extends Event {
     super(client, name);
   }
 
-  public async run(message: Dictionary, emoji: PartialEmoji, reactor: Member): Promise<any> {
+  async run(message: Dictionary, emoji: PartialEmoji, reactor: Member): Promise<any> {
     const emojiObj = emoji.id ? Util.getReactionString(emoji) : emoji.name;
     const suggestionMessage: Message|undefined = !message.channel.messages.has(message.id) ? await message.channel.getMessage(message.id) : undefined;
     if (reactor.user.bot) return;

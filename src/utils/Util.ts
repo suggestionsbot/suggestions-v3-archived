@@ -9,15 +9,15 @@ import { SuggestionGuild, SuggestionUser } from '../types';
 import CommandContext from '../structures/commands/Context';
 
 export default class Util {
-  public static formatPermission(permission: string): string {
+  static formatPermission(permission: string): string {
     return Permissions[permission];
   }
 
-  public static getGuildID(guild: SuggestionGuild): string {
+  static getGuildID(guild: SuggestionGuild): string {
     return guild instanceof Guild ? guild.id : guild;
   }
 
-  public static getUserID(user: SuggestionUser): string {
+  static getUserID(user: SuggestionUser): string {
     let data: string;
     if (user instanceof User) data = user.id;
     if (user instanceof Member) data = user.id;
@@ -26,7 +26,7 @@ export default class Util {
     return data!;
   }
 
-  public static escapeMarkdown(
+  static escapeMarkdown(
     text: string,
     {
       codeBlock = true,
@@ -83,15 +83,15 @@ export default class Util {
     return text;
   }
 
-  public static escapeCodeBlock(text: string): string {
+  static escapeCodeBlock(text: string): string {
     return text.replace(/```/g, '\\`\\`\\`');
   }
 
-  public static escapeInlineCode(text: string): string {
+  static escapeInlineCode(text: string): string {
     return text.replace(/(?<=^|[^`])`(?=[^`]|$)/g, '\\`');
   }
 
-  public static escapeItalic(text: string): string {
+  static escapeItalic(text: string): string {
     let i = 0;
     text = text.replace(/(?<=^|[^*])\*([^*]|\*\*|$)/g, (_, match) => {
       if (match === '**') return ++i % 2 ? `\\*${match}` : `${match}\\*`;
@@ -104,7 +104,7 @@ export default class Util {
     });
   }
 
-  public static escapeBold(text: string): string {
+  static escapeBold(text: string): string {
     let i = 0;
     return text.replace(/\*\*(\*)?/g, (_, match) => {
       if (match) return ++i % 2 ? `${match}\\*\\*` : `\\*\\*${match}`;
@@ -112,7 +112,7 @@ export default class Util {
     });
   }
 
-  public static escapeUnderline(text: string): string {
+  static escapeUnderline(text: string): string {
     let i = 0;
     return text.replace(/__(_)?/g, (_, match) => {
       if (match) return ++i % 2 ? `${match}\\_\\_` : `\\_\\_${match}`;
@@ -120,15 +120,15 @@ export default class Util {
     });
   }
 
-  public static escapeStrikethrough(text: string): string {
+  static escapeStrikethrough(text: string): string {
     return text.replace(/~~/g, '\\~\\~');
   }
 
-  public static escapeSpoiler(text: string): string {
+  static escapeSpoiler(text: string): string {
     return text.replace(/\|\|/g, '\\|\\|');
   }
 
-  public static getChannel(s: string, guild: Guild): TextChannel|undefined {
+  static getChannel(s: string, guild: Guild): TextChannel|undefined {
     if (/^[0-9]+$/.test(s)) {
       const channel = guild.channels.get(s);
       if (!channel || [1, 2, 3, 4].includes(channel.type)) return;
@@ -143,7 +143,7 @@ export default class Util {
     return guild.channels.find(x => x.type === 0 && x.name.toLowerCase() === s) as TextChannel | undefined;
   }
 
-  public static getRole(s: string, ctx: CommandContext): Role|undefined {
+  static getRole(s: string, ctx: CommandContext): Role|undefined {
     if (/^[0-9]+$/.test(s)) return ctx.guild!.roles.get(s);
     else if (/^<@&[0-9]+>$/.test(s)) {
       const id = s.substring(3, s.length - 1);
@@ -153,18 +153,18 @@ export default class Util {
     return ctx.guild!.roles.find(x => x.name.toLowerCase() === s);
   }
 
-  public static getGiphy(): Giphy {
+  static getGiphy(): Giphy {
     return GiphyAPI({
       apiKey: process.env.GIPHY,
       https: true
     });
   }
 
-  public static lastCommitHash(): string {
+  static lastCommitHash(): string {
     return execSync('git rev-parse HEAD', { encoding: 'utf8' }).slice(0, 7);
   }
 
-  public static getMissingPermissions(permissions: Array<string|number>|Permission, channel: GuildChannel, member: Member): Array<string> {
+  static getMissingPermissions(permissions: Array<string|number>|Permission, channel: GuildChannel, member: Member): Array<string> {
     const missingPermissions: Array<string> = [];
     permissions = permissions instanceof Permission ? Object.keys(permissions.json) : permissions;
 
@@ -177,7 +177,7 @@ export default class Util {
     return missingPermissions;
   }
 
-  public static parseEmoji(text: string): PartialEmoji|null {
+  static parseEmoji(text: string): PartialEmoji|null {
     if (text.includes('%')) text = decodeURIComponent(text);
     if (!text.includes(':')) return { animated: false, name: text, id: null };
     const m = text.match(/<?(?:(a):)?(\w{2,32}):(\d{17,19})?>?/);
@@ -185,27 +185,27 @@ export default class Util {
     return { animated: Boolean(m[1]), name: m[2], id: m[3] || null };
   }
 
-  public static getEmojiString(emoji: Emoji|PartialEmoji): string {
+  static getEmojiString(emoji: Emoji|PartialEmoji): string {
     if (emoji.animated) return `<a:${emoji.name}:${emoji.id}>`;
     else return `<:${emoji.name}:${emoji.id}>`;
   }
 
-  public static getReactionString(emoji: Emoji|PartialEmoji): string {
+  static getReactionString(emoji: Emoji|PartialEmoji): string {
     if (emoji.animated) return `a:${emoji.name}:${emoji.id}`;
     else return `:${emoji.name}:${emoji.id}`;
   }
 
-  public static matchUnicodeEmoji(emoji: string): RegExpExecArray|null {
+  static matchUnicodeEmoji(emoji: string): RegExpExecArray|null {
     return /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/i.exec(emoji);
   }
 
   // TODO: See why we have a bug here cause random errors being thrown
-  public static getGuildMemberByID(guild: Guild, id: string): Promise<Member>|undefined {
+  static getGuildMemberByID(guild: Guild, id: string): Promise<Member>|undefined {
     if (!Object.prototype.hasOwnProperty.call(guild, 'fetchMembers')) return;
     return guild.fetchMembers({ userIDs: [id] }).then(res => res[0]);
   }
 
-  public static walk(directory: string, extensions: Array<string>): Array<string> {
+  static walk(directory: string, extensions: Array<string>): Array<string> {
     const read = (dir: string, files: Array<string> = []): Array<string> => {
       for (const file of readdirSync(dir)) {
         const filePath = path.join(dir, file), stats = lstatSync(filePath);
@@ -219,7 +219,7 @@ export default class Util {
     return read(directory);
   }
 
-  public static getMessageIDFromLink(link: string): string {
+  static getMessageIDFromLink(link: string): string {
     const regex = /(https?:\/\/)?(www\.)?((canary|ptb)\.?|(discordapp|discord\.com)\/channels)\/(.+[[0-9])/g;
     const matches = regex.exec(link)!;
     const ids = matches.reverse()[0].split('/');

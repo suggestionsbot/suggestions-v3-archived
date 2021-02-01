@@ -9,7 +9,7 @@ import Context from '../../../structures/commands/Context';
 import Util from '../../../utils/Util';
 
 export default class ConfigPrefixCommand extends SubCommand {
-  constructor(public client: SuggestionsClient) {
+  constructor(client: SuggestionsClient) {
     super(client);
 
     this.parent = 'config';
@@ -25,7 +25,7 @@ export default class ConfigPrefixCommand extends SubCommand {
     this.botPermissions = ['manageMessages', 'externalEmojis', 'embedLinks'];
   }
 
-  public async runPreconditions(ctx: Context, next: CommandNextFunction): Promise<any> {
+  async runPreconditions(ctx: Context, next: CommandNextFunction): Promise<any> {
     if (ctx.args.get(0) && (ctx.args.args.length > 5))
       return MessageUtils.error(this.client, ctx.message, 'The prefix must be **5** characters or less!');
 
@@ -45,7 +45,7 @@ export default class ConfigPrefixCommand extends SubCommand {
     next();
   }
 
-  public async run(ctx: Context): Promise<any> {
+  async run(ctx: Context): Promise<any> {
     try {
       const docsRef = `${this.client.config.docs}/docs/configuration.html`;
       const baseEmbed = MessageUtils.defaultEmbed()
@@ -75,7 +75,7 @@ export default class ConfigPrefixCommand extends SubCommand {
     }
   }
 
-  public async runPostconditions(ctx: Context, next: CommandNextFunction): Promise<any> {
+  async runPostconditions(ctx: Context, next: CommandNextFunction): Promise<any> {
     if (ctx.args.get(0)) await this.client.redis.helpers.clearCachedGuild(ctx.guild!.id);
     next();
   }

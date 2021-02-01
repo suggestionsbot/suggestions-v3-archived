@@ -15,15 +15,15 @@ export default class ConditionsManager extends Collection<Condition> {
     return `${path.join(path.dirname(require.main!.filename), 'conditions')}`;
   }
 
-  public addCondition(name: string, check: Condition): void {
+  addCondition(name: string, check: Condition): void {
     this.set(name, check);
   }
 
-  public getCondition(name: string): Condition {
+  getCondition(name: string): Condition {
     return this.get(name)!;
   }
 
-  public async init(): Promise<void> {
+  async init(): Promise<void> {
     const files = Util.walk(ConditionsManager.directory, ['.js', '.ts']);
     if (!files.length) return Logger.warning('CHECKS', 'Couldn\'t find any command checks files!');
 

@@ -19,11 +19,11 @@ export default class RatelimitManager extends Collection<RatelimitBucket> {
     this.#increasingRate = 30;
   }
 
-  public getBucket(command: string): RatelimitBucket|undefined {
+  getBucket(command: string): RatelimitBucket|undefined {
     return this.initialize(command);
   }
 
-  public isRatelimited(ratelimit: Ratelimit): boolean {
+  isRatelimited(ratelimit: Ratelimit): boolean {
     if (ratelimit.ignored) {
       this.ignoreOnce(ratelimit);
       return false;
@@ -32,7 +32,7 @@ export default class RatelimitManager extends Collection<RatelimitBucket> {
     return ratelimit.finishAt > Date.now();
   }
 
-  public setRatelimited(command: SuggestionsCommand, user: string): void {
+  setRatelimited(command: SuggestionsCommand, user: string): void {
     if (this.client.isOwner(user)) return;
 
     const finishAt = (command.throttles.duration * 1000) + Date.now();
@@ -51,7 +51,7 @@ export default class RatelimitManager extends Collection<RatelimitBucket> {
     ratelimit.updateRatelimit(finishAt, command.throttles.duration * 1000);
   }
 
-  public handle(command: SuggestionsCommand, user: string, channel: TextableChannel): boolean {
+  handle(command: SuggestionsCommand, user: string, channel: TextableChannel): boolean {
     const ratelimit = this.getRatelimitedUser(command.name, user)!;
     ratelimit.singleUsages++;
     if (ratelimit.singleUsages >= command.throttles.usages) {

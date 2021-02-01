@@ -5,7 +5,7 @@ import { CommandCategory } from '../../types';
 import * as crypto from 'crypto';
 
 export default class PingCommand extends Command {
-  constructor(public client: SuggestionsClient) {
+  constructor(client: SuggestionsClient) {
     super(client);
 
     this.name = 'super';
@@ -15,7 +15,7 @@ export default class PingCommand extends Command {
     this.guildOnly = false;
   }
 
-  public async run(ctx: Context): Promise<any> {
+  async run(ctx: Context): Promise<any> {
     return ctx.send(crypto.randomBytes(64).toString('hex'));
   }
 }

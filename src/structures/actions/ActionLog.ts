@@ -42,100 +42,100 @@ export default class ActionLog {
     this.#changes = [];
   }
 
-  public get postable(): boolean {
+  get postable(): boolean {
     return (
       !!this.#channel &&
       !!this.#id
     );
   }
 
-  public get data(): ActionLogSchema {
+  get data(): ActionLogSchema {
     return this.#data;
   }
 
-  public get link(): string|undefined {
+  get link(): string|undefined {
     if (!this.#message) return;
     else return `https://discord.com/channels/${this.#guild.id}/${this.#channel.id}/${this.#message.id}`;
   }
 
-  public get executor(): User {
+  get executor(): User {
     return this.#executor;
   }
 
-  public get target(): User|undefined {
+  get target(): User|undefined {
     return this.#target;
   }
 
-  public get guild(): Guild {
+  get guild(): Guild {
     return this.#guild;
   }
 
-  public get channel(): ActionLogChannel {
+  get channel(): ActionLogChannel {
     return this.#channel;
   }
 
-  public get message(): Message|undefined {
+  get message(): Message|undefined {
     return this.#message;
   }
 
-  public get type(): ActionLogTypes {
+  get type(): ActionLogTypes {
     return this.#type;
   }
 
-  public get changes(): Array<ActionLogChange> {
+  get changes(): Array<ActionLogChange> {
     return this.#changes;
   }
 
-  public id(short: boolean = false): string {
+  id(short: boolean = false): string {
     return short ? this.#id.slice(33, 40) : this.#id;
   }
 
-  public setExecutor(executor: User | Member): this {
+  setExecutor(executor: User | Member): this {
     this.#executor = 'user' in executor ? executor.user : executor;
     return this;
   }
 
-  public setTarget(target: User | Member): this {
+  setTarget(target: User | Member): this {
     this.#target = 'user' in target ? target.user : target;
     return this;
   }
 
-  public setGuild(guild: Guild): this {
+  setGuild(guild: Guild): this {
     this.#guild = guild;
     return this;
   }
 
-  public setChannel(channel: ActionLogChannel): this {
+  setChannel(channel: ActionLogChannel): this {
     this.#channel = channel;
     return this;
   }
 
-  public setSettings(settings: GuildSchema): this {
+  setSettings(settings: GuildSchema): this {
     this.#settings = settings;
     return this;
   }
 
-  public setMessage(message: Message): this {
+  setMessage(message: Message): this {
     this.#message = message;
     return this;
   }
 
-  public setType(type: ActionLogTypes): this {
+  setType(type: ActionLogTypes): this {
     this.#type = type;
     return this;
   }
 
-  public setEmbedData(data: Record<string, any>): this {
+  setEmbedData(data: Record<string, any>): this {
     this.#embedData = data;
     return this;
   }
 
-  public setChanges(changes: Array<ActionLogChange>): this {
+  setChanges(changes: Array<ActionLogChange>): this {
     this.#changes = changes;
     return this;
   }
 
-  public async setData(data: ActionLogSchema): Promise<this> {
+  async setData(data: ActionLogSchema): Promise<this> {
     this.#data = data;
     if (data.id) this.#id = data.id;
     if (data.executor) this.#executor = await this.client.getRESTUser(data.executor);
@@ -150,7 +150,7 @@ export default class ActionLog {
     });
   }
 
-  public async post(): Promise<this> {
+  async post(): Promise<this> {
     if (!this.#id) this.#id = crypto.randomBytes(20).toString('hex');
     if (!this.postable) throw new Error('ModLogNotPostable');
 

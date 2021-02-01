@@ -4,12 +4,12 @@ import SuggestionsClient from '../../structures/core/Client';
 import MongoHelpers from './helpers';
 
 export default class MongoDB {
-  public connection!: mongoose.Connection;
-  public helpers!: MongoHelpers;
+  connection!: mongoose.Connection;
+  helpers!: MongoHelpers;
 
   constructor(public client: SuggestionsClient) {}
 
-  public async init(): Promise<void> {
+  async init(): Promise<void> {
     const dbOptions = {
       useNewUrlParser: true,
       autoIndex: false,

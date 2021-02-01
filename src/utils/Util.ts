@@ -200,7 +200,8 @@ export default class Util {
   }
 
   // TODO: See why we have a bug here cause random errors being thrown
-  public static getGuildMemberByID(guild: Guild, id: string): Promise<Member|undefined> {
+  public static getGuildMemberByID(guild: Guild, id: string): Promise<Member>|undefined {
+    if (!Object.prototype.hasOwnProperty.call(guild, 'fetchMembers')) return;
     return guild.fetchMembers({ userIDs: [id] }).then(res => res[0]);
   }
 

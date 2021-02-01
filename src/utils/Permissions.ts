@@ -1,4 +1,4 @@
-export default <{ [key: string]: string }>{
+export default <Dictionary<string>>{
   'administrator': 'Administrator',
   'createInstantInvite': 'Create Instant Invite',
   'kickMembers': 'Kick Members',

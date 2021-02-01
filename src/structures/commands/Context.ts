@@ -16,7 +16,7 @@ import FlagParser from '../parsers/FlagParser';
 export default class CommandContext {
   public args: ArgumentParser;
   public flags: FlagParser;
-  public local?: Record<string, unknown>;
+  public local?: any;
 
   constructor(
     public message: Message,

@@ -53,10 +53,7 @@ export default class EvalCommand extends Command {
           extension: 'js'
         });
 
-        await ctx.dm({
-          user: ctx.sender,
-          content: `<${haste}>`
-        });
+        await ctx.dm(ctx.sender, { content: `<${haste}>` });
 
         exceededEmbed.setColor(main);
         exceededEmbed.setDescription('📨 Output exceeded 1000 characters. DMing you the Hastebin.');
@@ -79,10 +76,7 @@ export default class EvalCommand extends Command {
           extension: 'js'
         });
 
-        await ctx.dm({
-          user: ctx.sender,
-          content: `<${haste}>`
-        });
+        await ctx.dm(ctx.sender, { content: `<${haste}>` });
 
         exceededEmbed.setColor(rejected);
         exceededEmbed.setDescription('📨 Output exceeded 2000 characters. DMing you the Hastebin.');

@@ -4,6 +4,7 @@ import { stripIndents } from 'common-tags';
 import SuggestionsClient from '../structures/core/Client';
 import MessageEmbed from './MessageEmbed';
 import config from '../config';
+import { ALLOWED_MENTIONS } from './Constants';
 
 export default class MessageUtils {
   static async error(client: SuggestionsClient, data: Message|string, error: string, prefix = false): Promise<Message> {
@@ -18,7 +19,9 @@ export default class MessageUtils {
       embed: {
         color,
         description: stripIndents(description)
-      }
+      },
+      messageReferenceID: typeof data === 'object' ? data.id : undefined,
+      allowedMentions: ALLOWED_MENTIONS
     });
   }
 
@@ -33,7 +36,9 @@ export default class MessageUtils {
       embed: {
         color,
         description: stripIndents(message)
-      }
+      },
+      messageReferenceID: typeof data === 'object' ? data.id : undefined,
+      allowedMentions: ALLOWED_MENTIONS
     });
   }
 

@@ -413,13 +413,6 @@ export class Translation {
   constructor(public key: string, public args?: { [x: string]: any }|undefined) {}
 }
 
-export interface DMOptions {
-  user: User;
-  content?: string;
-  embed?: EmbedOptions;
-  file?: MessageFile;
-}
-
 export enum CommandCategory {
   GENERAL = 'General',
   SUGGESTIONS = 'Suggestions',

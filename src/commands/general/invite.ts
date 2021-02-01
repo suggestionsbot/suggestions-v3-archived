@@ -45,10 +45,7 @@ export default class InfoCommand extends Command {
         .setTimestamp();
 
       if (ctx.guild && (ctx.args.get(0) !== 'here')) {
-        await ctx.dm({
-          user: ctx.sender,
-          embed: embed
-        });
+        await ctx.dm(ctx.sender,{ embed });
         await ctx.message.addReaction('📩')
           .then(() => MessageUtils.delete(ctx.message, { timeout: 2500 }));
       } else {

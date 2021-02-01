@@ -1,17 +1,20 @@
 import {
+  AdvancedMessageContent,
   EmbedOptions,
   Guild,
-  Member, Message, Shard,
+  Member, Message, MessageContent, Shard,
   TextableChannel,
   TextChannel,
   User
 } from 'eris';
 
 import SuggestionsClient from '../core/Client';
-import { DMOptions, GuildSchema, Promisified } from '../../types';
+import { GuildSchema, Promisified } from '../../types';
 import Language from '../core/Language';
 import ArgumentParser from '../parsers/ArgumentParser';
 import FlagParser from '../parsers/FlagParser';
+import CodeBlock from '../../utils/CodeBlock';
+import { ALLOWED_MENTIONS } from '../../utils/Constants';
 
 export default class CommandContext {
   args: ArgumentParser;
@@ -28,24 +31,24 @@ export default class CommandContext {
     this.flags = new FlagParser(args);
   }
 
-  send(content: string): Promise<Message> {
+  send(content: string, options?: AdvancedMessageContent): Promise<Message> {
     return this.message.channel.createMessage({
+      ...options,
       content,
-      allowedMentions: {
-        everyone: false,
-        users: true,
-        roles: true
-      }
+      allowedMentions: ALLOWED_MENTIONS
     });
   }
 
-  embed(content: EmbedOptions): Promise<Message> {
-    return this.message.channel.createMessage({ embed: content });
+  embed(content: EmbedOptions, options?: AdvancedMessageContent): Promise<Message> {
+    return this.message.channel.createMessage({
+      ...options,
+      embed: content,
+      allowedMentions: ALLOWED_MENTIONS
+    });
   }
 
   code(lang: string, content: string): Promise<Message> {
-    const cb = '```';
-    return this.send(`${cb + lang}\n${content + cb}`);
+    return this.send(new CodeBlock(content, lang).toString());
   }
 
   get prefix(): string {
@@ -96,11 +99,8 @@ export default class CommandContext {
     return this.client.redis.instance;
   }
 
-  async dm(options: DMOptions): Promise<Message> {
-    return options.user.createMessage(
-      { content: options.content, embed: options.embed },
-      options.file
-    );
+  async dm(user: User, options: AdvancedMessageContent): Promise<Message> {
+    return user.createMessage({ ...options, allowedMentions: ALLOWED_MENTIONS });
   }
 
   get shard(): Shard|undefined {

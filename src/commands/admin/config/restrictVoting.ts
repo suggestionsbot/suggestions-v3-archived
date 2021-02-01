@@ -4,11 +4,9 @@ import CommandContext from '../../../structures/commands/Context';
 import { CommandNextFunction } from '../../../types';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
+import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS } from '../../../utils/Constants';
 
 export default class ConfigRestrictVotingCommand extends SubCommand {
-  // TODO: put into constants file
-  #values: Array<string>;
-
   constructor(client: SuggestionsClient) {
     super(client);
 
@@ -18,25 +16,24 @@ export default class ConfigRestrictVotingCommand extends SubCommand {
     this.friendly = 'config restrictVoting';
     this.description = 'Configure if suggestion reactions should be restricted to set vote emojis.';
     this.usages = [
-      'config restrictVoting [true|false|toggle]',
-      'config restrictVoting [true|false|toggle]'
+      'config restrictVoting [true|on|false|off|toggle]',
+      'config restrictVoting [true|on|false|off|toggle]'
     ];
     this.examples = [
       'config restrictVoting true',
       'config restrictVoting false',
+      'config restrictVoting on',
       'config restrictVoting toggle'
     ];
     this.aliases = ['restrictVote'];
     this.adminOnly = true;
     this.botPermissions = ['manageMessages', 'externalEmojis', 'embedLinks'];
-
-    this.#values = ['true', 'false', 'toggle'];
   }
 
   public async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
-    if (ctx.args.get(0) && !this.#values.includes(ctx.args.get(0).toLowerCase()))
+    if (ctx.args.get(0) && !CONFIG_OPTIONS.includes(ctx.args.get(0).toLowerCase()))
       return MessageUtils.error(this.client, ctx.message,
-        `Please provide one of the following arguments: \`${this.#values.join(', ')}\``);
+        `Please provide one of the following arguments: \`${CONFIG_OPTIONS.join(', ')}\``);
 
     next();
   }
@@ -59,7 +56,7 @@ export default class ConfigRestrictVotingCommand extends SubCommand {
       }
 
       const userInput = ctx.args.get(0).toLowerCase();
-      const status = userInput === 'true' ? true : userInput === 'toggle' ? !currentStatus : false;
+      const status = TRUTHY_CONFIG_OPTIONS.includes(userInput) ? true : userInput === 'toggle' ? !currentStatus : false;
       const guildData = await ctx.getSettings(false)!;
       guildData.setRestrictVoting(status);
       await guildData.save();

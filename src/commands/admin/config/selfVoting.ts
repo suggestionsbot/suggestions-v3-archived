@@ -4,7 +4,7 @@ import CommandContext from '../../../structures/commands/Context';
 import { CommandNextFunction } from '../../../types';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
-import { CONFIG_OPTIONS } from '../../../utils/Constants';
+import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS } from '../../../utils/Constants';
 
 export default class ConfigSelfVotingCommand extends SubCommand {
   constructor(client: SuggestionsClient) {
@@ -13,16 +13,17 @@ export default class ConfigSelfVotingCommand extends SubCommand {
     this.parent = 'config';
     this.arg = 'selfVoting';
     this.name = 'selfvoting';
-    this.friendly = 'config selfvoting';
+    this.friendly = 'config selfVoting';
     this.description = 'Configure if users should be able to vote on their own suggestions.';
     this.usages = [
-      'config selfvoting [true|false|toggle]',
-      'config selfvote [true|false|toggle]'
+      'config selfVoting [true|on|false|off|toggle]',
+      'config selfVote [true|on|false|off|toggle]'
     ];
     this.examples = [
-      'config selfvoting true',
-      'config selfvote false',
-      'config selfvoting toggle'
+      'config selfVoting true',
+      'config selfVote false',
+      'config selfVote on',
+      'config selfVoting toggle'
     ];
     this.aliases = ['selfVote'];
     this.adminOnly = true;
@@ -55,8 +56,7 @@ export default class ConfigSelfVotingCommand extends SubCommand {
       }
 
       const userInput = ctx.args.get(0).toLowerCase();
-      const truthyValues = ['true', 'on'];
-      const status = truthyValues.includes(userInput) ? true : userInput === 'toggle' ? !currentStatus : false;
+      const status = TRUTHY_CONFIG_OPTIONS.includes(userInput) ? true : userInput === 'toggle' ? !currentStatus : false;
       const guildData = await ctx.getSettings(false)!;
       guildData.setSelfVoting(status);
       await guildData.save();

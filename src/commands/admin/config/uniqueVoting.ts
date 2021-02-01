@@ -4,11 +4,9 @@ import CommandContext from '../../../structures/commands/Context';
 import { CommandNextFunction } from '../../../types';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
+import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS } from '../../../utils/Constants';
 
 export default class ConfigUniqueVotingCommand extends SubCommand {
-  // TODO: put into constants file
-  #values: Array<string>;
-
   constructor(client: SuggestionsClient) {
     super(client);
 
@@ -18,25 +16,24 @@ export default class ConfigUniqueVotingCommand extends SubCommand {
     this.friendly = 'config uniqueVoting';
     this.description = 'Configure if users should be able to add multiple reactions.';
     this.usages = [
-      'config uniqueVoting [true|false|toggle]',
-      'config uniqueVoting [true|false|toggle]'
+      'config uniqueVoting [true|on|false|off|toggle]',
+      'config uniqueVoting [true|on|false|off|toggle]'
     ];
     this.examples = [
       'config uniqueVoting true',
       'config uniqueVoting false',
+      'config uniqueVoting on',
       'config uniqueVoting toggle'
     ];
     this.aliases = ['uniqueVote'];
     this.adminOnly = true;
     this.botPermissions = ['manageMessages', 'externalEmojis', 'embedLinks'];
-
-    this.#values = ['true', 'false', 'toggle'];
   }
 
   public async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
-    if (ctx.args.get(0) && !this.#values.includes(ctx.args.get(0).toLowerCase()))
+    if (ctx.args.get(0) && !CONFIG_OPTIONS.includes(ctx.args.get(0).toLowerCase()))
       return MessageUtils.error(this.client, ctx.message,
-        `Please provide one of the following arguments: \`${this.#values.join(', ')}\``);
+        `Please provide one of the following arguments: \`${CONFIG_OPTIONS.join(', ')}\``);
 
     next();
   }
@@ -59,7 +56,7 @@ export default class ConfigUniqueVotingCommand extends SubCommand {
       }
 
       const userInput = ctx.args.get(0).toLowerCase();
-      const status = userInput === 'true' ? true : userInput === 'toggle' ? !currentStatus : false;
+      const status = TRUTHY_CONFIG_OPTIONS.includes(userInput) ? true : userInput === 'toggle' ? !currentStatus : false;
       const guildData = await ctx.getSettings(false)!;
       guildData.setUniqueVoting(status);
       await guildData.save();

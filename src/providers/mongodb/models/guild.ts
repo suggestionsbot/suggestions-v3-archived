@@ -1,5 +1,12 @@
 import { Schema, model } from 'mongoose';
-import { DisabledCommand, GuildSchema, SuggestionChannel, SuggestionRole, VoteEmoji } from '../../../types';
+import {
+  DisabledCommand,
+  GuildSchema,
+  RequiredResponseCommand,
+  SuggestionChannel,
+  SuggestionRole,
+  VoteEmoji
+} from '../../../types';
 import { Guild } from 'eris';
 
 const SuggestionRole = {
@@ -69,7 +76,11 @@ export const GuildSettings = new Schema({
   restrictVoting: {
     type: Boolean,
     default: true
-  }
+  },
+  requiredResponses: [{
+    type: String,
+    enum: ['approve', 'reject', 'consider', 'implement', 'delete', 'all']
+  }]
 });
 
 GuildSettings.method('setGuild', function(this: GuildSchema, guild: Guild|string) {
@@ -171,6 +182,22 @@ GuildSettings.method('setUniqueVoting', function(this: GuildSchema, status: bool
 
 GuildSettings.method('setRestrictVoting', function(this: GuildSchema, status: boolean) {
   this.restrictVoting = status;
+});
+
+GuildSettings.method('updateRequiredResponses', function(this: GuildSchema, command: RequiredResponseCommand, status: boolean) {
+  switch (command) {
+    case 'all':
+      this.requiredResponses = [];
+      this.requiredResponses.push('all');
+      break;
+    case 'none':
+      this.requiredResponses = [];
+      break;
+    default:
+      if (status) this.requiredResponses = [...this.requiredResponses, command];
+      else this.requiredResponses = this.requiredResponses.filter(c => c !== command);
+      break;
+  }
 });
 
 GuildSettings.pre('save', function(next) {

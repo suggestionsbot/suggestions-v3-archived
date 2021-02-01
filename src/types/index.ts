@@ -171,6 +171,7 @@ export interface GuildSchema extends Document {
   selfVoting: boolean;
   uniqueVoting: boolean;
   restrictVoting: boolean;
+  requiredResponses: Array<RequiredResponseCommand>;
   setGuild(guild: Guild|string): void;
   setLocale(locale: string): void;
   setDefaultEmojis(index: number): void
@@ -184,6 +185,7 @@ export interface GuildSchema extends Document {
   updateCommands(command: DisabledCommand): void;
   updateStaffRoles(role: SuggestionRole): void;
   updateChannelRoles(channel: string, role: SuggestionRole): void;
+  updateRequiredResponses(command: RequiredResponseCommand, status: boolean): void
 }
 
 export interface SuggestionChannel extends Document {
@@ -231,6 +233,15 @@ export interface VoteEmoji extends Document {
 }
 
 export type VoteEmojiArray = [string, string, string?];
+
+export type RequiredResponseCommand = |
+'approve' |
+'reject' |
+'consider' |
+'implement' |
+'delete' |
+'all' |
+'none';
 
 export interface ActionLogSchema extends Document {
   guild: string;

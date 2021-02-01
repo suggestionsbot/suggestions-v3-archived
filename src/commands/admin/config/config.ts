@@ -19,8 +19,12 @@ export default class ConfigCommand extends Command {
       'config emojis set <id>',
       'config emojis add <emoji1, emoji2>',
       'config emojis delete <id>',
-      'config responses [on|off] [all|response]',
-      'config commands [list, of, commands]'
+      'config responses [command] [on|true|off|false|all|none',
+      'config commands [list, of, commands]',
+      'config restrictVoting [on|true|off|false|toggle]',
+      'config selfVoting [on|true|off|false|toggle]',
+      'config restrictVoting [on|true|off|false|toggle]',
+      'config staffCanDelete [on|true|off|false|toggle]',
     ];
     this.examples = [
       'config prefix ^',
@@ -31,10 +35,14 @@ export default class ConfigCommand extends Command {
       'config emojis set 5',
       'config emojis add :upvote:, :downvote:',
       'config emojis delete 3',
-      'config responses off rejected',
-      'config responses on approved',
-      'config responses off all',
-      'config commands approve, reject'
+      'config responses reject on',
+      'config responses approved false',
+      'config responses all toggle',
+      'config commands approve, reject',
+      'config restrictVoting toggle',
+      'config selfVoting off',
+      'config restrictVoting true',
+      'config staffCanDelete on'
     ];
     this.adminOnly = true;
     this.botPermissions = ['manageMessages', 'externalEmojis'];

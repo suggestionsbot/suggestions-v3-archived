@@ -80,7 +80,15 @@ export const GuildSettings = new Schema({
   requiredResponses: [{
     type: String,
     enum: ['approve', 'reject', 'consider', 'implement', 'delete', 'all']
-  }]
+  }],
+  userSelfDelete: {
+    type: Boolean,
+    default: false
+  },
+  staffDelete: {
+    type: Boolean,
+    default: true
+  }
 });
 
 GuildSettings.method('setGuild', function(this: GuildSchema, guild: Guild|string) {
@@ -198,6 +206,14 @@ GuildSettings.method('updateRequiredResponses', function(this: GuildSchema, comm
       else this.requiredResponses = this.requiredResponses.filter(c => c !== command);
       break;
   }
+});
+
+GuildSettings.method('setSelfDelete', function(this: GuildSchema, status: boolean) {
+  this.userSelfDelete = status;
+});
+
+GuildSettings.method('setStaffDelete', function(this: GuildSchema, status: boolean) {
+  this.staffDelete = status;
 });
 
 GuildSettings.pre('save', function(next) {

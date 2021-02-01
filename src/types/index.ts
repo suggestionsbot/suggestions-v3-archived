@@ -85,8 +85,8 @@ export abstract class Command {
   public ratelimiter?: Collection<Ratelimit>;
   protected constructor(public client: SuggestionsClient) {}
   public abstract run(ctx: Context): Promise<any>;
-  public abstract runPreconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
-  public abstract runPostconditions?(ctx: Context, next: CommandNextFunction): Promise<any>;
+  public abstract runPreconditions?(ctx: Context, next: CommandNextFunction): any;
+  public abstract runPostconditions?(ctx: Context, next: CommandNextFunction): any;
 }
 
 export abstract class SubCommand extends Command {
@@ -109,7 +109,8 @@ export interface CommandThrottling {
   duration: number;
 }
 
-export type CommandNextFunction = (data?: any) => void;
+export type CommandNextData<T> = T;
+export type CommandNextFunction = <CommandNextData>(data?: CommandNextData) => void;
 
 export abstract class Event {
   protected constructor(public client?: SuggestionsClient, public name?: string, public options: EventOptions = {}) {}
@@ -172,12 +173,16 @@ export interface GuildSchema extends Document {
   uniqueVoting: boolean;
   restrictVoting: boolean;
   requiredResponses: Array<RequiredResponseCommand>;
+  userSelfDelete: boolean;
+  staffDelete: boolean;
   setGuild(guild: Guild|string): void;
   setLocale(locale: string): void;
   setDefaultEmojis(index: number): void
   setSelfVoting(status: boolean): void;
   setUniqueVoting(status: boolean): void;
   setRestrictVoting(status: boolean): void;
+  setSelfDelete(status: boolean): void;
+  setStaffDelete(status: boolean): void;
   updatePrefixes(prefix: string): void;
   updateEmojis(emoji: VoteEmoji): void;
   updateChannel(channel: string, data: Record<string, unknown>): void;

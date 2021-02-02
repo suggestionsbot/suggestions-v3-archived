@@ -29,14 +29,14 @@ export default class FlagParser {
     return parsed;
   }
 
-  get(flag: string): string|boolean {
+  get(flag: string): string|undefined {
     const flags = this.parse();
-    return flags[flag];
+    if (Object.prototype.hasOwnProperty.call(flags, flag)) return <string>flags[flag];
+    else return;
   }
 
   has(flag: string): boolean {
     const flags = this.parse();
-    // eslint-disable-next-line no-prototype-builtins
-    return flags.hasOwnProperty(flag);
+    return Object.prototype.hasOwnProperty.call(flags, flag);
   }
 }

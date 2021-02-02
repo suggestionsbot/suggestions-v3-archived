@@ -1,10 +1,11 @@
 import { Guild } from 'eris';
+import { DocumentQuery } from 'mongoose';
+
 import { SuggestionGuild, SuggestionSchema } from '../../../types';
 import SuggestionModel from '../models/suggestion';
 import Util from '../../../utils/Util';
 import MongoDB from '../';
 import Suggestion from '../../../structures/suggestions/Suggestion';
-import { DocumentQuery } from 'mongoose';
 
 export default class SuggestionHelpers {
   constructor(public database: MongoDB) {}
@@ -44,12 +45,12 @@ export default class SuggestionHelpers {
     return SuggestionModel.find({ guild: Util.getGuildID(guild) });
   }
 
-  async getSuggestion(query: string): Promise<Suggestion|undefined> {
+  async getSuggestion(query: string, raw?: boolean): Promise<Suggestion|SuggestionSchema|undefined> {
     const fetched = await SuggestionModel.findOne({ $or: SuggestionHelpers.getSuggestionQuery(query) });
     if (!fetched) throw new Error('SuggestionNotFound');
 
-    if (fetched) return new Suggestion(this.database.client).setData(fetched);
-    else return;
+    if (raw) return fetched;
+    else return new Suggestion(this.database.client).setData(fetched);
   }
 
   createSuggestion(suggestion: Record<string, unknown>): Promise<SuggestionSchema> {

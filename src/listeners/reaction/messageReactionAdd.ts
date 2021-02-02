@@ -7,6 +7,7 @@ import MessageUtils from '../../utils/MessageUtils';
 import Util from '../../utils/Util';
 import emojis from '../../utils/Emojis';
 import SuggestionChannel from '../../structures/suggestions/SuggestionChannel';
+import Suggestion from '../../structures/suggestions/Suggestion';
 
 export default class extends Event {
   constructor(client: SuggestionsClient, name: string) {
@@ -26,7 +27,7 @@ export default class extends Event {
         const sChannel = <SuggestionChannel>(this.client.suggestionChannels.get(message.channel.id) ??
             await this.client.suggestionChannels.fetchChannel(suggestionMessage.guild, channel.id, channel.type))!;
 
-        const suggestion = await this.client.database.helpers.suggestion.getSuggestion(message.id);
+        const suggestion = <Suggestion>await this.client.database.helpers.suggestion.getSuggestion(message.id);
         if (!suggestion) return;
 
         const restrictVote = suggestion && settings.restrictVoting;

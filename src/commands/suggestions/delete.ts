@@ -9,7 +9,7 @@ import MessageUtils from '../../utils/MessageUtils';
 import SuggestionChannel from '../../structures/suggestions/SuggestionChannel';
 import Suggestion from '../../structures/suggestions/Suggestion';
 
-interface SuggestionNextData {
+interface SuggestionDeleteData {
   suggestion: Suggestion;
   reason?: string;
 }
@@ -26,7 +26,6 @@ export default class DeleteCommand extends Command {
       'delete <siD|message link|message ID>',
       'delete <siD|message link|message ID> [reason]',
       'delete <siD|message link|message ID> [--silent]',
-      'delete <siD|message link|message ID> [--global]',
       'delete <siD|message link|message ID> [--force]',
       'delete <siD|message link|message ID> [--ignore]',
     ];
@@ -35,11 +34,9 @@ export default class DeleteCommand extends Command {
       'delete 804884692629323787 --silent',
       'delete 2a68e4e Violates rule 2b --ignore',
       'delete 2a68e4e --force',
-
     ];
     this.botPermissions = ['manageMessages', 'embedLinks', 'addReactions', 'externalEmojis'];
     this.guarded = false;
-    this.active = false;
   }
 
   async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
@@ -48,12 +45,13 @@ export default class DeleteCommand extends Command {
       'Please provide a suggestion ID, message ID or message link!');
 
     try {
-      const suggestion = await this.client.database.helpers.suggestion.getSuggestion(query);
+      const suggestion = <Suggestion>await this.client.database.helpers.suggestion.getSuggestion(query);
       if (!this.client.suggestionChannels.has(suggestion!.data.channel)) {
         const channel = await this.client.suggestionChannels.fetchChannel(suggestion!.guild, suggestion!.data.channel);
         suggestion!.setChannel(<SuggestionChannel>channel);
       }
 
+      // TODO: Handle if user is trying to delete a suggestion thats older than the configured timeout
       const canSelfDelete = ctx.settings!.userSelfDelete;
       const canStaffDelete = ctx.settings!.staffDelete;
       const canUseIgnore = this.client.isGuildStaff(ctx.member!, ctx.settings!);
@@ -72,7 +70,7 @@ export default class DeleteCommand extends Command {
       if (ctx.flags.has('force') && !canUseForce) return MessageUtils.error(this.client, ctx.message,
         'Only guild admins can use the `--force` flag.');
       if (!reason && canUseForce && ctx.flags.has('force'))
-        return next(<SuggestionNextData>{ suggestion: suggestion!, reason });
+        return next(<SuggestionDeleteData>{ suggestion: suggestion!, reason });
 
 
       if (ctx.flags.has('ignore') && !canUseIgnore) return MessageUtils.error(this.client, ctx.message,
@@ -93,20 +91,19 @@ export default class DeleteCommand extends Command {
       if (!ctx.flags.has('global') && canUseGlobal && !guildMatches) return MessageUtils.error(this.client, ctx.message,
         'Please provide the `--global` flag to bypass the suggestion\'s guild scope');
 
-      next<SuggestionNextData>({ suggestion: suggestion!, reason });
+      next<SuggestionDeleteData>({ suggestion: suggestion!, reason });
     } catch (e) {
       if (e.message === 'SuggestionNotFound') return MessageUtils.error(this.client, ctx.message,
         `A suggestion with this query could not be found: \`${query}\``);
       Logger.error('DELETE_COMMAND', e);
       return MessageUtils.error(this.client, ctx.message, e.message, true);
     }
-
   }
 
   async run(ctx: CommandContext): Promise<Message> {
-    const { suggestion, reason } = <SuggestionNextData>ctx.local;
+    const { suggestion, reason } = <SuggestionDeleteData>ctx.local;
     await suggestion.channel.suggestions.delete(suggestion, ctx.sender, reason);
     return MessageUtils.success(this.client, ctx.message,
-      `Successfully deleted suggestion **${suggestion.id(true)}**${reason && ` with the reason: \`${reason}\``}`);
+      `Successfully deleted suggestion **\`${suggestion.id(true)}\`**${reason && ` with the reason: \`${reason}\``}`);
   }
 }

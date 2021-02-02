@@ -5,7 +5,7 @@ import { stripIndents } from 'common-tags';
 
 import SuggestionsClient from '../core/Client';
 import SuggestionChannel from './SuggestionChannel';
-import { GuildSchema, SuggestionSchema, SuggestionType } from '../../types';
+import { Edit, GuildSchema, Note, StatusUpdates, SuggestionSchema, SuggestionType } from '../../types';
 import emojis from '../../utils/Emojis';
 import Util from '../../utils/Util';
 import MessageEmbed from '../../utils/MessageEmbed';
@@ -22,6 +22,9 @@ export default class Suggestion {
   #suggestion!: string;
   #data!: SuggestionSchema;
   #type!: SuggestionType;
+  #edits!: Array<Edit>;
+  #notes!: Array<Note>;
+  #statusUpdates!: Array<StatusUpdates>;
 
   constructor(public client: SuggestionsClient) {}
 
@@ -66,6 +69,18 @@ export default class Suggestion {
     return this.#type;
   }
 
+  get edits(): Array<Edit> {
+    return this.#edits;
+  }
+
+  get notes(): Array<Note> {
+    return this.#notes;
+  }
+
+  get statusUpdates(): Array<StatusUpdates> {
+    return this.#statusUpdates;
+  }
+
   id(short: boolean = false): string {
     return short ? this.#id.slice(33, 40) : this.#id;
   }
@@ -105,14 +120,29 @@ export default class Suggestion {
     return this;
   }
 
+  async fetchMessage(): Promise<Message|undefined> {
+    if (this.#suggestionMessage) return this.#suggestionMessage;
+    const messageID = this.#data.message;
+    const message = this.channel.channel.messages.get(messageID) ??
+      await this.channel.channel.getMessage(messageID);
+    if (message) {
+      this.#suggestionMessage = message;
+      return this.#suggestionMessage;
+    } else return;
+  }
+
   async setData(data: SuggestionSchema): Promise<this> {
     this.#data = data;
     if (data.id) this.#id = data.id;
     if (data.user) this.#author = await this.client.getRESTUser(data.user);
     if (data.guild) this.#guild = await this.client.getRESTGuild(data.guild);
-    if (data.channel) this.#channel = <SuggestionChannel>this.client.suggestionChannels.get(data.channel)!;
+    if (data.channel) this.#channel = <SuggestionChannel>await this.client.suggestionChannels.fetchChannel(this.#guild, data.channel)!;
     if (data.suggestion) this.#suggestion = data.suggestion;
     if (data.type) this.#type = data.type;
+    if (data.message) await this.fetchMessage();
+    if (data.edits) this.#edits = data.edits;
+    if (data.notes) this.#notes = data.notes;
+    if (data.statusUpdates) this.#statusUpdates = data.statusUpdates;
 
     return new Promise(resolve => {
       resolve(this);

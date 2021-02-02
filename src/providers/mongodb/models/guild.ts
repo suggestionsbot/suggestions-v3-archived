@@ -79,16 +79,24 @@ export const GuildSettings = new Schema({
   },
   requiredResponses: [{
     type: String,
-    enum: ['approve', 'reject', 'consider', 'implement', 'delete', 'all']
+    enum: ['approve', 'reject', 'consider', 'implement', 'delete', 'edit', 'all']
   }],
   userSelfDelete: {
     type: Boolean,
-    default: false
+    default: true
   },
   staffDelete: {
     type: Boolean,
     default: true
-  }
+  },
+  userSelfEdit: {
+    type: Boolean,
+    default: true
+  },
+  staffEdit: {
+    type: Boolean,
+    default: true
+  },
 });
 
 GuildSettings.method('setGuild', function(this: GuildSchema, guild: Guild|string) {
@@ -214,6 +222,14 @@ GuildSettings.method('setSelfDelete', function(this: GuildSchema, status: boolea
 
 GuildSettings.method('setStaffDelete', function(this: GuildSchema, status: boolean) {
   this.staffDelete = status;
+});
+
+GuildSettings.method('setSelfEdit', function(this: GuildSchema, status: boolean) {
+  this.userSelfEdit = status;
+});
+
+GuildSettings.method('setStaffEdit', function(this: GuildSchema, status: boolean) {
+  this.staffEdit = status;
 });
 
 GuildSettings.pre('save', function(next) {

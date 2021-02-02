@@ -175,6 +175,8 @@ export interface GuildSchema extends Document {
   requiredResponses: Array<RequiredResponseCommand>;
   userSelfDelete: boolean;
   staffDelete: boolean;
+  userSelfEdit: boolean;
+  staffEdit: boolean;
   setGuild(guild: Guild|string): void;
   setLocale(locale: string): void;
   setDefaultEmojis(index: number): void
@@ -183,6 +185,8 @@ export interface GuildSchema extends Document {
   setRestrictVoting(status: boolean): void;
   setSelfDelete(status: boolean): void;
   setStaffDelete(status: boolean): void;
+  setSelfEdit(status: boolean): void;
+  setStaffEdit(status: boolean): void;
   updatePrefixes(prefix: string): void;
   updateEmojis(emoji: VoteEmoji): void;
   updateChannel(channel: string, data: Record<string, unknown>): void;
@@ -245,6 +249,7 @@ export type RequiredResponseCommand = |
 'consider' |
 'implement' |
 'delete' |
+'edit' |
 'all' |
 'none';
 
@@ -295,6 +300,7 @@ export interface Note extends Document {
 export interface Edit extends Document {
   edit: string;
   editedBy: string;
+  reason: string;
   edited: number;
 }
 

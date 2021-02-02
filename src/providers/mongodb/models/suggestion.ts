@@ -12,6 +12,7 @@ export const Suggestion = new Schema({
   type: { type: String, enum: ['regular', 'staff'] },
   statusUpdates: {
     type: [{
+      index: Number,
       status: { type: String },
       response: { type: String },
       time: { type: String, default: Date.now() },
@@ -31,6 +32,7 @@ export const Suggestion = new Schema({
     type: [{
       edit: String,
       editedBy: String,
+      reason: String,
       edited: { type: Number, default: Date.now() }
     }]
   }

@@ -1,15 +1,13 @@
 import { Emoji, Guild, Member, Message, MessageFile, User } from 'eris';
 import fetch from 'node-fetch';
 import * as crypto from 'crypto';
-import { stripIndents } from 'common-tags';
 
 import SuggestionsClient from '../core/Client';
 import SuggestionChannel from './SuggestionChannel';
 import { Edit, GuildSchema, Note, StatusUpdates, SuggestionSchema, SuggestionType } from '../../types';
 import emojis from '../../utils/Emojis';
 import Util from '../../utils/Util';
-import MessageEmbed from '../../utils/MessageEmbed';
-import MessageUtils from '../../utils/MessageUtils';
+import SuggestionEmbeds from '../../utils/SuggestionEmbeds';
 
 export default class Suggestion {
   #author!: User;
@@ -40,9 +38,9 @@ export default class Suggestion {
     return this.#data;
   }
 
-  get link(): string|undefined {
-    if (!this.#suggestionMessage) return;
-    else return `https://discord.com/channels/${this.#guild.id}/${this.#channel.channel.id}/${this.#suggestionMessage.id}`;
+  get link(): string {
+    if (this.#suggestionMessage) return this.#suggestionMessage.jumpLink;
+    return `https://discord.com/channels/${this.#guild.id}/${this.#channel.channel.id}/${this.#data.message}`;
   }
 
   get author(): User {
@@ -156,7 +154,7 @@ export default class Suggestion {
     const setEmojis = voteEmojis[this.#channel.emojis];
     const guild = setEmojis.system ? await this.client.base!.ipc.fetchGuild(this.client.system) : this.#guild;
     const reactions = setEmojis.emojis.map(e => e && Util.matchUnicodeEmoji(e) ? e : (<Array<Emoji>>guild.emojis).find(ge => ge.id === e));
-    const embed = this.buildEmbed();
+    const embed = SuggestionEmbeds.fullSuggestion(this);
 
 
     let file: MessageFile|undefined;
@@ -170,7 +168,8 @@ export default class Suggestion {
 
     this.#suggestionMessage = await this.#channel.channel.createMessage({ embed }, file);
     // TODO dont forget to re-enable this when we implement (dm) responses
-    // this.#author.getDMChannel().then(c => c.createMessage({ embed: this.buildDMEmbed() }));
+    // const dmEmbed = SuggestionEmbeds.suggestionCreatedDM(this);
+    // this.#author.getDMChannel().then(c => c.createMessage({ embed: dmEmbed }));
 
     for (const react of reactions) {
       if (react) await this.#suggestionMessage.addReaction(typeof react === 'string' ? react : Util.getReactionString(react));
@@ -179,39 +178,5 @@ export default class Suggestion {
     this.#data = await this.#channel.suggestions.add(this);
 
     return this;
-  }
-
-  private buildDMEmbed(): MessageEmbed {
-    return MessageUtils.defaultEmbed()
-      .setAuthor(this.#guild.name, this.#guild.iconURL)
-      .setDescription(stripIndents`Hey, ${this.#author.mention}. Your suggestion has been sent to the ${this.#channel.channel.mention} to be voted on!
-          
-          Please wait until it get approved or rejected by a staff member.
-          
-          *Jump to Suggestion* → [\`[${this.id(true)}]\`](${this.link!})
-          
-          Your suggestion ID (sID) for reference is **${this.id(true)}**
-        `)
-      .setFooter(`Guild ID: ${this.#guild.id} | sID: ${this.id(true)}`)
-      .setTimestamp();
-  }
-
-  private buildEmbed(): MessageEmbed {
-    const imageCheck = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)/.exec(this.#suggestion!);
-
-    const embed = MessageUtils.defaultEmbed()
-      .setDescription(stripIndents`
-          **Submitter**
-          ${Util.escapeMarkdown(this.#author.tag)}
-
-          **Suggestion**
-          ${this.#suggestion}
-        `)
-      .setThumbnail(this.#author.avatarURL)
-      .setFooter(`User ID: ${this.#author.id} | sID: ${this.id(true)}`)
-      .setTimestamp();
-
-    if (imageCheck) embed.setImage(imageCheck[0]);
-    return embed;
   }
 }

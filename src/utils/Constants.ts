@@ -9,3 +9,5 @@ export const ALLOWED_MENTIONS = {
   roles: true,
   repliedUser: true
 };
+
+export const IMAGE_URL_REGEX = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)/;

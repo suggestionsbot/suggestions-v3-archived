@@ -33,8 +33,8 @@ export default class ConfigResponsesCommand extends SubCommand {
     this.adminOnly = true;
     this.botPermissions = ['manageMessages', 'externalEmojis', 'embedLinks'];
 
-    this.#commands = ['approve', 'reject', 'consider', 'implement', 'delete'];
-    this.#commandOptions = ['approve', 'reject', 'consider', 'implement', 'delete', 'all', 'none'];
+    this.#commands = ['approve', 'reject', 'consider', 'implement', 'delete', 'edit'];
+    this.#commandOptions = ['approve', 'reject', 'consider', 'implement', 'delete', 'edit', 'all', 'none'];
   }
 
   async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
@@ -111,7 +111,7 @@ export default class ConfigResponsesCommand extends SubCommand {
       guildData.updateRequiredResponses(inputtedCommand, updateStatus);
       await guildData.save();
 
-      let view: string = '';
+      let view: string;
       if (command === 'all') view = `Responses are **${newStatus(updateStatus)}** for **all commands**.\n\n${affectedCommands}`;
       else if (command === 'none') view = `Responses are **${newStatus(updateStatus)}** for **all commands**.\n\n${affectedCommands}`;
       else view = `Responses are **${newStatus(updateStatus)}** for \`${command}\`.`;

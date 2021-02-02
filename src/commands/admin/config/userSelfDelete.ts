@@ -7,7 +7,6 @@ import Logger from '../../../utils/Logger';
 import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS } from '../../../utils/Constants';
 
 export default class ConfigUserSelfDeleteCommand extends SubCommand {
-
   constructor(client: SuggestionsClient) {
     super(client);
 
@@ -23,8 +22,8 @@ export default class ConfigUserSelfDeleteCommand extends SubCommand {
     this.examples = [
       'config userSelfDelete true',
       'config userSelfDelete false',
-      'config userSelfDelete ib',
-      'config userSelfDelete toggle'
+      'config selfDelete on',
+      'config selfDelete toggle'
     ];
     this.aliases = ['selfDelete'];
     this.adminOnly = true;

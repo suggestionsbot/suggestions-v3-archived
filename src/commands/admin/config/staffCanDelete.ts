@@ -6,7 +6,7 @@ import { CommandNextFunction } from '../../../types';
 import Logger from '../../../utils/Logger';
 import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS } from '../../../utils/Constants';
 
-export default class ConfigUserSelfDeleteCommand extends SubCommand {
+export default class ConfigStaffCanDeleteCommand extends SubCommand {
 
   constructor(client: SuggestionsClient) {
     super(client);
@@ -23,8 +23,8 @@ export default class ConfigUserSelfDeleteCommand extends SubCommand {
     this.examples = [
       'config staffCanDelete true',
       'config staffCanDelete false',
-      'config staffCanDelete ib',
-      'config staffCanDelete toggle'
+      'config staffDelete on',
+      'config staffDelete toggle'
     ];
     this.aliases = ['staffDelete'];
     this.adminOnly = true;

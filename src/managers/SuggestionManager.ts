@@ -58,7 +58,7 @@ export default class SuggestionManager {
     return data;
   }
 
-  async delete(suggestion: Suggestion|string, executor: User, reason?: string|boolean): Promise<boolean> {
+  async delete(suggestion: Suggestion|string, executor: User, reason?: string): Promise<boolean> {
     let data: Suggestion|undefined;
     if (suggestion instanceof Suggestion) data = suggestion;
     else data = <Suggestion>await this.fetch(suggestion, false, true);

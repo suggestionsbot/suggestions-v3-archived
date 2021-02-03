@@ -1,7 +1,7 @@
 import SubCommand from '../../../structures/core/SubCommand';
 import SuggestionsClient from '../../../structures/core/Client';
 import CommandContext from '../../../structures/commands/Context';
-import { CommandNextFunction } from '../../../types';
+import { CommandCategory, CommandNextFunction } from '../../../types';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
 import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS, VIEW_STATUS } from '../../../utils/Constants';
@@ -14,6 +14,7 @@ export default class ConfigRestrictVotingCommand extends SubCommand {
     this.arg = 'restrictVoting';
     this.name = 'restrictVoting';
     this.friendly = 'config restrictVoting';
+    this.category = CommandCategory.ADMIN;
     this.description = 'Configure if suggestion reactions should be restricted to set vote emojis.';
     this.usages = [
       'config restrictVoting [true|on|false|off|toggle]',

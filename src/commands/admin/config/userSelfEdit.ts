@@ -1,7 +1,7 @@
 import SubCommand from '../../../structures/core/SubCommand';
 import CommandContext from '../../../structures/commands/Context';
 import SuggestionsClient from '../../../structures/core/Client';
-import { CommandNextFunction } from '../../../types';
+import { CommandCategory, CommandNextFunction } from '../../../types';
 import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS, VIEW_STATUS } from '../../../utils/Constants';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
@@ -14,6 +14,7 @@ export default class ConfigUserSelfEditCommand extends SubCommand {
     this.arg = 'userSelfEdit';
     this.name = 'userSelfEdit';
     this.friendly = 'config userSelfEdit';
+    this.category = CommandCategory.ADMIN;
     this.description = 'Configure if users should be allowed to edit their own suggestions.';
     this.usages = [
       'config userSelfEdit [true|on|false|off|toggle]',

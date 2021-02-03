@@ -2,7 +2,7 @@ import SubCommand from '../../../structures/core/SubCommand';
 import MessageUtils from '../../../utils/MessageUtils';
 import CommandContext from '../../../structures/commands/Context';
 import SuggestionsClient from '../../../structures/core/Client';
-import { CommandNextFunction } from '../../../types';
+import { CommandCategory, CommandNextFunction } from '../../../types';
 import Logger from '../../../utils/Logger';
 import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS, VIEW_STATUS } from '../../../utils/Constants';
 
@@ -14,6 +14,7 @@ export default class ConfigUserSelfDeleteCommand extends SubCommand {
     this.arg = 'userSelfDelete';
     this.name = 'userSelfDelete';
     this.friendly = 'config userSelfDelete';
+    this.category = CommandCategory.ADMIN;
     this.description = 'Configure if users should be allowed to delete their own suggestions.';
     this.usages = [
       'config userSelfDelete [true|on|false|off|toggle]',

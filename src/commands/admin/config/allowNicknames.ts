@@ -1,7 +1,7 @@
 import SubCommand from '../../../structures/core/SubCommand';
 import SuggestionsClient from '../../../structures/core/Client';
 import CommandContext from '../../../structures/commands/Context';
-import { CommandNextFunction } from '../../../types';
+import { CommandCategory, CommandNextFunction } from '../../../types';
 import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS, VIEW_STATUS } from '../../../utils/Constants';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
@@ -14,6 +14,7 @@ export default class ConfigAllowNicknameCommand extends SubCommand {
     this.arg = 'allowNicknames';
     this.name = 'allowNicknames';
     this.friendly = 'config allowNicknames';
+    this.category = CommandCategory.ADMIN;
     this.description = 'Configure if a user\'s should have the option to display their nickname/displayname in suggestions.';
     this.usages = ['config allowNicknames [true|on|false|off|toggle]'];
     this.examples = ['config allowNicknames true'];

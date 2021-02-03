@@ -3,7 +3,7 @@ import { stripIndents } from 'common-tags';
 import SubCommand from '../../../structures/core/SubCommand';
 import SuggestionsClient from '../../../structures/core/Client';
 import CommandContext from '../../../structures/commands/Context';
-import { CommandNextFunction, RequiredResponseCommand } from '../../../types';
+import { CommandCategory, CommandNextFunction, RequiredResponseCommand } from '../../../types';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
 import { BULLET_POINT, CONFIG_OPTIONS, VIEW_STATUS } from '../../../utils/Constants';
@@ -19,6 +19,7 @@ export default class ConfigResponsesCommand extends SubCommand {
     this.arg = 'responses';
     this.name = 'respones';
     this.friendly = 'config responses';
+    this.category = CommandCategory.ADMIN;
     this.description = 'Require a response for various commands or all commands.';
     this.usages = [
       'config responses [command|all] [true|on|false|off|toggle]',

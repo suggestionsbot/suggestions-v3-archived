@@ -2,7 +2,7 @@ import SubCommand from '../../../structures/core/SubCommand';
 import MessageUtils from '../../../utils/MessageUtils';
 import CommandContext from '../../../structures/commands/Context';
 import SuggestionsClient from '../../../structures/core/Client';
-import { CommandNextFunction } from '../../../types';
+import { CommandCategory, CommandNextFunction } from '../../../types';
 import Logger from '../../../utils/Logger';
 import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS, VIEW_STATUS } from '../../../utils/Constants';
 
@@ -15,6 +15,7 @@ export default class ConfigStaffCanDeleteCommand extends SubCommand {
     this.arg = 'staffCanDelete';
     this.name = 'staffCanDelete';
     this.friendly = 'config staffCanDelete';
+    this.category = CommandCategory.ADMIN;
     this.description = 'Configure if staff should be able to delete suggestions they did\'t submit.';
     this.usages = [
       'config staffCanDelete [true|on|false|off|toggle]',

@@ -1,5 +1,5 @@
 import { oneLine, stripIndents } from 'common-tags';
-import { Guild, Message, User } from 'eris';
+import { EmbedField, Guild, Message, User } from 'eris';
 
 import MessageEmbed from './MessageEmbed';
 import MessageUtils from './MessageUtils';
@@ -7,19 +7,53 @@ import Util from './Util';
 import { IMAGE_URL_REGEX } from './Constants';
 import SuggestionChannel from '../structures/suggestions/SuggestionChannel';
 
-interface EmbedData {
-  id?: string;
+interface FullEmbedData {
+  id: string;
   suggestion: string;
   message: Message;
   author: User;
   nickname: boolean;
-  guild?: Guild;
-  link?: string;
-  channel?: SuggestionChannel;
+  guild: Guild;
+  channel: SuggestionChannel;
+}
+
+interface CompactEmbedData {
+  suggestion: string;
+  message: Message;
+  author: User;
+  nickname: boolean;
+}
+
+interface CreateDMData {
+  id: string;
+  link: string;
+  suggestion: string;
+  guild: Guild;
+  author: User;
+  channel: SuggestionChannel;
+}
+
+interface EditDMData {
+  id: string;
+  link: string;
+  suggestion: { before: string; after: string; };
+  guild: Guild;
+  author: User;
+  executor: User;
+  reason?: string;
+}
+
+interface DeleteDMData {
+  id: string;
+  suggestion: string;
+  guild: Guild;
+  author: User
+  executor: User;
+  reason?: string;
 }
 
 export default class SuggestionEmbeds {
-  static fullSuggestion(data: EmbedData): MessageEmbed {
+  static fullSuggestion(data: FullEmbedData): MessageEmbed {
     const imageCheck = IMAGE_URL_REGEX.exec(data.suggestion);
     const displayName = data.nickname
       ? oneLine`${data.message?.member?.displayName ?? data.author.username}#
@@ -28,12 +62,12 @@ export default class SuggestionEmbeds {
 
     const embed = MessageUtils.defaultEmbed()
       .setDescription(stripIndents`
-          **Submitter**
-          ${Util.escapeMarkdown(displayName)}
-          
-          **Suggestion**
-          ${data.suggestion}
-        `)
+        **Submitter**
+        ${Util.escapeMarkdown(displayName)}
+        
+        **Suggestion**
+        ${data.suggestion}
+      `)
       .setThumbnail(data.author.avatarURL)
       .setFooter(`Author ID: ${data.author.id} | sID: ${data.id}`);
 
@@ -41,7 +75,7 @@ export default class SuggestionEmbeds {
     return embed;
   }
 
-  static compactSuggestion(data: EmbedData): MessageEmbed {
+  static compactSuggestion(data: CompactEmbedData): MessageEmbed {
     const displayName = data.nickname
       ? oneLine`${data.message?.member?.displayName ?? data.author.username}#
         ${data.message?.member?.discriminator ?? data.author.discriminator}`
@@ -52,16 +86,55 @@ export default class SuggestionEmbeds {
       .setDescription(stripIndents(data.suggestion));
   }
 
-  static suggestionCreatedDM(data: EmbedData): MessageEmbed {
+  static suggestionCreatedMessage(data: { author: User, channel: SuggestionChannel, id: string, link: string }): string {
+    return stripIndents`Hey, ${data.author.mention}. Your suggestion has been sent to ${data.channel.channel.mention} to be voted on!
+      
+      Please wait until a staff member handles your suggestion.
+      
+      *Jump to Suggestion* → [${Util.boldCode(data.id)}](${data.link})
+    `;
+  }
+
+  static suggestionCreatedDM(data: CreateDMData): MessageEmbed {
     return MessageUtils.defaultEmbed()
-      .setAuthor(data.guild!.name, data.guild!.iconURL)
-      .setDescription(stripIndents`Hey, ${data.author.mention}. Your suggestion has been sent to ${data.channel!.channel.mention} to be voted on!
+      .setAuthor(data.guild.name, data.guild.iconURL)
+      .setDescription(stripIndents`Hey, ${data.author.mention}. Your suggestion has been sent to ${data.channel.channel.mention} to be voted on!
         
         Please wait until a staff member handles your suggestion.
         
-        *Jump to Suggestion* → [\`[${data.id}]\`](${data.link})
+        *Jump to Suggestion* → [${Util.boldCode(data.id)}](${data.link})
       `)
-      .setFooter(`Guild ID: ${data.guild!.id} | sID: ${data.id}`)
+      .setFooter(`Guild ID: ${data.guild.id} | sID: ${data.id}`)
+      .setTimestamp();
+  }
+
+  static suggestionEditedDM(data: EditDMData): MessageEmbed {
+    const fields: Array<EmbedField> = [
+      { name: 'Before', value: Util.escapeMarkdown(data.suggestion.before), inline: true },
+      { name: 'After', value: Util.escapeMarkdown(data.suggestion.after), inline: true },
+    ];
+
+    if (data.reason) fields.push({ name: 'Reason', value: data.reason });
+
+    return MessageUtils.defaultEmbed()
+      .setAuthor(data.guild.name, data.guild.iconURL)
+      .setDescription(stripIndents`Hey, ${data.author.mention}. Your suggestion has been edited by ${data.executor.mention}.
+        
+        *Jump to Suggestion* → [${Util.boldCode(data.id)}](${data.link})
+      `)
+      .addFields(...fields)
+      .setFooter(`Guild ID: ${data.guild.id} | sID: ${data.id}`)
+      .setTimestamp();
+  }
+
+  static suggestionDeletedDM(data: DeleteDMData): MessageEmbed {
+    return MessageUtils.defaultEmbed()
+      .setAuthor(data.guild.name, data.guild.iconURL)
+      .setDescription(stripIndents`Hey, ${data.author.mention}. Your suggestion has been deleted by ${data.executor.mention}.
+
+        ${data.reason && `**Reason:** ${data.reason}\`\n`}**Reference ID:** ${Util.boldCode(data.id)}
+      `)
+      .setFooter(`Guild ID: ${data.guild.id} | sID: ${data.id}`)
       .setTimestamp();
   }
 }

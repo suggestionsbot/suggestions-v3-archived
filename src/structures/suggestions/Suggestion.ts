@@ -161,6 +161,8 @@ export default class Suggestion {
     const guild = setEmojis.system ? await this.client.base!.ipc.fetchGuild(this.client.system) : this.#guild;
     const reactions = setEmojis.emojis.map(e => e && Util.matchUnicodeEmoji(e) ? e : (<Array<Emoji>>guild.emojis).find(ge => ge.id === e));
     const embed = SuggestionEmbeds.fullSuggestion({
+      channel: this.#channel,
+      guild: this.#guild,
       id: this.#id.slice(33, 40),
       suggestion: this.#suggestion,
       message: this.#message!,
@@ -178,9 +180,6 @@ export default class Suggestion {
     }
 
     this.#suggestionMessage = await this.#channel.channel.createMessage({ embed }, file);
-    // TODO dont forget to re-enable this when we implement (dm) responses
-    // const dmEmbed = SuggestionEmbeds.suggestionCreatedDM(this);
-    // this.#author.getDMChannel().then(c => c.createMessage({ embed: dmEmbed }));
 
     for (const react of reactions) {
       if (react) await this.#suggestionMessage.addReaction(typeof react === 'string' ? react : Util.getReactionString(react));

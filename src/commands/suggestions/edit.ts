@@ -1,3 +1,5 @@
+import { oneLine } from 'common-tags';
+
 import Command from '../../structures/core/Command';
 import SuggestionsClient from '../../structures/core/Client';
 import { CommandCategory, CommandNextFunction } from '../../types';
@@ -6,6 +8,7 @@ import Suggestion from '../../structures/suggestions/Suggestion';
 import MessageUtils from '../../utils/MessageUtils';
 import Logger from '../../utils/Logger';
 import SuggestionChannel from '../../structures/suggestions/SuggestionChannel';
+import Util from '../../utils/Util';
 
 interface SuggestionEditData {
   suggestion: Suggestion;
@@ -108,6 +111,7 @@ export default class EditCommand extends Command {
     const { suggestion, edit, reason } = <SuggestionEditData>ctx.local;
     await suggestion.channel.suggestions.edit(suggestion, ctx.sender, edit, reason);
     return MessageUtils.success(this.client, ctx.message,
-      `Successfully edited suggestion [**\`${suggestion.id(true)}\`**](${suggestion.link})${reason && ` with the reason: \`${reason}\``}`);
+      oneLine`Successfully edited suggestion [${Util.boldCode(suggestion.id(true))}](${suggestion.link})
+        ${reason && ` with the reason: \`${reason}\``}`);
   }
 }

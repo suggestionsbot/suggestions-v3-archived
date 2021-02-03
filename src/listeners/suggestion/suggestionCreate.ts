@@ -6,6 +6,8 @@ import ActionLog from '../../structures/actions/ActionLog';
 import { SuggestionChannelType } from '../../types';
 import ActionLogChannel from '../../structures/actions/ActionLogChannel';
 import MessageUtils from '../../utils/MessageUtils';
+import Util from '../../utils/Util';
+import SuggestionEmbeds from '../../utils/SuggestionEmbeds';
 
 export default class extends Event {
   constructor(client: SuggestionsClient, name: string) {
@@ -22,9 +24,18 @@ export default class extends Event {
       .setAuthor(`Suggestion Created | ${suggestion.author.tag}`, suggestion.author.avatarURL)
       .addField('Channel', suggestion.channel.channel.mention, true)
       .addField('Author', suggestion.author.mention, true)
-      .addField('Suggestion ID', `[\`${suggestion.id(true)}\`](${suggestion.link})`, true)
+      .addField('Suggestion ID', `[${Util.boldCode(suggestion.id(true))}](${suggestion.link})`, true)
       .setFooter(`Author ID: ${suggestion.author.id}`)
       .setTimestamp();
+
+    const dmEmbed = SuggestionEmbeds.suggestionCreatedDM({
+      id: suggestion.id(true),
+      link: suggestion.link,
+      suggestion: Util.escapeMarkdown(suggestion.suggestion!),
+      guild: suggestion.guild,
+      author: suggestion.author,
+      channel: suggestion.channel
+    });
 
     const actionlog = new ActionLog(this.client)
       .setExecutor(suggestion.author)
@@ -34,6 +45,7 @@ export default class extends Event {
       .setType('SUGGESTION_CREATED')
       .setEmbedData(embed);
 
-    await actionlog.post().catch(e => Logger.error('SUGGESTION_CREATE', e));
+    actionlog.post().catch(e => Logger.error('SUGGESTION_CREATE', e));
+    suggestion.author.createMessage({ embed: dmEmbed }).catch(() => {});
   }
 }

@@ -230,4 +230,14 @@ export default class Util {
     const ids = matches.reverse()[0].split('/');
     return ids.reverse()[0];
   }
+
+  static boldCode(str: string): string {
+    return `**\`${str}\`**`;
+  }
+
+  static cleanCodeBlock(code: string): string {
+    const re = /```([^`]*)```/;
+    const matches = code.match(re);
+    return matches ? matches[1]: code;
+  }
 }

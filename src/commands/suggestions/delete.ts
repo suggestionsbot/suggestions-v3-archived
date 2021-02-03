@@ -1,4 +1,5 @@
 import { Message } from 'eris';
+import { oneLine } from 'common-tags';
 
 import Command from '../../structures/core/Command';
 import SuggestionsClient from '../../structures/core/Client';
@@ -8,6 +9,7 @@ import Logger from '../../utils/Logger';
 import MessageUtils from '../../utils/MessageUtils';
 import SuggestionChannel from '../../structures/suggestions/SuggestionChannel';
 import Suggestion from '../../structures/suggestions/Suggestion';
+import Util from '../../utils/Util';
 
 interface SuggestionDeleteData {
   suggestion: Suggestion;
@@ -104,6 +106,7 @@ export default class DeleteCommand extends Command {
     const { suggestion, reason } = <SuggestionDeleteData>ctx.local;
     await suggestion.channel.suggestions.delete(suggestion, ctx.sender, reason);
     return MessageUtils.success(this.client, ctx.message,
-      `Successfully deleted suggestion **\`${suggestion.id(true)}\`**${reason && ` with the reason: \`${reason}\``}`);
+      oneLine`Successfully deleted suggestion ${Util.boldCode(suggestion.id(true))}
+        ${reason && ` with the reason: \`${reason}\``}`);
   }
 }

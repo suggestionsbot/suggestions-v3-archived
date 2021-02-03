@@ -10,6 +10,7 @@ import Util from '../../utils/Util';
 import MessageUtils from '../../utils/MessageUtils';
 import ActionLog from '../../structures/actions/ActionLog';
 import Logger from '../../utils/Logger';
+import SuggestionEmbeds from '../../utils/SuggestionEmbeds';
 
 export default class extends Event {
   constructor(client: SuggestionsClient, name: string) {
@@ -25,21 +26,26 @@ export default class extends Event {
     const changes = [];
     if (reason) changes.push({ key: 'reason', before: undefined, after: reason });
 
-    const re = /```([^`]*)```/;
-    const matches = edit!.match(re);
-    const content = matches ? matches[1] : edit;
-
-    const suggestionContent = new CodeBlock()
-      .setContent(Util.escapeMarkdown(content));
+    const [oldContent, newContent] = [suggestion.edits[1].edit, edit];
 
     const embed = MessageUtils.defaultEmbed()
       .setAuthor(`Suggestion Edited | ${executor.tag}`, executor.avatarURL)
-      .setDescription(suggestionContent.toString())
+      .setDescription(newContent)
       .addField('Channel', suggestion.channel.channel.mention, true)
       .addField('Author', suggestion.author.mention, true)
-      .addField('Suggestion ID', `[\`${suggestion.id(true)}\`](${suggestion.link})`, true)
+      .addField('Suggestion ID', `[${Util.boldCode(suggestion.id(true))}](${suggestion.link})`, true)
       .setFooter(`Author ID: ${suggestion.author.id}`)
       .setTimestamp();
+
+    const dmEmbed = SuggestionEmbeds.suggestionEditedDM({
+      id: suggestion.id(true),
+      link: suggestion.link,
+      suggestion: { before: oldContent, after: newContent },
+      guild: suggestion.guild,
+      author: suggestion.author,
+      executor,
+      reason
+    });
 
     if (reason) embed.fields.push({
       name: 'Reason',
@@ -57,6 +63,7 @@ export default class extends Event {
       .setEmbedData(embed)
       .setChanges(changes);
 
-    await actionlog.post().catch(e => Logger.error('SUGGESTION_EDITED', e));
+    actionlog.post().catch(e => Logger.error('SUGGESTION_EDITED', e));
+    suggestion.author.createMessage({ embed: dmEmbed }).catch(() => {});
   }
 }

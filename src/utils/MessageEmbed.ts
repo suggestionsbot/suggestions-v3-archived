@@ -116,4 +116,25 @@ export default class MessageEmbed {
     this.fields.push({ name, value, inline });
     return this;
   }
+
+  addFields(...fields: Array<EmbedField>): this {
+    this.fields.push(...MessageEmbed.normalizeFields(...fields));
+    return this;
+  }
+
+  static normalizeField(name: string, value: string, inline: boolean = false): EmbedField {
+    return { name, value, inline };
+  }
+
+  static normalizeFields(...fields: Array<EmbedField>): Array<EmbedField> {
+    return fields
+      .flat(2)
+      .map(field =>
+        this.normalizeField(
+          field && field.name,
+          field && field.value,
+          field?.inline ?? false,
+        ),
+      );
+  }
 }

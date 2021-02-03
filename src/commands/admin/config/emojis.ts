@@ -121,7 +121,7 @@ export default class ConfigEmojisCommand extends SubCommand {
 
       switch (arg) {
         case 'add': {
-          const data = await ctx.getSettings(false)!;
+          const data = await ctx.getSettings()!;
           const emojiArgs = ctx.args.slice(1).join(' ').split(', ');
           const emojis = emojiArgs.map(arg => {
             const emojiMatch = Util.matchUnicodeEmoji(arg);
@@ -160,7 +160,7 @@ export default class ConfigEmojisCommand extends SubCommand {
           const set = voteEmojis[+subArg];
           const setView = <string>await this.client.getVoteEmojisView(ctx.settings!, +subArg);
 
-          const data = await ctx.getSettings(false)!;
+          const data = await ctx.getSettings()!;
           data.updateEmojis(set);
           const document = await data.save();
           const updated = document.emojis.find(e => e.index === +subArg);
@@ -174,7 +174,7 @@ export default class ConfigEmojisCommand extends SubCommand {
           const subArg = ctx.args.get(1);
           const setView = <string>await this.client.getVoteEmojisView(ctx.settings!, +subArg);
 
-          const data = await ctx.getSettings(false)!;
+          const data = await ctx.getSettings()!;
           data.setDefaultEmojis(+subArg);
           await data.save();
 
@@ -184,7 +184,7 @@ export default class ConfigEmojisCommand extends SubCommand {
           break;
         }
         case 'reset': {
-          const data = await ctx.getSettings(false)!;
+          const data = await ctx.getSettings()!;
           data.emojis = [];
           await data.save();
 

@@ -129,7 +129,7 @@ export default class ConfigRolesCommand extends SubCommand {
       return ctx.embed(baseEmbed);
     }
 
-    const data = await ctx.getSettings(false)!;
+    const data = await ctx.getSettings()!;
     const rolesToUpdate = ctx.flags.get('update');
     if (rolesToUpdate) {
       const roles = (rolesToUpdate as string).split(', ').map(role => Util.getRole(role, ctx)!);
@@ -164,7 +164,7 @@ export default class ConfigRolesCommand extends SubCommand {
       switch (arg) {
         case 'add': case 'remove': {
           try {
-            const data = await ctx.getSettings(false)!;
+            const data = await ctx.getSettings()!;
             const updated = <SuggestionRole>{
               id: gRole.id,
               type: 'staff',
@@ -186,7 +186,7 @@ export default class ConfigRolesCommand extends SubCommand {
         }
         case 'reset': {
           try {
-            const data = await ctx.getSettings(false)!;
+            const data = await ctx.getSettings()!;
             data.staffRoles = [];
             await data.save();
             await MessageUtils.success(this.client, ctx.message,

@@ -107,7 +107,7 @@ export default class ConfigResponsesCommand extends SubCommand {
 
       const truthyValues = ['true', 'on'];
       const updateStatus = truthyValues.includes(inputtedOption) ? true : inputtedOption === 'toggle' ? !ref : false;
-      const guildData = await ctx.getSettings(false)!;
+      const guildData = await ctx.getSettings()!;
       guildData.updateRequiredResponses(inputtedCommand, updateStatus);
       await guildData.save();
 

@@ -57,7 +57,7 @@ export default class ConfigRestrictVotingCommand extends SubCommand {
 
       const userInput = ctx.args.get(0).toLowerCase();
       const status = TRUTHY_CONFIG_OPTIONS.includes(userInput) ? true : userInput === 'toggle' ? !currentStatus : false;
-      const guildData = await ctx.getSettings(false)!;
+      const guildData = await ctx.getSettings()!;
       guildData.setRestrictVoting(status);
       await guildData.save();
       baseEmbed.setDescription(`Adding non-vote set reactions to suggestions has been **${viewStatus(status)}** in this guild.`);

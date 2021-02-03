@@ -58,7 +58,7 @@ export default class ConfigStaffCanDeleteCommand extends SubCommand {
 
       const userInput = ctx.args.get(0).toLowerCase();
       const status = TRUTHY_CONFIG_OPTIONS.includes(userInput) ? true : userInput === 'toggle' ? !currentStatus : false;
-      const guildData = await ctx.getSettings(false)!;
+      const guildData = await ctx.getSettings()!;
       guildData.setStaffDelete(status);
       await guildData.save();
       return MessageUtils.success(this.client, ctx.message,

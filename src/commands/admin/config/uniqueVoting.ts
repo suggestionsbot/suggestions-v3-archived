@@ -57,7 +57,7 @@ export default class ConfigUniqueVotingCommand extends SubCommand {
 
       const userInput = ctx.args.get(0).toLowerCase();
       const status = TRUTHY_CONFIG_OPTIONS.includes(userInput) ? true : userInput === 'toggle' ? !currentStatus : false;
-      const guildData = await ctx.getSettings(false)!;
+      const guildData = await ctx.getSettings()!;
       guildData.setUniqueVoting(status);
       await guildData.save();
       baseEmbed.setDescription(`Unique suggestion voting has been **${viewStatus(status)}** in this guild.`);

@@ -1,4 +1,4 @@
-import { BotConfig, VoteEmoji } from './types';
+import { BotConfig, GuildSchema, SuggestionChannel, UserSchema, VoteEmoji } from './types';
 
 const isProduction = (): boolean => process.env.NODE_ENV === 'production';
 const id = isProduction() ? '474051954998509571' : '476928510573805568';
@@ -46,16 +46,22 @@ const config: BotConfig = {
     actionlogs: 84992
   },
   defaults: {
-    prefixes: [','],
-    channels: {
-      channel: 'suggestions',
-      type: 'suggestions'
+    guild: <GuildSchema>{
+      prefixes: [','],
+      channels: [<SuggestionChannel>{
+        id: 'suggestions',
+        type: 'suggestions'
+      }],
+      locale: 'en_US',
+      emojis: [<VoteEmoji>{
+        emojis: ['578409088157876255', '578409123876438027'],
+        system: true
+      }]
     },
-    locale: 'en_US',
-    emojis: [<VoteEmoji>{
-      emojis: ['578409088157876255', '578409123876438027'],
-      system: true
-    }]
+    user: <UserSchema>{
+      locale: 'en_US',
+      showNickname: false
+    }
   },
   // Developer, Leadership, Moderators, Trusted
   supportRoles: isProduction()

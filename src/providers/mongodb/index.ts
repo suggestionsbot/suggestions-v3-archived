@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 import SuggestionsClient from '../../structures/core/Client';
 import MongoHelpers from './helpers';
+import Redis from '../redis';
 
 export default class MongoDB {
   connection!: mongoose.Connection;
@@ -25,4 +26,7 @@ export default class MongoDB {
     this.helpers = new MongoHelpers(this);
   }
 
+  get redis(): Redis {
+    return this.client.redis;
+  }
 }

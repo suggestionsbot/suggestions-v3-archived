@@ -9,7 +9,7 @@ import {
 } from 'eris';
 
 import SuggestionsClient from '../core/Client';
-import { GuildSchema, Promisified } from '../../types';
+import { GuildSchema, Promisified, UserSchema } from '../../types';
 import Language from '../core/Language';
 import ArgumentParser from '../parsers/ArgumentParser';
 import FlagParser from '../parsers/FlagParser';
@@ -17,6 +17,8 @@ import CodeBlock from '../../utils/CodeBlock';
 import { ALLOWED_MENTIONS } from '../../utils/Constants';
 
 export default class CommandContext {
+  readonly #settings: GuildSchema;
+  readonly #profile: UserSchema;
   args: ArgumentParser;
   flags: FlagParser;
   local?: any;
@@ -25,10 +27,13 @@ export default class CommandContext {
     public message: Message,
     args: Array<string>,
     public locale: Language|undefined,
-    public settings: GuildSchema|undefined
+    settings: { guild: GuildSchema, user: UserSchema }
   ) {
     this.args = new ArgumentParser(args);
     this.flags = new FlagParser(args);
+    this.#settings = settings.guild;
+    this.#profile = settings.user;
+
   }
 
   send(content: string, options?: AdvancedMessageContent): Promise<Message> {
@@ -83,8 +88,12 @@ export default class CommandContext {
     return this.guild ? this.guild.members.get(this.client.user.id) : undefined;
   }
 
-  getSettings(cached?: boolean): Promise<GuildSchema>|null {
-    return this.guild ? this.client.database.helpers.guild.getGuild(this.guild.id, cached) : null;
+  getSettings(): Promise<GuildSchema>|undefined {
+    return this.guild && this.client.database.helpers.guild.getGuild(this.guild.id, false);
+  }
+
+  getProfile(): Promise<UserSchema> {
+    return this.client.database.helpers.user.getUser(this.sender, false);
   }
 
   translate(key: string, args?: { [x: string]: any}): string {
@@ -105,5 +114,13 @@ export default class CommandContext {
 
   get shard(): Shard|undefined {
     return this.guild ? this.guild.shard : this.client.shards.get(0);
+  }
+
+  get settings(): GuildSchema {
+    return this.#settings;
+  }
+
+  get profile(): UserSchema {
+    return this.#profile;
   }
 }

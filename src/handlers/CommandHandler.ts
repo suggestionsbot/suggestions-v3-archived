@@ -2,7 +2,7 @@ import { GuildChannel, Message } from 'eris';
 import { oneLine } from 'common-tags';
 
 import SuggestionsClient from '../structures/core/Client';
-import { GuildSchema } from '../types';
+import { GuildSchema, UserSchema } from '../types';
 import Util from '../utils/Util';
 import Logger from '../utils/Logger';
 import MessageUtils from '../utils/MessageUtils';
@@ -15,7 +15,7 @@ export default class CommandHandler {
     this.minimumPermissions = ['readMessages', 'sendMessages'];
   }
 
-  async handle(message: Message, settings: GuildSchema): Promise<any> {
+  async handle(message: Message, settings: { guild: GuildSchema, user: UserSchema }): Promise<any> {
     let args = message.content.slice(message.prefix!.length).trim().split(/ +/g);
     const command = args.shift()!.toLowerCase();
 
@@ -24,7 +24,7 @@ export default class CommandHandler {
 
     if (!cmd) return;
 
-    const locale = this.client.locales.get(settings.locale);
+    const locale = this.client.locales.get(settings.guild.locale);
     const ctx: Context = new Context(message, args, locale, settings);
 
     /**
@@ -44,7 +44,7 @@ export default class CommandHandler {
      */
     const validCommands = ['suggest', 'sid', 'edit', 'delete', 'comment', 'response', 'approve', 'reject',
       'note', 'considered', 'implemented'];
-    if (settings.channels.map(c => c.id).includes(message.channel.id) && !validCommands.includes(cmd.name))
+    if (settings.guild.channels.map(c => c.id).includes(message.channel.id) && !validCommands.includes(cmd.name))
       return message.delete();
 
     if (!message.guildID && cmd.guildOnly) {
@@ -54,7 +54,7 @@ export default class CommandHandler {
         `The \`${'friendly' in cmd ? cmd.friendly : cmd.name}\` command can only be used in a server!`);
     }
 
-    const staffCheck = message.guildID ? this.client.isGuildStaff(message.member!, settings): true;
+    const staffCheck = message.guildID ? this.client.isGuildStaff(message.member!, settings.guild): true;
     const adminCheck = message.guildID ? this.client.isGuildAdmin(message.member!) : true;
     const supportCheck = await this.client.isSupport(message.author)
       .catch(e => MessageUtils.error(this.client, message, e.message, true));

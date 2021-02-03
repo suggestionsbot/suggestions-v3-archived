@@ -17,7 +17,6 @@ export default abstract class Command implements CommandClass {
   name!: string;
   ownerOnly: boolean|undefined;
   staffOnly: boolean|undefined;
-  subCommands: Array<string>;
   superOnly: boolean|undefined;
   supportOnly: boolean|undefined;
   throttles: CommandThrottling;
@@ -32,7 +31,6 @@ export default abstract class Command implements CommandClass {
     };
     this.active = true;
     this.aliases = [];
-    this.subCommands = [];
     this.guarded = true;
     this.guildOnly = true;
   }

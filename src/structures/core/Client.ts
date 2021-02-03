@@ -22,7 +22,7 @@ import {
   AwaitMessagesOptions,
   AwaitReply,
   AwaitReactionsOptions,
-  GuildSchema, SuggestionChannelType, SuggestionUser,
+  GuildSchema, SuggestionChannelType, SuggestionUser, UserSchema,
 } from '../../types';
 import config from '../../config';
 import CommandHandler from '../../handlers/CommandHandler';
@@ -321,11 +321,17 @@ export default class SuggestionsClient extends Client {
         !message.channel.permissionsOf(this.user.id).has('sendMessages')) return;
       if (!message.guildID) return;
 
-      let settings: GuildSchema;
-      if (this.database.connection !== null) settings = await this.database.helpers.guild.getGuild(message.guildID);
-      else settings = <GuildSchema><unknown>{ ...this.config.defaults, guild: message.guildID };
+      let guildSettings: GuildSchema;
+      let userSettings: UserSchema;
+      if (this.database.connection !== null) {
+        guildSettings = await this.database.helpers.guild.getGuild(message.guildID);
+        userSettings = await this.database.helpers.user.getUser(message.author);
+      } else {
+        guildSettings = <GuildSchema><unknown>{ ...this.config.defaults.guild, guild: message.guildID };
+        userSettings = <UserSchema><unknown>{ ...this.config.defaults.user, user: message.author.id };
+      }
 
-      const isInDatabase = settings.channels.map(c => c.id).includes(message.channel.id);
+      const isInDatabase = guildSettings.channels.map(c => c.id).includes(message.channel.id);
       if (!isInDatabase) return;
 
       let channel = <SuggestionChannel>this.suggestionChannels.get(message.channel.id);
@@ -335,7 +341,7 @@ export default class SuggestionsClient extends Client {
           (<TextChannel>message.channel).guild,
           SuggestionChannelType.SUGGESTIONS,
             <TextChannel>message.channel,
-            settings
+            guildSettings
         );
         await channel.init();
         await this.suggestionChannels.addChannel(channel);
@@ -343,11 +349,11 @@ export default class SuggestionsClient extends Client {
 
       if (channel && !channel.initialized) await channel.init();
 
-      const locale = this.locales.get(settings.locale);
-      const ctx: Context = new Context(message, [], locale, settings);
+      const locale = this.locales.get(guildSettings.locale);
+      const ctx: Context = new Context(message, [], locale, { guild: guildSettings, user: userSettings });
 
       // TODO: Implement check for various suggestion-related commands + arg checking for said commands
-      if (await this.commands.isCommand(message, settings)) return;
+      if (await this.commands.isCommand(message, guildSettings)) return;
       await this.suggestionHandler.handle(ctx);
     } catch (e) {
       Logger.error('SUGGESTIONS LISTENER', e);
@@ -359,19 +365,28 @@ export default class SuggestionsClient extends Client {
       if (message.author.bot) return;
       if ((message.channel instanceof GuildChannel) && !message.channel.permissionsOf(this.user.id).has('sendMessages')) return;
 
-      let settings!: GuildSchema;
-      if (message.guildID) {
-        try {
-          if (this.database.connection !== null) settings = await this.database.helpers.guild.getGuild(message.guildID);
-          else settings = <GuildSchema><unknown>{ ...this.config.defaults, guild: message.guildID };
-        } catch (e) {
-          Logger.error('COMMAND HANDLER', e);
+      let guildSettings!: GuildSchema;
+      let userSettings!: UserSchema;
+      try {
+        if (message.guildID) {
+          if (this.database.connection !== null) {
+            guildSettings = await this.database.helpers.guild.getGuild(message.guildID);
+            userSettings = await this.database.helpers.user.getUser(message.author);
+          } else {
+            guildSettings = <GuildSchema><unknown>{ ...this.config.defaults.guild, guild: message.guildID };
+            userSettings = <UserSchema><unknown>{ ...this.config.defaults.user, user: message.author.id };
+          }
+        } else {
+          if (this.database.connection !== null) userSettings = await this.database.helpers.user.getUser(message.author);
+          else userSettings = <UserSchema><unknown>{ ...this.config.defaults.user, user: message.author.id };
+
+          guildSettings = <GuildSchema><unknown>this.config.defaults.guild;
         }
-      } else {
-        settings = <GuildSchema><unknown>this.config.defaults;
+      } catch (e) {
+        Logger.error('COMMAND HANDLER', e);
       }
 
-      const prefixes = this.getPrefixes(true, false, settings);
+      const prefixes = this.getPrefixes(true, false, guildSettings);
       const prefixRegex = new RegExp(`(${prefixes.join('|')})`);
       const prefix = message.content.match(prefixRegex) ? message.content.match(prefixRegex)![0] : null;
 
@@ -381,7 +396,7 @@ export default class SuggestionsClient extends Client {
         const embed = MessageUtils.defaultEmbed()
           .setDescription(stripIndents`My prefixes ${message.guildID ? 'in this guild' : ''} are:
 
-          ${this.getPrefixes(false, true, settings).map(p => `**${i++})** ${p}`).join('\n')}
+          ${this.getPrefixes(false, true, guildSettings).map(p => `**${i++})** ${p}`).join('\n')}
         `);
         await (message.channel as GuildTextableChannel).createMessage({ embed });
         return;
@@ -391,7 +406,7 @@ export default class SuggestionsClient extends Client {
       if (message.content.indexOf(prefix) !== 0) return;
       message.prefix = prefix;
 
-      await this.commandHandler.handle(message, settings);
+      await this.commandHandler.handle(message, { guild: guildSettings, user: userSettings });
     } catch (e) {
       Logger.error('COMMAND LISTENER', e);
     }

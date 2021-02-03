@@ -52,14 +52,14 @@ export default class SuggestCommand extends Command {
         .setMessage(ctx.message)
         .setGuild(ctx.guild!)
         .setSuggestion(suggestion)
-        .setSettings(ctx.settings!);
+        .setSettings(ctx.settings!)
+        .setProfile(ctx.profile);
 
       await newSuggestion.post();
 
       MessageUtils.delete(ctx.message, { timeout: 5000 });
     } catch (e) {
-      if (e.message === 'Missing Access') return;
-      Logger.error(e);
+      Logger.error(e.stack);
       return MessageUtils.error(ctx.client, ctx.message, e.message, true);
     }
   }

@@ -3,7 +3,7 @@ import { Member, TextChannel } from 'eris';
 import {
   GuildSchema,
   ShardStats, SuggestionChannelType,
-  SuggestionGuild,
+  SuggestionGuild, SuggestionUser, UserSchema,
 } from '../../../types';
 import Util from '../../../utils/Util';
 import Redis from '../index';
@@ -15,6 +15,10 @@ export default class RedisHelpers {
 
   private static formGuildKey(guild: SuggestionGuild): string {
     return `guild:${Util.getGuildID(guild)}:settings`;
+  }
+
+  private static formUserKey(user: SuggestionUser): string {
+    return `user:${Util.getUserID(user)}:settings`;
   }
 
   async getGlobalSuggestionCount(): Promise<number> {
@@ -84,8 +88,28 @@ export default class RedisHelpers {
     return this.redis.instance!.del(RedisHelpers.formGuildKey(guild));
   }
 
-  clearCachedData(guild: SuggestionGuild): Promise<boolean> {
+  clearCachedGuildData(guild: SuggestionGuild): Promise<boolean> {
     return this.redis.instance!.keys(`*${Util.getGuildID(guild)}*`).then((data: any) => {
+      if (!data?.length) return false;
+      return this.redis.instance!.del(...data);
+    });
+  }
+
+  getCachedUser(user: SuggestionUser): Promise<UserSchema> {
+    return this.redis.instance!.get(RedisHelpers.formUserKey(user))
+      .then((data: any) => JSON.parse(data));
+  }
+
+  setCachedUser(user: SuggestionUser, data: UserSchema): Promise<boolean> {
+    return this.redis.instance!.set(RedisHelpers.formUserKey(user), JSON.stringify(data));
+  }
+
+  clearCachedUser(user: SuggestionUser): Promise<boolean> {
+    return this.redis.instance!.del(RedisHelpers.formUserKey(user));
+  }
+
+  clearCachedUserData(user: SuggestionUser): Promise<boolean> {
+    return this.redis.instance!.keys(`*${Util.getUserID(user)}*`).then((data: any) => {
       if (!data?.length) return false;
       return this.redis.instance!.del(...data);
     });

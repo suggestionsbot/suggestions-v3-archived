@@ -1,12 +1,12 @@
-import { BotActivityType, EmbedOptions, Guild, Member, Message, MessageFile, User } from 'eris';
+import { BotActivityType, Guild, Member, Message, User } from 'eris';
 import { Commands, RedisClient } from 'redis';
 import { Document } from 'mongoose';
+import { StoreData } from 'frenchkiss';
+import { Collection } from '@augu/immutable';
 
 import SuggestionsClient from '../structures/core/Client';
 import Context from '../structures/commands/Context';
-import { Collection } from '@augu/immutable';
 import Ratelimit from '../structures/core/Ratelimit';
-import { StoreData } from 'frenchkiss';
 
 export interface EmbedThumbnail {
   url: string;
@@ -44,13 +44,8 @@ export interface BotConfig {
     actionlogs: number;
   };
   defaults: {
-    prefixes: Array<string>;
-    channels: {
-      channel: string;
-      type: string;
-    };
-    locale: string;
-    emojis: Array<VoteEmoji>;
+    guild: GuildSchema,
+    user: UserSchema
   };
   supportRoles: Array<string>
   boosterRole: string
@@ -67,7 +62,6 @@ export abstract class Command {
   public description!: string;
   public category!: CommandCategory;
   public conditions?: Array<string>;
-  public subCommands?: Array<string>;
   public usages?: Array<string>;
   public examples?: Array<string>;
   public aliases?: Array<string>;
@@ -177,6 +171,7 @@ export interface GuildSchema extends Document {
   staffDelete: boolean;
   userSelfEdit: boolean;
   staffEdit: boolean;
+  allowNicknames: boolean;
   setGuild(guild: Guild|string): void;
   setLocale(locale: string): void;
   setDefaultEmojis(index: number): void
@@ -187,6 +182,7 @@ export interface GuildSchema extends Document {
   setStaffDelete(status: boolean): void;
   setSelfEdit(status: boolean): void;
   setStaffEdit(status: boolean): void;
+  setAllowNicknames(status: boolean): void;
   updatePrefixes(prefix: string): void;
   updateEmojis(emoji: VoteEmoji): void;
   updateChannel(channel: string, data: Record<string, unknown>): void;
@@ -346,7 +342,21 @@ export interface CommandSchema extends Document {
 
 export type MessageLinkFormatter = [string, string, string];
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export interface UserSchema extends Document {
+  id: string;
+  locale: Locales;
+  premium?: boolean;
+  premiumSince?: number;
+  showNickname: boolean;
+  setLocale(locale: Locales): void;
+  setPremium(status: boolean, timestamp?: number): void;
+  setShowNickname(status: boolean): void;
+}
+
+export type Locales = |
+'en_US' |
+'fr_FR';
+
 export interface Promisified<T = RedisClient>
   extends Omitted,
   Commands<Promise<boolean>> {}

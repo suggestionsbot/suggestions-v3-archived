@@ -4,7 +4,7 @@ import * as crypto from 'crypto';
 
 import SuggestionsClient from '../core/Client';
 import SuggestionChannel from './SuggestionChannel';
-import { Edit, GuildSchema, Note, StatusUpdates, SuggestionSchema, SuggestionType } from '../../types';
+import { Edit, GuildSchema, Note, StatusUpdates, SuggestionSchema, SuggestionType, UserSchema } from '../../types';
 import emojis from '../../utils/Emojis';
 import Util from '../../utils/Util';
 import SuggestionEmbeds from '../../utils/SuggestionEmbeds';
@@ -15,6 +15,7 @@ export default class Suggestion {
   #guild!: Guild;
   #id!: string;
   #settings!: GuildSchema;
+  #profile!: UserSchema;
   #message?: Message;
   #suggestionMessage?: Message;
   #suggestion!: string;
@@ -103,6 +104,11 @@ export default class Suggestion {
     return this;
   }
 
+  setProfile(profile: UserSchema): this {
+    this.#profile = profile;
+    return this;
+  }
+
   setMessage(message: Message): this {
     this.#message = message;
     return this;
@@ -154,8 +160,13 @@ export default class Suggestion {
     const setEmojis = voteEmojis[this.#channel.emojis];
     const guild = setEmojis.system ? await this.client.base!.ipc.fetchGuild(this.client.system) : this.#guild;
     const reactions = setEmojis.emojis.map(e => e && Util.matchUnicodeEmoji(e) ? e : (<Array<Emoji>>guild.emojis).find(ge => ge.id === e));
-    const embed = SuggestionEmbeds.fullSuggestion(this);
-
+    const embed = SuggestionEmbeds.fullSuggestion({
+      id: this.#id.slice(33, 40),
+      suggestion: this.#suggestion,
+      message: this.#message!,
+      author: this.#author,
+      nickname: this.#profile.showNickname
+    });
 
     let file: MessageFile|undefined;
     if (this.#message && (this.#message.attachments.length > 0)) {

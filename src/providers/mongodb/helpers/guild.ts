@@ -1,5 +1,3 @@
-import { Guild } from 'eris';
-
 import GuildModel from '../models/guild';
 import { GuildSchema, SuggestionGuild } from '../../../types';
 import Logger from '../../../utils/Logger';
@@ -13,52 +11,43 @@ import MongoDB from '../';
 export default class GuildHelpers {
   constructor(public database: MongoDB) {}
 
-  private static _getGuildID(guild: SuggestionGuild): string {
-    return guild instanceof Guild ? guild.id : guild;
-  }
-
   // TODO make sure default data isn't be saved to database. only persist if a config value was changed
-  async getGuild(guild: SuggestionGuild, cached = true, newGuild = false): Promise<GuildSchema> {
-    const guildID = GuildHelpers._getGuildID(guild);
+  async getGuild(guild: SuggestionGuild, cached = true): Promise<GuildSchema> {
+    const guildID = Util.getGuildID(guild);
     let data;
     const defaultData = <GuildSchema><unknown>{
+      ...this.database.client.config.defaults.guild,
       guild: guildID,
-      default: true,
-      ...this.database.client.config.defaults
+      default: true
     };
 
-    if (newGuild) data = await this.createGuild(guild, defaultData);
-
-    const inCache = await this.database.client.redis.helpers.getCachedGuild(guild);
-    if (inCache && cached) {
-      data = inCache;
-    } else {
+    const inCache = cached && await this.database.client.redis.helpers.getCachedGuild(guild);
+    if (inCache) data = inCache;
+    else {
       const fetched = await GuildModel.findOne({ guild: guildID });
-      if (!fetched) return this.getGuild(guild, false, true);
-      await this.database.client.redis.helpers.setCachedGuild(guild, fetched);
+      if (!fetched) return this.createGuild(guild, defaultData);
+      await this.database.redis.helpers.setCachedGuild(guild, fetched);
       data = fetched;
     }
-
-    if (!cached) data = await GuildModel.findOne({ guild: guildID });
 
     return <GuildSchema>data;
   }
 
   async createGuild(guild: SuggestionGuild, newData = {}): Promise<GuildSchema> {
-    const guildID = GuildHelpers._getGuildID(guild);
-    // TODO make sure to test this
+    const guildID = Util.getGuildID(guild);
+    // TODO make sure to test this (+ empty emojis array we're passing through)
     const schema = new GuildModel(Object.assign({ guild: guildID, emojis: [] }, newData));
 
     const data = await schema.save();
-    await this.database.client.redis.helpers.setCachedGuild(guild, data);
+    await this.database.redis.helpers.setCachedGuild(guild, data);
 
     Logger.log(`Guild settings saved for Guild ${guildID}`);
     return data;
   }
 
   async deleteGuild(guild: SuggestionGuild): Promise<boolean> {
-    await GuildModel.deleteMany({ guild: Util.getGuildID(guild) });
-    await this.database.client.redis.helpers.clearCachedGuild(guild);
+    await GuildModel.deleteOne({ guild: Util.getGuildID(guild) });
+    await this.database.redis.helpers.clearCachedGuild(guild);
     return true;
   }
 }

@@ -4,6 +4,7 @@ import SuggestionHelpers from './suggestion';
 import CommandHelpers from './command';
 import BlacklistHelpers from './blacklist';
 import ActionLogHelpers from './actionlog';
+import UserHelpers from './user';
 
 export default class MongoHelpers {
   public guild!: GuildHelpers;
@@ -11,6 +12,7 @@ export default class MongoHelpers {
   public command!: CommandHelpers;
   public blacklist!: BlacklistHelpers;
   public actionlog!: ActionLogHelpers;
+  public user!: UserHelpers;
 
   constructor(public mongo: MongoDB) {
     this.guild = new GuildHelpers(mongo);
@@ -18,5 +20,6 @@ export default class MongoHelpers {
     this.command = new CommandHelpers(mongo);
     this.blacklist = new BlacklistHelpers(mongo);
     this.actionlog = new ActionLogHelpers(mongo);
+    this.user = new UserHelpers(mongo);
   }
 }

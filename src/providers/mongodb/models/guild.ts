@@ -23,7 +23,11 @@ export const GuildSettings = new Schema({
     index: true
   },
   prefixes: { type: [String], default: [','] },
-  locale: { type: String, default: 'en_US' },
+  locale: {
+    type: String,
+    enum: ['en_US', 'fr_FR'],
+    default: 'en_US'
+  },
   premium: { type: Boolean },
   premiumSince: { type: String },
   channels: {
@@ -97,6 +101,10 @@ export const GuildSettings = new Schema({
     type: Boolean,
     default: true
   },
+  allowNicknames: {
+    type: Boolean,
+    default: false
+  }
 });
 
 GuildSettings.method('setGuild', function(this: GuildSchema, guild: Guild|string) {
@@ -230,6 +238,10 @@ GuildSettings.method('setSelfEdit', function(this: GuildSchema, status: boolean)
 
 GuildSettings.method('setStaffEdit', function(this: GuildSchema, status: boolean) {
   this.staffEdit = status;
+});
+
+GuildSettings.method('setAllowNicknames', function(this: GuildSchema, status: boolean) {
+  this.allowNicknames = status;
 });
 
 GuildSettings.pre('save', function(next) {

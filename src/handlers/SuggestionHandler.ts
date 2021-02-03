@@ -86,7 +86,8 @@ export default class SuggestionHandler {
         .setMessage(ctx.message)
         .setGuild(ctx.guild!)
         .setSuggestion(ctx.message.content)
-        .setSettings(ctx.settings!);
+        .setSettings(ctx.settings!)
+        .setProfile(ctx.profile!);
 
       await newSuggestion.post();
 

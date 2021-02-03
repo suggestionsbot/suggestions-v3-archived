@@ -28,12 +28,8 @@ export default class Util {
   }
 
   static getUserID(user: SuggestionUser): string {
-    let data: string;
-    if (user instanceof User) data = user.id;
-    if (user instanceof Member) data = user.id;
-    if (typeof user === 'string') data = user;
-
-    return data!;
+    if (typeof user === 'object') return user.id;
+    else return user;
   }
 
   static escapeMarkdown(

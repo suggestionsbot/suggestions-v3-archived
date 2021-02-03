@@ -11,3 +11,5 @@ export const ALLOWED_MENTIONS = {
 };
 
 export const IMAGE_URL_REGEX = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)/;
+
+export const VIEW_STATUS = (status: boolean, options: [falsey: string, truthy: string]): string => options[+status];

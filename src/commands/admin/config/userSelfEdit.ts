@@ -2,7 +2,7 @@ import SubCommand from '../../../structures/core/SubCommand';
 import CommandContext from '../../../structures/commands/Context';
 import SuggestionsClient from '../../../structures/core/Client';
 import { CommandNextFunction } from '../../../types';
-import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS } from '../../../utils/Constants';
+import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS, VIEW_STATUS } from '../../../utils/Constants';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
 
@@ -17,7 +17,7 @@ export default class ConfigUserSelfEditCommand extends SubCommand {
     this.description = 'Configure if users should be allowed to edit their own suggestions.';
     this.usages = [
       'config userSelfEdit [true|on|false|off|toggle]',
-      'config userSelfEdit [true|on|false|off|toggle]'
+      'config userCanEdit [true|on|false|off|toggle]'
     ];
     this.examples = [
       'config userSelfEdit true',
@@ -42,7 +42,7 @@ export default class ConfigUserSelfEditCommand extends SubCommand {
     try {
       const docsRef = `${this.client.config.docs}/docs/configuration.html`;
       const currentStatus = ctx.settings!.userSelfEdit;
-      const viewStatus = (status: boolean): string => status ? 'allowed' : 'not allowed';
+      const viewStatus = (status: boolean): string => VIEW_STATUS(status, ['not allowed', 'allowed']);
 
       const baseEmbed = MessageUtils.defaultEmbed()
         .setAuthor(ctx.guild!.name, ctx.guild!.iconURL)

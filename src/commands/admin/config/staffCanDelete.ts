@@ -4,7 +4,7 @@ import CommandContext from '../../../structures/commands/Context';
 import SuggestionsClient from '../../../structures/core/Client';
 import { CommandNextFunction } from '../../../types';
 import Logger from '../../../utils/Logger';
-import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS } from '../../../utils/Constants';
+import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS, VIEW_STATUS } from '../../../utils/Constants';
 
 export default class ConfigStaffCanDeleteCommand extends SubCommand {
 
@@ -43,7 +43,7 @@ export default class ConfigStaffCanDeleteCommand extends SubCommand {
     try {
       const docsRef = `${this.client.config.docs}/docs/configuration.html`;
       const currentStatus = ctx.settings!.staffDelete;
-      const viewStatus = (status: boolean): string => status ? 'allowed' : 'not allowed';
+      const viewStatus = (status: boolean): string => VIEW_STATUS(status, ['not allowed', 'allowed']);
 
       const baseEmbed = MessageUtils.defaultEmbed()
         .setAuthor(ctx.guild!.name, ctx.guild!.iconURL)

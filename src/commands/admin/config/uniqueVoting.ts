@@ -4,7 +4,7 @@ import CommandContext from '../../../structures/commands/Context';
 import { CommandNextFunction } from '../../../types';
 import MessageUtils from '../../../utils/MessageUtils';
 import Logger from '../../../utils/Logger';
-import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS } from '../../../utils/Constants';
+import { CONFIG_OPTIONS, TRUTHY_CONFIG_OPTIONS, VIEW_STATUS } from '../../../utils/Constants';
 
 export default class ConfigUniqueVotingCommand extends SubCommand {
   constructor(client: SuggestionsClient) {
@@ -42,7 +42,7 @@ export default class ConfigUniqueVotingCommand extends SubCommand {
     try {
       const docsRef = `${this.client.config.docs}/docs/configuration.html`;
       const currentStatus = ctx.settings!.uniqueVoting;
-      const viewStatus = (status: boolean): string => status ? 'enabled' : 'disabled';
+      const viewStatus = (status: boolean): string => VIEW_STATUS(status, ['disabled', 'enabled']);
 
       const baseEmbed = MessageUtils.defaultEmbed()
         .setAuthor(ctx.guild!.name, ctx.guild!.iconURL)

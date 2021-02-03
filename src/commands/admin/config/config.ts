@@ -8,7 +8,6 @@ export default class ConfigCommand extends Command {
     super(client);
 
     this.name = 'config';
-    this.subCommands = ['prefix', 'channels', 'roles', 'emojis', 'responses', 'commands'];
     this.category = CommandCategory.ADMIN;
     this.description = 'View and update various configurable values of the bot';
     this.aliases = ['conf', 'settings', 'configure'];

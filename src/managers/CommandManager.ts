@@ -22,11 +22,11 @@ abstract class BaseCommandManager<T = Command|SubCommand> extends Collection<T> 
 
   getCommand(command: string, ...args: Array<string>): SuggestionsCommand {
     let cmd: SuggestionsCommand;
-    const mainCmd: Command = this.client.commands.get(command) ||
-        this.client.commands.filter(c => c.aliases!.includes(command))[0];
-    const subCmd: SubCommand = this.client.subCommands.get(command) ||
-        this.client.subCommands.filter(c => mainCmd && (c.arg === args[0]))[0] ||
-        this.client.subCommands.filter(c => mainCmd && (c.aliases!.includes(args[0])))[0];
+    const mainCmd = this.client.commands.get(command) ||
+        this.client.commands.find(c => c.aliases! && c.aliases.includes(command));
+    const subCmd = this.client.subCommands.get(command) ||
+        this.client.subCommands.find(c => mainCmd! && (c.parent === mainCmd.name) && (c.arg === args[0])) ||
+        this.client.subCommands.find(c => mainCmd! && (c.parent === mainCmd.name) && (c.aliases!.includes(args[0])));
 
     if (mainCmd) cmd = mainCmd;
     if (subCmd) cmd = subCmd;

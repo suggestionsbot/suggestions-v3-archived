@@ -35,9 +35,7 @@ export default abstract class Command implements CommandClass {
     this.guildOnly = true;
   }
 
-  async run(ctx: Context): Promise<any> {
-    throw new Error(`The command ${this.name} does not have the required "run" method!`);
-  }
+  abstract run(ctx: Context): any;
 
   get ratelimiter(): RatelimitBucket|undefined {
     return this.client.ratelimiters.getBucket(this.name);

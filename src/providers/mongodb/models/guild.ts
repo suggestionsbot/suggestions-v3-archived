@@ -211,10 +211,12 @@ GuildSettings.method('setRestrictVoting', function(this: GuildSchema, status: bo
 GuildSettings.method('updateRequiredResponses', function(this: GuildSchema, command: RequiredResponseCommand, status: boolean) {
   switch (command) {
     case 'all':
-      this.requiredResponses = [];
-      this.requiredResponses.push('all');
+      if (status) {
+        this.requiredResponses = [];
+        this.requiredResponses.push('all');
+      } else this.requiredResponses = [];
       break;
-    case 'none':
+    case 'none': case 'reset':
       this.requiredResponses = [];
       break;
     default:

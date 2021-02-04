@@ -247,7 +247,8 @@ export type RequiredResponseCommand = |
 'delete' |
 'edit' |
 'all' |
-'none';
+'none' |
+'reset';
 
 export interface ActionLogSchema extends Document {
   guild: string;

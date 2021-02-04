@@ -22,32 +22,24 @@ export default class ConfigResponsesCommand extends SubCommand {
     this.category = CommandCategory.ADMIN;
     this.description = 'Require a response for various commands or all commands.';
     this.usages = [
-      'config responses [command|all] [true|on|false|off|toggle]',
-      'config reasons [command|all]'
+      'config responses [command|all|reset] [true|on|false|off|toggle]',
+      'config reasons [command|all|reset]'
     ];
     this.examples = [
       'config responses approve toggle',
       'config reasons all off',
-      'config responses delete true'
+      'config responses delete true',
+      'config responses reset'
     ];
     this.aliases = ['reasons'];
     this.adminOnly = true;
     this.botPermissions = ['manageMessages', 'externalEmojis', 'embedLinks'];
 
     this.#commands = ['approve', 'reject', 'consider', 'implement', 'delete', 'edit'];
-    this.#commandOptions = ['approve', 'reject', 'consider', 'implement', 'delete', 'edit', 'all', 'none'];
+    this.#commandOptions = ['approve', 'reject', 'consider', 'implement', 'delete', 'edit', 'all', 'none', 'reset'];
   }
 
   async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
-    const docResponses = ctx.settings!.requiredResponses || [];
-    const command = <RequiredResponseCommand>ctx.args.get(0)?.toLowerCase();
-    const option = ctx.args.get(1)?.toLowerCase();
-    const ref = docResponses.includes(command);
-    const truthyValues = ['true', 'on'];
-    const viewStatus = (status: boolean): string => VIEW_STATUS(status, ['disabled', 'enabled']);
-
-    const updateStatus = truthyValues.includes(option) ? true : option === 'toggle' ? !ref : false;
-
     if (ctx.args.get(0) && !this.#commandOptions.includes(ctx.args.get(0).toLowerCase()))
       return MessageUtils.error(this.client, ctx.message,
         `Please provide one of the following command options: \`${this.#commandOptions.join(', ')}\``);
@@ -55,9 +47,6 @@ export default class ConfigResponsesCommand extends SubCommand {
     if (ctx.args.get(1) && !CONFIG_OPTIONS.includes(ctx.args.get(1).toLowerCase()))
       return MessageUtils.error(this.client, ctx.message,
         `Please provide one of the following arguments: \`${CONFIG_OPTIONS.join(', ')}\``);
-
-    if (ctx.args.get(1) && (updateStatus === ref)) return MessageUtils.error(this.client, ctx.message,
-      `Responses are already ${viewStatus(updateStatus)} for \`${command}\`!`);
 
     next();
   }
@@ -86,10 +75,19 @@ export default class ConfigResponsesCommand extends SubCommand {
         let view: string = '';
         if ((typeof required === 'string') && (required === 'all')) view = `**all commands.** \n\n${affectedCommands}`;
         if ((typeof required === 'string') && (required === 'none')) view = `**no commands.** \n\n${affectedCommands}`;
-        if ((typeof required === 'object') && !required.isEmpty()) view = `\n${required
+        if ((typeof required === 'object') && !required.isEmpty()) view = ` the following commands: \n${required
           .map(command => `**${BULLET_POINT} ${command}**`).join('\n')}`;
 
         baseEmbed.setDescription(stripIndents`Responses are required for ${view}`);
+        return ctx.embed(baseEmbed);
+      }
+
+      if (command && ['none', 'reset'].includes(command)) {
+        const guildData = await ctx.getSettings()!;
+        guildData.updateRequiredResponses(command, true);
+        await guildData.save();
+
+        baseEmbed.setDescription('Responses are **no longer required** for **all commands**.');
         return ctx.embed(baseEmbed);
       }
 
@@ -100,21 +98,18 @@ export default class ConfigResponsesCommand extends SubCommand {
         return ctx.embed(baseEmbed);
       }
 
-      const inputtedCommand = <RequiredResponseCommand>command.toLowerCase();
-      const inputtedOption = status.toLowerCase();
-
       const cmd = <RequiredResponseCommand>command.toLowerCase();
+      const option = status.toLowerCase();
       const ref = docResponses.includes(cmd);
 
       const truthyValues = ['true', 'on'];
-      const updateStatus = truthyValues.includes(inputtedOption) ? true : inputtedOption === 'toggle' ? !ref : false;
+      const updateStatus = truthyValues.includes(option) ? true : option === 'toggle' ? !ref : false;
       const guildData = await ctx.getSettings()!;
-      guildData.updateRequiredResponses(inputtedCommand, updateStatus);
+      guildData.updateRequiredResponses(cmd, updateStatus);
       await guildData.save();
 
       let view: string;
       if (command === 'all') view = `Responses are **${newStatus(updateStatus)}** for **all commands**.\n\n${affectedCommands}`;
-      else if (command === 'none') view = `Responses are **${newStatus(updateStatus)}** for **all commands**.\n\n${affectedCommands}`;
       else view = `Responses are **${newStatus(updateStatus)}** for \`${command}\`.`;
 
       baseEmbed.setDescription(view);

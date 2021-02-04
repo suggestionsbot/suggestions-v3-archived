@@ -7,49 +7,32 @@ import Util from './Util';
 import { IMAGE_URL_REGEX } from './Constants';
 import SuggestionChannel from '../structures/suggestions/SuggestionChannel';
 
-interface FullEmbedData {
+interface BaseEmbedData {
+  channel: SuggestionChannel;
   id: string;
   suggestion: string;
-  message: Message;
   author: User;
-  nickname: boolean;
   guild: Guild;
-  channel: SuggestionChannel;
-}
-
-interface CompactEmbedData {
-  suggestion: string;
   message: Message;
-  author: User;
   nickname: boolean;
 }
 
-interface CreateDMData {
-  id: string;
+interface BaseDMEmbedData extends BaseEmbedData {
+  executor: User;
   link: string;
-  suggestion: string;
-  guild: Guild;
-  author: User;
-  channel: SuggestionChannel;
+  reason?: string;
 }
 
-interface EditDMData {
-  id: string;
-  link: string;
+type FullEmbedData = BaseEmbedData;
+
+type CompactEmbedData = Omit<FullEmbedData, 'id' | 'guild' | 'channel'>;
+
+type CreateDMData = Omit<BaseDMEmbedData, 'executor' | 'reason' | 'nickname' | 'message'>;
+
+type DeleteDMData = Omit<BaseDMEmbedData, 'link' | 'nickname' | 'channel' | 'message'>;
+
+interface EditDMData extends Omit<BaseDMEmbedData, 'suggestion' | 'nickname' | 'channel' | 'message'> {
   suggestion: { before: string; after: string; };
-  guild: Guild;
-  author: User;
-  executor: User;
-  reason?: string;
-}
-
-interface DeleteDMData {
-  id: string;
-  suggestion: string;
-  guild: Guild;
-  author: User
-  executor: User;
-  reason?: string;
 }
 
 export default class SuggestionEmbeds {
@@ -84,15 +67,6 @@ export default class SuggestionEmbeds {
     return MessageUtils.defaultEmbed()
       .setAuthor(displayName, data.author.avatarURL)
       .setDescription(stripIndents(data.suggestion));
-  }
-
-  static suggestionCreatedMessage(data: { author: User, channel: SuggestionChannel, id: string, link: string }): string {
-    return stripIndents`Hey, ${data.author.mention}. Your suggestion has been sent to ${data.channel.channel.mention} to be voted on!
-      
-      Please wait until a staff member handles your suggestion.
-      
-      *Jump to Suggestion* → [${Util.boldCode(data.id)}](${data.link})
-    `;
   }
 
   static suggestionCreatedDM(data: CreateDMData): MessageEmbed {

@@ -1,11 +1,11 @@
 // TODO: Turn into suggestionUpdate to handle all sorts of suggestion updates
+import { User } from 'eris';
+
 import Event from '../../structures/core/Event';
 import SuggestionsClient from '../../structures/core/Client';
 import Suggestion from '../../structures/suggestions/Suggestion';
-import { User } from 'eris';
 import { SuggestionChannelType } from '../../types';
 import ActionLogChannel from '../../structures/actions/ActionLogChannel';
-import CodeBlock from '../../utils/CodeBlock';
 import Util from '../../utils/Util';
 import MessageUtils from '../../utils/MessageUtils';
 import ActionLog from '../../structures/actions/ActionLog';

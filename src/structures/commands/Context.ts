@@ -92,8 +92,8 @@ export default class CommandContext {
     return this.guild && this.client.database.helpers.guild.getGuild(this.guild.id, false);
   }
 
-  getProfile(): Promise<UserSchema> {
-    return this.client.database.helpers.user.getUser(this.sender, false);
+  getProfile(checkProfile?: boolean, guild?: string): Promise<UserSchema> {
+    return this.client.database.helpers.user.getUser(this.sender, false, checkProfile, guild);
   }
 
   translate(key: string, args?: { [x: string]: any}): string {

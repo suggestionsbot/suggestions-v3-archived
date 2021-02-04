@@ -1,5 +1,5 @@
 import { Schema, model, HookNextFunction } from 'mongoose';
-import { Locales, UserSchema } from '../../../types';
+import { Locales, UserGuildProfile, UserGuildProfileKey, UserSchema } from '../../../types';
 
 export const UserSettings = new Schema({
   user: {
@@ -9,12 +9,19 @@ export const UserSettings = new Schema({
   },
   locale: {
     type: String,
-    enum: ['en_US', 'fr_FR'],
-    default: 'en_US'
+    enum: ['en_US', 'fr_FR', 'pt_BR']
   },
   premium: { type: Boolean },
   premiumSince: { type: Number },
-  showNickname: { type: Boolean, default: false }
+  showNickname: { type: Boolean },
+  guilds: [{
+    id: { type: String },
+    locale: {
+      type: String,
+      enum: ['en_US', 'fr_FR', 'pt_BR']
+    },
+    showNickname: { type: Boolean }
+  }]
 });
 
 UserSettings.method('setLocale', function(this: UserSchema, locale: Locales) {
@@ -33,6 +40,22 @@ UserSettings.method('setPremium', function(this: UserSchema, status: boolean ,ti
 
 UserSettings.method('setShowNickname', function(this: UserSchema, status: boolean) {
   this.showNickname = status;
+});
+
+UserSettings.method('updateGuildProfiles', function(this: UserSchema, profile: UserGuildProfile) {
+  const profileInArray = this.guilds.find(p => p.id === profile.id);
+  if (profileInArray) {
+    this.guilds = this.guilds.filter(p => p !== profile);
+  } else {
+    this.guilds = [...this.guilds, profile];
+  }
+});
+
+UserSettings.method('updateGuildProfile', function(this: UserSchema, guild: UserGuildProfileKey, data: UserGuildProfile) {
+  this.guilds = this.guilds.map(profile => {
+    if (profile.id !== guild) return profile;
+    return <UserGuildProfile>{ ...profile.toObject(), ...data };
+  });
 });
 
 UserSettings.pre('save', function(next: HookNextFunction) {

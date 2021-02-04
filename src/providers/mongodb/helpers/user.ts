@@ -7,7 +7,7 @@ import Logger from '../../../utils/Logger';
 export default class UserHelpers {
   constructor(public database: MongoDB) {}
 
-  async getUser(user: SuggestionUser, cached: boolean = true): Promise<UserSchema> {
+  async getUser(user: SuggestionUser, cached: boolean = true, newProfile?: boolean, guild?: string): Promise<UserSchema> {
     const userID = Util.getUserID(user);
     let data;
     const defaultData = <UserSchema><unknown>{
@@ -20,7 +20,8 @@ export default class UserHelpers {
     if (inCache) data = inCache;
     else {
       const fetched = await UserModel.findOne({ user: userID });
-      if (!fetched) return this.createUser(user, defaultData);
+      if (newProfile && !fetched) return this.createUser(user, guild && { guilds: [{ id: guild }] });
+      if (!fetched) return defaultData;
       await this.database.redis.helpers.setCachedUser(user, fetched);
       data = fetched;
     }

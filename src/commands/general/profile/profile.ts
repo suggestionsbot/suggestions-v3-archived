@@ -21,6 +21,8 @@ export default class ProfileCommand extends Command {
       'profile showNickname [on|true|off|false|toggle',
       'profile notifications [command|all|none] [on|true|off|false|toggle]'
     ];
+    this.botPermissions = ['manageMessages', 'externalEmojis', 'embedLinks'];
+    this.guildOnly = false;
   }
 
   async run(ctx: CommandContext): Promise<any> {

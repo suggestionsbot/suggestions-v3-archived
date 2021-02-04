@@ -33,6 +33,9 @@ export default class ConfigLocaleCommand extends SubCommand {
     if (ctx.args.get(0) && !locales.includes(<Locales>ctx.args.get(0)))
       return MessageUtils.error(this.client, ctx.message,
         `Please provide one of the following locales: \`${locales.join(', ')}\``);
+    if (ctx.args.get(0) && !this.client.locales.getLocale(<Locales>ctx.args.get(0)))
+      return MessageUtils.error(this.client, ctx.message,
+        `The locale file(s) for \`${ctx.args.get(0)}\` is not currently loaded. I can't update the configuration!`);
 
     next();
   }
@@ -47,7 +50,7 @@ export default class ConfigLocaleCommand extends SubCommand {
         .setTimestamp();
 
       if (!ctx.args.get(0)) {
-        baseEmbed.setDescription(`The guild's locale/language is currently set to **${ctx.settings.locale}**`);
+        baseEmbed.setDescription(`The guild's locale/language is currently set to **${ctx.settings.locale}**.`);
         baseEmbed.addField('More Information', `[Link](${docsRef}#locale)`);
         return ctx.embed(baseEmbed);
       }
@@ -57,7 +60,7 @@ export default class ConfigLocaleCommand extends SubCommand {
       guildData.setLocale(userInput);
       await guildData.save();
       return MessageUtils.success(this.client, ctx.message,
-        `The guild's locale/language has been set to **${userInput}**`);
+        `The guild's locale/language has been set to **${userInput}**.`);
     } catch (error) {
       Logger.error(error.stack);
       return MessageUtils.error(this.client, ctx.message, error.message, true);

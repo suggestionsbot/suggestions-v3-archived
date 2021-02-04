@@ -2,7 +2,7 @@ import { GuildChannel, Message } from 'eris';
 import { oneLine } from 'common-tags';
 
 import SuggestionsClient from '../structures/core/Client';
-import { GuildSchema, UserSchema } from '../types';
+import { GuildSchema, Locales, UserSchema } from '../types';
 import Util from '../utils/Util';
 import Logger from '../utils/Logger';
 import MessageUtils from '../utils/MessageUtils';
@@ -24,7 +24,14 @@ export default class CommandHandler {
 
     if (!cmd) return;
 
-    const locale = this.client.locales.getLocale(settings.user.locale ? settings.user.locale : settings.guild.locale);
+    let userLocale: Locales;
+    if (message.guildID) userLocale = settings.user?.guilds?.find(p => p.id === message.guildID)?.locale
+        ?? settings.user?.locale
+        ?? settings.guild?.locale
+        ?? this.client.config.defaults.guild.locale;
+    else userLocale = settings.user?.locale ?? this.client.config.defaults.user.locale!;
+
+    const locale = this.client.locales.getLocale(userLocale);
     const ctx: Context = new Context(message, args, locale, settings);
 
     /**

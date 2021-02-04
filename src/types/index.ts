@@ -44,8 +44,8 @@ export interface BotConfig {
     actionlogs: number;
   };
   defaults: {
-    guild: GuildSchema,
-    user: UserSchema
+    guild: GuildSchema;
+    user: UserSchema;
   };
   supportRoles: Array<string>
   boosterRole: string
@@ -345,18 +345,30 @@ export type MessageLinkFormatter = [string, string, string];
 
 export interface UserSchema extends Document {
   id: string;
-  locale: Locales;
+  locale?: Locales;
   premium?: boolean;
   premiumSince?: number;
   showNickname: boolean;
+  guilds: Array<UserGuildProfile>;
   setLocale(locale: Locales): void;
   setPremium(status: boolean, timestamp?: number): void;
   setShowNickname(status: boolean): void;
+  updateGuildProfile(id: UserGuildProfileKey, data: Partial<UserGuildProfile>): void;
+  updateGuildProfiles(profile: UserGuildProfile): void;
 }
+
+export interface UserGuildProfile extends Document {
+  id: string;
+  locale: Locales;
+  showNickname: boolean;
+}
+
+export type UserGuildProfileKey = UserGuildProfile['id'];
 
 export const locales = <const>[
   'en_US',
-  'fr_FR'
+  'fr_FR',
+  'pt_BR'
 ];
 
 export type Locales = typeof locales[number];

@@ -153,7 +153,7 @@ export interface AwaitReply {
 export interface GuildSchema extends Document {
   guild: string,
   prefixes: Array<string>;
-  locale: string;
+  locale: Locales;
   premium: boolean;
   premiumSince: string;
   channels: Array<SuggestionChannel>;
@@ -173,7 +173,7 @@ export interface GuildSchema extends Document {
   staffEdit: boolean;
   allowNicknames: boolean;
   setGuild(guild: Guild|string): void;
-  setLocale(locale: string): void;
+  setLocale(locale: Locales): void;
   setDefaultEmojis(index: number): void
   setSelfVoting(status: boolean): void;
   setUniqueVoting(status: boolean): void;
@@ -354,9 +354,12 @@ export interface UserSchema extends Document {
   setShowNickname(status: boolean): void;
 }
 
-export type Locales = |
-'en_US' |
-'fr_FR';
+export const locales = <const>[
+  'en_US',
+  'fr_FR'
+];
+
+export type Locales = typeof locales[number];
 
 export interface Promisified<T = RedisClient>
   extends Omitted,
@@ -419,8 +422,8 @@ export interface LanguageInfo {
   translator: string;
   contributors: Array<string>;
   completion: LanguageStatus;
-  aliases?: Array<string>;
-  code: string;
+  aliases?: Array<Locales>;
+  code: Locales;
   flag: string;
   friendly: string;
   strings: { [x: string]: StoreData; };

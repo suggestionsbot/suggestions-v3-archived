@@ -5,6 +5,7 @@ import SuggestionsClient from '../structures/core/Client';
 import Language from '../structures/core/Language';
 import Logger from '../utils/Logger';
 import Util from '../utils/Util';
+import { Locales } from '../types';
 
 export default class LocalizationManager extends Collection<Language> {
   constructor(public client: SuggestionsClient) {
@@ -30,7 +31,7 @@ export default class LocalizationManager extends Collection<Language> {
     }
   }
 
-  getLocale(code: string): Language {
+  getLocale(code: Locales): Language {
     return this.find(x => x.code === code || x.aliases.includes(code))!;
   }
 }

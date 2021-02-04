@@ -1,14 +1,14 @@
 import frenchkiss, { StoreData } from 'frenchkiss';
-import { LanguageInfo, LanguageStatus, Translation } from '../../types';
+import { LanguageInfo, LanguageStatus, Locales, Translation } from '../../types';
 import LanguageError from '../../errors/LanguageError';
 
 export default class Language {
   translator: string;
   contributors: Array<string>;
   completion: LanguageStatus;
-  aliases: Array<string>;
+  aliases: Array<Locales>;
   strings: { [x: string]: StoreData };
-  code: string;
+  code: Locales;
   flag: string;
   friendly: string;
 

@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 import {
   DisabledCommand,
-  GuildSchema,
+  GuildSchema, Locales,
   RequiredResponseCommand,
   SuggestionChannel,
   SuggestionRole,
@@ -108,10 +108,10 @@ export const GuildSettings = new Schema({
 });
 
 GuildSettings.method('setGuild', function(this: GuildSchema, guild: Guild|string) {
-  this.locale = guild instanceof Guild ? guild.id : guild;
+  this.guild = guild instanceof Guild ? guild.id : guild;
 });
 
-GuildSettings.method('setLocale', function(this: GuildSchema, locale: string) {
+GuildSettings.method('setLocale', function(this: GuildSchema, locale: Locales) {
   this.locale = locale;
 });
 

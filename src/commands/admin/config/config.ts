@@ -24,6 +24,7 @@ export default class ConfigCommand extends Command {
       'config selfVoting [on|true|off|false|toggle]',
       'config restrictVoting [on|true|off|false|toggle]',
       'config staffCanDelete [on|true|off|false|toggle]',
+      'config allowNicknames [on|true|off|false|toggle]'
     ];
     this.examples = [
       'config prefix ^',
@@ -41,7 +42,8 @@ export default class ConfigCommand extends Command {
       'config restrictVoting toggle',
       'config selfVoting off',
       'config restrictVoting true',
-      'config staffCanDelete on'
+      'config staffCanDelete on',
+      'config allowNicknames toggle'
     ];
     this.adminOnly = true;
     this.botPermissions = ['manageMessages', 'externalEmojis'];

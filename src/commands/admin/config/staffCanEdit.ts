@@ -13,7 +13,7 @@ export default class ConfigStaffCanEditCommand extends SubCommand {
 
     this.parent = 'config';
     this.arg = 'staffCanEdit';
-    this.name = 'staffCanEdit';
+    this.name = 'config-staffCanEdit';
     this.friendly = 'config staffCanEdit';
     this.category = CommandCategory.ADMIN;
     this.description = 'Configure if staff should be able to delete suggestions they did\'t submit.';

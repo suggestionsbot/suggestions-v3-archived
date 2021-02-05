@@ -12,7 +12,7 @@ export default class ConfigSelfVotingCommand extends SubCommand {
 
     this.parent = 'config';
     this.arg = 'selfVoting';
-    this.name = 'selfvoting';
+    this.name = 'config-selfvoting';
     this.friendly = 'config selfVoting';
     this.category = CommandCategory.ADMIN;
     this.description = 'Configure if users should be able to vote on their own suggestions.';

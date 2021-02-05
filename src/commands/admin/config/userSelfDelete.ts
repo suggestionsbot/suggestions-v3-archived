@@ -12,7 +12,7 @@ export default class ConfigUserSelfDeleteCommand extends SubCommand {
 
     this.parent = 'config';
     this.arg = 'userSelfDelete';
-    this.name = 'userSelfDelete';
+    this.name = 'config-userSelfDelete';
     this.friendly = 'config userSelfDelete';
     this.category = CommandCategory.ADMIN;
     this.description = 'Configure if users should be allowed to delete their own suggestions.';

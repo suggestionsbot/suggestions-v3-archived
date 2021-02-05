@@ -17,7 +17,7 @@ export default class ConfigResponsesCommand extends SubCommand {
 
     this.parent = 'config';
     this.arg = 'responses';
-    this.name = 'respones';
+    this.name = 'config-respones';
     this.friendly = 'config responses';
     this.category = CommandCategory.ADMIN;
     this.description = 'Require a response for various commands or all commands.';

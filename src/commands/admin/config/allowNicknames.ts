@@ -12,7 +12,7 @@ export default class ConfigAllowNicknameCommand extends SubCommand {
 
     this.parent = 'config';
     this.arg = 'allowNicknames';
-    this.name = 'allowNicknames';
+    this.name = 'config-allowNicknames';
     this.friendly = 'config allowNicknames';
     this.category = CommandCategory.ADMIN;
     this.description = 'Configure if a user\'s should have the option to display their nickname/displayname in suggestions.';

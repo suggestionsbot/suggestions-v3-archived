@@ -12,7 +12,7 @@ export default class ConfigUniqueVotingCommand extends SubCommand {
 
     this.parent = 'config';
     this.arg = 'uniqueVoting';
-    this.name = 'uniqueVoting';
+    this.name = 'config-uniqueVoting';
     this.friendly = 'config uniqueVoting';
     this.category = CommandCategory.ADMIN;
     this.description = 'Configure if users should be able to add multiple reactions.';

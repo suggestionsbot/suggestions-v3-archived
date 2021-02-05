@@ -158,17 +158,7 @@ export default class SuggestionsClient extends Client {
   }
 
   isGuildAdmin(member: Member): boolean {
-    let hasPerm = false;
-    const perms = ['administrator', 'manageGuild'];
-
-    for (const perm of perms) {
-      if (member.permissions.has(perm)) {
-        hasPerm = true;
-        break;
-      }
-    }
-
-    return hasPerm;
+    return Object.keys(member.permissions.json).some(p => ['administrator', 'manageGuild'].includes(p));
   }
 
   isSuperSecret(user: User): boolean {
@@ -437,6 +427,7 @@ export default class SuggestionsClient extends Client {
     return text;
   }
 
+  // TODO: We need to fix the usage below to properly fetch guild members. Or keep users in support roles in cache??
   async isSupport(user: User): Promise<boolean> {
     return this.base!.ipc.fetchGuild(this.system)
       .then(async (guild: any) => {

@@ -15,8 +15,9 @@ import path from 'path';
 import { lstatSync, readdirSync } from 'fs';
 
 import Permissions from './Permissions';
-import { SuggestionGuild, SuggestionUser } from '../types';
+import { GuildSchema, SuggestionGuild, SuggestionUser, UserSchema } from '../types';
 import CommandContext from '../structures/commands/Context';
+import SuggestionsClient from '../structures/core/Client';
 
 export default class Util {
   static formatPermission(permission: string): string {
@@ -239,5 +240,22 @@ export default class Util {
     const re = /```([^`]*)```/;
     const matches = code.match(re);
     return matches ? matches[1]: code;
+  }
+
+  static userCanDisplayNickname(data: {
+    client: SuggestionsClient;
+    guild?: Guild;
+    settings?: GuildSchema;
+    profile: UserSchema;
+  }): boolean {
+    let allowNicknames: boolean;
+    if (data.guild && !data.settings?.allowNicknames) allowNicknames = false;
+    else if (data.guild) allowNicknames = data.profile?.guilds?.find(p => p.id === data.guild!.id)?.showNickname
+        ?? data.profile?.showNickname
+        ?? data.settings?.allowNicknames
+        ?? data.client.config.defaults.guild.allowNicknames;
+    else allowNicknames = data.profile?.showNickname ?? data.client.config.defaults.user.showNickname;
+
+    return allowNicknames;
   }
 }

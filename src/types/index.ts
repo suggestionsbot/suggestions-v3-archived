@@ -359,8 +359,8 @@ export interface UserSchema extends Document {
 
 export interface UserGuildProfile extends Document {
   id: string;
-  locale: Locales;
-  showNickname: boolean;
+  locale?: Locales;
+  showNickname?: boolean;
 }
 
 export type UserGuildProfileKey = UserGuildProfile['id'];

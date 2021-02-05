@@ -160,6 +160,13 @@ export default class Suggestion {
     const setEmojis = voteEmojis[this.#channel.emojis];
     const guild = setEmojis.system ? await this.client.base!.ipc.fetchGuild(this.client.system) : this.#guild;
     const reactions = setEmojis.emojis.map(e => e && Util.matchUnicodeEmoji(e) ? e : (<Array<Emoji>>guild.emojis).find(ge => ge.id === e));
+    const allowNicknames = Util.userCanDisplayNickname({
+      client: this.client,
+      guild: this.#guild,
+      settings: this.#settings,
+      profile: this.#profile
+    });
+
     const embed = SuggestionEmbeds.fullSuggestion({
       channel: this.#channel,
       guild: this.#guild,
@@ -167,7 +174,7 @@ export default class Suggestion {
       suggestion: this.#suggestion,
       message: this.#message!,
       author: this.#author,
-      nickname: this.#profile.showNickname
+      nickname: allowNicknames
     });
 
     let file: MessageFile|undefined;

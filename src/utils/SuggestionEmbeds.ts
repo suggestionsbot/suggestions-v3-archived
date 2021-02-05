@@ -1,11 +1,13 @@
 import { oneLine, stripIndents } from 'common-tags';
-import { EmbedField, Guild, Message, User } from 'eris';
+import { EmbedField, EmbedImage, Guild, Message, User } from 'eris';
 
 import MessageEmbed from './MessageEmbed';
 import MessageUtils from './MessageUtils';
 import Util from './Util';
 import { IMAGE_URL_REGEX } from './Constants';
 import SuggestionChannel from '../structures/suggestions/SuggestionChannel';
+import Logger from './Logger';
+import { EmbedThumbnail } from '../types';
 
 interface BaseEmbedData {
   channel: SuggestionChannel;
@@ -37,7 +39,9 @@ interface EditDMData extends Omit<BaseDMEmbedData, 'suggestion' | 'nickname' | '
 
 export default class SuggestionEmbeds {
   static fullSuggestion(data: FullEmbedData): MessageEmbed {
-    const imageCheck = IMAGE_URL_REGEX.exec(data.suggestion);
+    const imageCheck = data.message.embeds.filter(e => !!e.thumbnail);
+    const imageThumbnail = !imageCheck.isEmpty() ? imageCheck[0].thumbnail : undefined;
+
     const displayName = data.nickname
       ? oneLine`${data.message?.member?.displayName ?? data.author.username}#
         ${data.message?.member?.discriminator ?? data.author.discriminator}`
@@ -49,12 +53,12 @@ export default class SuggestionEmbeds {
         ${Util.escapeMarkdown(displayName)}
         
         **Suggestion**
-        ${data.suggestion}
+        ${data.suggestion.replace(imageThumbnail?.url ?? '', '')}
       `)
       .setThumbnail(data.author.avatarURL)
       .setFooter(`Author ID: ${data.author.id} | sID: ${data.id}`);
 
-    if (imageCheck) embed.setImage(imageCheck[0]);
+    if (imageThumbnail) embed.setImage(imageThumbnail.proxy_url!);
     return embed;
   }
 

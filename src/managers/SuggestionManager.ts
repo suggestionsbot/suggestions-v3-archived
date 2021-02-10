@@ -1,5 +1,5 @@
 import { Collection } from '@augu/immutable';
-import { User } from 'eris';
+import { Message, User } from 'eris';
 import { stripIndents } from 'common-tags';
 
 import { Edit, SuggestionChannelType, SuggestionSchema, SuggestionType } from '../types';
@@ -8,7 +8,7 @@ import Logger from '../utils/Logger';
 import SuggestionsClient from '../structures/core/Client';
 import Suggestion from '../structures/suggestions/Suggestion';
 import Util from '../utils/Util';
-import MessageEmbed from '../utils/MessageEmbed';
+import SuggestionEmbeds from '../utils/SuggestionEmbeds';
 
 export default class SuggestionManager {
   readonly #cache: Collection<Suggestion>;
@@ -82,7 +82,7 @@ export default class SuggestionManager {
     return deleted;
   }
 
-  async edit(query: Suggestion|string, executor: User, edit: string, reason?: string): Promise<Suggestion|undefined> {
+  async edit(query: Suggestion|string, executor: User, ctxMessage: Message, edit: string, reason?: string): Promise<Suggestion|undefined> {
     const data = query instanceof Suggestion
       ? <SuggestionSchema>await this.queryFromDatabase(query.id(), true)
       : <SuggestionSchema>await this.fetch(query, false, true, true);
@@ -100,18 +100,26 @@ export default class SuggestionManager {
     if (this.#cache.has(suggestion!.data.id)) this.#cache.set(suggestion!.id(), suggestion!);
     this.client.redis.instance!.incr(`suggestions:${suggestion!.id}:edits:count`);
 
-    const messageID = suggestion!.data.message;
+    const allowedNicknames = Util.userCanDisplayNickname({
+      client: this.client,
+      guild: suggestion.guild,
+      profile: suggestion.userProfile,
+      settings: suggestion.guildSettings
+    });
+
+    const messageID = suggestion.data.message;
     const message = this.channel.channel.messages.get(messageID) ?? await this.channel.channel.getMessage(messageID);
     if (message) {
-      const embed = new MessageEmbed(message.embeds[0])
-      // TODO: Make method to easily update suggestion embed (will help for future translations)
-        .setDescription(stripIndents`
-          **Submitter**
-          ${Util.escapeMarkdown(suggestion!.author.tag)}
-          
-          **Suggestion**
-          ${suggestion!.suggestion}
-        `);
+      if (!suggestion.message) suggestion.setSuggestionMessage(message);
+      const embed = SuggestionEmbeds.fullSuggestion({
+        author: suggestion.author,
+        channel: suggestion.channel,
+        guild: suggestion.guild,
+        id: suggestion.id(true),
+        message: ctxMessage,
+        nickname: allowedNicknames,
+        suggestion: edit
+      });
 
       await message.edit({ embed });
     }

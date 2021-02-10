@@ -109,7 +109,7 @@ export default class EditCommand extends Command {
 
   async run(ctx: CommandContext): Promise<any> {
     const { suggestion, edit, reason } = <SuggestionEditData>ctx.local;
-    await suggestion.channel.suggestions.edit(suggestion, ctx.sender, edit, reason);
+    await suggestion.channel.suggestions.edit(suggestion, ctx.sender, ctx.message, edit, reason);
     return MessageUtils.success(this.client, ctx.message,
       oneLine`Successfully edited suggestion [${Util.boldCode(suggestion.id(true))}](${suggestion.link})
         ${reason && ` with the reason: \`${reason}\``}`);

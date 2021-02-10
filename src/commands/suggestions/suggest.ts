@@ -49,7 +49,7 @@ export default class SuggestCommand extends Command {
       const newSuggestion = new Suggestion(this.client)
         .setAuthor(ctx.sender)
         .setChannel(sChannel)
-        .setMessage(ctx.message)
+        .setCommandMessage(ctx.message)
         .setGuild(ctx.guild!)
         .setSuggestion(suggestion)
         .setSettings(ctx.settings!)

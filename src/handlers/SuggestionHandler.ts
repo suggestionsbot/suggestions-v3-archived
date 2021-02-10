@@ -83,7 +83,7 @@ export default class SuggestionHandler {
       const newSuggestion = new Suggestion(this.client)
         .setAuthor(ctx.sender)
         .setChannel(sChannel)
-        .setMessage(ctx.message)
+        .setCommandMessage(ctx.message)
         .setGuild(ctx.guild!)
         .setSuggestion(ctx.message.content)
         .setSettings(ctx.settings!)

@@ -16,7 +16,7 @@ export default class Suggestion {
   #id!: string;
   #settings!: GuildSchema;
   #profile!: UserSchema;
-  #message?: Message;
+  #commandMessage?: Message;
   #suggestionMessage?: Message;
   #suggestion!: string;
   #data!: SuggestionSchema;
@@ -30,7 +30,7 @@ export default class Suggestion {
   get postable(): boolean {
     return (
       !!this.#channel &&
-      !!this.#message &&
+      !!this.#commandMessage &&
       !!this.#id
     );
   }
@@ -80,6 +80,14 @@ export default class Suggestion {
     return this.#statusUpdates;
   }
 
+  get userProfile(): UserSchema {
+    return this.#profile;
+  }
+
+  get guildSettings(): GuildSchema {
+    return this.#settings;
+  }
+
   id(short: boolean = false): string {
     return short ? this.#id.slice(33, 40) : this.#id;
   }
@@ -109,8 +117,13 @@ export default class Suggestion {
     return this;
   }
 
-  setMessage(message: Message): this {
-    this.#message = message;
+  setCommandMessage(message: Message): this {
+    this.#commandMessage = message;
+    return this;
+  }
+
+  setSuggestionMessage(message: Message): this {
+    this.#suggestionMessage = message;
     return this;
   }
 
@@ -172,14 +185,14 @@ export default class Suggestion {
       guild: this.#guild,
       id: this.#id.slice(33, 40),
       suggestion: this.#suggestion,
-      message: this.#message!,
+      message: this.#commandMessage!,
       author: this.#author,
       nickname: allowNicknames
     });
 
     let file: MessageFile|undefined;
-    if (this.#message && (this.#message.attachments.length > 0)) {
-      const attachment = this.#message.attachments[0];
+    if (this.#commandMessage && (this.#commandMessage.attachments.length > 0)) {
+      const attachment = this.#commandMessage.attachments[0];
       const fileExtArray = attachment.filename.split('.');
       const fileExt = fileExtArray[fileExtArray.length - 1];
       if (['jpg', 'jpeg', 'png', 'gif', 'gifv'].includes(fileExt)) embed.setImage(attachment.url);

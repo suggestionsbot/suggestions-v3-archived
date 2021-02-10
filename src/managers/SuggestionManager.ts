@@ -98,7 +98,7 @@ export default class SuggestionManager {
     const saved = await data!.save();
     const suggestion = await new Suggestion(this.client).setData(saved);
     if (this.#cache.has(suggestion!.data.id)) this.#cache.set(suggestion!.id(), suggestion!);
-    this.client.redis.instance!.incr(`suggestions:${suggestion!.id}:edits:count`);
+    this.client.redis.instance!.incr(`suggestions:${suggestion!.id()}:edits:count`);
 
     const allowedNicknames = Util.userCanDisplayNickname({
       client: this.client,

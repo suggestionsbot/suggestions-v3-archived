@@ -39,7 +39,7 @@ interface EditDMData extends Omit<BaseDMEmbedData, 'suggestion' | 'nickname' | '
 
 export default class SuggestionEmbeds {
   static fullSuggestion(data: FullEmbedData): MessageEmbed {
-    const imageCheck = data.message.embeds.filter(e => !!e.thumbnail);
+    const imageCheck = data.message.embeds.filter(e => !!e.thumbnail && (e.type !== 'rich'));
     const imageThumbnail = !imageCheck.isEmpty() ? imageCheck[0].thumbnail : undefined;
 
     const displayName = data.nickname

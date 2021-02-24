@@ -1,14 +1,20 @@
 import * as Sentry from '@sentry/node';
 import { CaptureConsole, RewriteFrames } from '@sentry/integrations';
-import { Base } from 'eris-sharder';
+import { LaunchModule } from '@nedbot/sharder';
 import { setDefaults } from 'wumpfetch';
+import { BotActivityType, Status } from 'eris';
+import { IPCMessage } from '@nedbot/sharder/dist/types/struct/IPC';
 
 import SuggestionsClient from './Client';
 import { version } from '../../../package.json';
 import Logger from '../../utils/Logger';
 import config from '../../config';
-import { StatusEvent } from '../../types';
-import { CLIENT_OPTIONS } from '../../index';
+
+interface MessageData extends IPCMessage {
+  status?: Status
+  name?: string;
+  type?: BotActivityType;
+}
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -32,24 +38,13 @@ setDefaults({
   }
 });
 
-export default class Bot extends Base {
-  client: SuggestionsClient;
-
-  constructor(bot: boolean) {
-    super(bot);
-
-    this.client = new SuggestionsClient(process.env.DISCORD_TOKEN!, CLIENT_OPTIONS);
-    this.client.start();
-  }
-
-  launch(): any {
-    this.client.base = this;
-
-    this.ipc.register('changeStatus', (status: StatusEvent) => {
-      this.client.editStatus(status.status, {
-        name: status.name,
-        type: status.type,
-        url: status.url
+export default class extends LaunchModule<SuggestionsClient> {
+  launch(): void {
+    this.ipc.register('changeStatus', (data: MessageData) => {
+      this.client.editStatus(data!.status!, {
+        name: data.name!,
+        type: data.type!,
+        url: data.url
       });
     });
 

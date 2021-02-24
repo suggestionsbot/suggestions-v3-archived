@@ -93,7 +93,7 @@ export default class PermsCommand extends Command {
       embed.addField('Bot Information', [
         `Prefixes:\n ${ctx.client.getPrefixes(false, true, ctx.settings).join(' | ')}`,
         `Shard:\n \`${ctx.shard!.id}\``,
-        `Cluster:\n \`${ctx.client.base!.clusterID}\``,
+        `Cluster:\n \`${ctx.client.cluster.id}\``,
         `API Latency:\n \`${Math.round(ctx.shard!.latency)}\``
       ].join('\n'), true);
       if (this.client.suggestionChannels.has(channel.id)) {

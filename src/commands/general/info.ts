@@ -8,9 +8,10 @@ import Logger from '../../utils/Logger';
 
 import { description, version } from '../../../package.json';
 import MessageUtils from '../../utils/MessageUtils';
-import { CommandCategory, ShardStats } from '../../types';
+import { CommandCategory } from '../../types';
 import Context from '../../structures/commands/Context';
 import Util from '../../utils/Util';
+import { ClusterManagerStats } from '@nedbot/sharder';
 
 export default class InfoCommand extends Command {
   constructor(client: SuggestionsClient) {
@@ -29,10 +30,10 @@ export default class InfoCommand extends Command {
     try {
       const owners: Array<string> = ownerIDs.map(o => `<@${o}>`);
       const created = dayjs(this.client.user.createdAt).format('MM/DD/YYYY');
-      const cluster = this.client.base!.clusterID;
+      const cluster = this.client.cluster.id;
       const shard = ctx.shard!.id;
 
-      const promises: [Promise<ShardStats>, Promise<number>, Promise<number>] = [
+      const promises: [Promise<ClusterManagerStats>, Promise<number>, Promise<number>] = [
         this.client.redis.helpers?.getStats() ?? null,
         this.client.redis.helpers?.getGlobalSuggestionCount() ?? null,
         this.client.redis.helpers?.getGlobalCommandCount() ?? null,
@@ -59,7 +60,7 @@ export default class InfoCommand extends Command {
           `**❯ Users:** \`${stats?.users ?? 0}\``,
           `**❯ Suggestions:** \`${suggestions ?? 0}\``,
           `**❯ Commands:** \`${commands ?? 0}\``,
-          `**❯ Memory:** \`${Math.round(stats?.totalRam ?? 0)} MB\``
+          `**❯ Memory:** \`${Math.round(stats?.ramUsage ?? 0)} MB\``
         ].join('\n'), true)
         .addField('Versions', [
           `**❯ Version:** \`v${version}\``,

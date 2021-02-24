@@ -401,35 +401,6 @@ export interface BlacklistQueryType {
   data: BlacklistData;
 }
 
-export interface ShardStats {
-  guilds: number;
-  users: number;
-  totalRam: number;
-  voice: number;
-  exclusiveGuilds: number;
-  largeGuilds: number;
-  clusters: Array<ErisSharderCluster>;
-}
-
-export interface ErisSharderCluster {
-  cluster: number;
-  shards: number;
-  guilds: number;
-  ram: number;
-  voice: number;
-  uptime: number;
-  exclusiveGuilds: number;
-  largeGuilds: number;
-  shardsStats: Array<ErisSharderShard>;
-}
-
-export interface ErisSharderShard {
-  id: number;
-  ready: boolean;
-  latency: number;
-  status: string;
-}
-
 export enum LanguageStatus {
   INCOMPLETE = 'incomplete',
   COMPLETED = 'completed',
@@ -459,13 +430,6 @@ export enum CommandCategory {
   SECRET = 'Secret',
   SUPPORT = 'Support',
   OWNER = 'Owner'
-}
-
-export interface StatusEvent {
-  status:  'online'|'idle'|'dnd'|'offline'|undefined;
-  name: string;
-  type: BotActivityType;
-  url: string|undefined;
 }
 
 export interface InternalVoteEmoji {

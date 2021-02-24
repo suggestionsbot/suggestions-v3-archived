@@ -240,8 +240,8 @@ export default class Suggestion {
     if (!this.postable) throw new Error('SuggestionNotPostable');
     const voteEmojis = [...emojis, ...this.#settings.emojis];
     const setEmojis = voteEmojis[this.#channel.emojis];
-    const guild = setEmojis.system ? await this.client.base!.ipc.fetchGuild(this.client.system) : this.#guild;
-    const reactions = setEmojis.emojis.map(e => e && Util.matchUnicodeEmoji(e) ? e : (<Array<Emoji>>guild.emojis).find(ge => ge.id === e));
+    const guild = setEmojis.system ? await this.client.cluster!.ipc.fetchGuild(this.client.system) : this.#guild;
+    const reactions = setEmojis.emojis.map(e => e && Util.matchUnicodeEmoji(e) ? e : (<Array<Emoji>>guild!.emojis).find(ge => ge.id === e));
     const allowNicknames = Util.userCanDisplayNickname({
       client: this.client,
       guild: this.#guild,

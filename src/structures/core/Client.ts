@@ -12,7 +12,6 @@ import {
   User
 } from 'eris';
 import { inspect } from 'util';
-import { Base } from 'eris-sharder';
 import { stripIndents } from 'common-tags';
 import emojis from '../../utils/Emojis';
 
@@ -50,7 +49,6 @@ import Util from '../../utils/Util';
 export default class SuggestionsClient extends Client {
   readonly production: boolean;
   readonly system: string;
-  base: Base|undefined;
   commands: CommandManager;
   subCommands: SubCommandManager;
   events: ListenerManager;
@@ -94,7 +92,11 @@ export default class SuggestionsClient extends Client {
     this.addEventListeners();
     this.locales.init();
     this.conditions.init();
-    super.connect();
+  }
+
+  connect(): Promise<void> {
+    this.start();
+    return super.connect();
   }
 
   getPrefixes(regex = false, formatted = false, settings?: GuildSchema): ReadonlyArray<string> {
@@ -121,13 +123,13 @@ export default class SuggestionsClient extends Client {
     const prefix = this.getPrefixes()[0];
 
     if (this.production) {
-      this.base!.ipc.broadcast('changeStatus', {
+      this.cluster!.ipc.broadcast('changeStatus', {
         status: 'online',
         name: `your suggestions | ${prefix + 'help'}`,
         type: 2
       });
     } else {
-      this.base!.ipc.broadcast('changeStatus', {
+      this.cluster!.ipc.broadcast('changeStatus', {
         status: 'dnd',
         name: 'in code land...',
         type: 0
@@ -182,9 +184,9 @@ export default class SuggestionsClient extends Client {
       const emojiSet = allEmojis[index];
       const emojis = emojiSet.emojis.map(async e => {
         if (emojiSet.custom) {
-          return this.base!.ipc.fetchGuild(emojiSet.system ? this.system : settings.guild).then(g => {
+          return this.cluster.ipc.fetchGuild(emojiSet.system ? this.system : settings.guild).then(g => {
             if (!g) throw new Error('GuildNotFound');
-            const emoji = g.emojis.find(emoji => emoji.id === e);
+            const emoji = g.emojis.find((emoji: Emoji) => emoji.id === e);
             if (!emoji) return e;
 
             if (emoji.animated) return `<a:${emoji.name}:${emoji.id}>`;
@@ -204,9 +206,9 @@ export default class SuggestionsClient extends Client {
 
       if (set.custom) {
         emojiSet = set.emojis.map(async e => {
-          return this.base!.ipc.fetchGuild(set.system ? '737166408525283348' : settings.guild).then(g => {
+          return this.cluster!.ipc.fetchGuild(set.system ? '737166408525283348' : settings.guild).then(g => {
             if (!g) throw new Error('GuildNotFound');
-            const emoji = g.emojis.find(emoji => emoji.id === e);
+            const emoji = g.emojis.find((emoji: Emoji) => emoji.id === e);
             if (!emoji) return e;
 
             if (emoji.animated) return `<a:${emoji.name}:${emoji.id}>`;
@@ -429,7 +431,7 @@ export default class SuggestionsClient extends Client {
 
   // TODO: We need to fix the usage below to properly fetch guild members. Or keep users in support roles in cache??
   async isSupport(user: User): Promise<boolean> {
-    return this.base!.ipc.fetchGuild(this.system)
+    return this.cluster!.ipc.fetchGuild(this.system)
       .then(async (guild: any) => {
         const member: Member = guild.members[user.id] ?? await Util.getGuildMemberByID(<Guild>guild, user.id);
         if (member) return member.roles.some(r => this.config.supportRoles.includes(r));
@@ -438,7 +440,7 @@ export default class SuggestionsClient extends Client {
   }
 
   async isBooster(user: User): Promise<boolean> {
-    return this.base!.ipc.fetchGuild(this.system)
+    return this.cluster!.ipc.fetchGuild(this.system)
       .then(async (guild: any) => {
         const member: Member = guild.members[user.id] ?? await Util.getGuildMemberByID(<Guild>guild, user.id);
         if (member) return member.roles.includes(this.config.boosterRole);

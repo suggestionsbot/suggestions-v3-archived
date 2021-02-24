@@ -1,5 +1,5 @@
 import { ClientOptions } from 'eris';
-import { Master } from 'eris-sharder';
+import { ClusterManager } from '@nedbot/sharder';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -7,6 +7,7 @@ dotenv.config();
 import './types/global.extensions';
 import './types/eris.extensions';
 import Logger from './utils/Logger';
+import SuggestionsClient from './structures/core/Client';
 
 export const CLIENT_OPTIONS: ClientOptions = {
   messageLimit: 0,
@@ -51,15 +52,16 @@ export const CLIENT_OPTIONS: ClientOptions = {
 export const main = async (): Promise<boolean> => {
   try {
     const mainFile = process.env.NODE_ENV === 'production' ?
-      '/dist/lib/src/structures/core/Bot.js' :
-      '/src/structures/core/Bot.ts';
+      'dist/lib/src/structures/core/Bot.js' :
+      'src/structures/core/Bot.ts';
 
-    const sharder = new Master(process.env.DISCORD_TOKEN!, mainFile, {
-      stats: true,
+    const sharder = new ClusterManager(process.env.DISCORD_TOKEN!, mainFile, {
+      client: SuggestionsClient,
+      statsUpdateInterval: 60000,
       debug: true,
-      clusters: 1,
+      clusterCount: 2,
       guildsPerShard: 1500,
-      name: 'Suggestions',
+      clientOptions: CLIENT_OPTIONS,
       webhooks: {
         shard: {
           id: process.env.SHARD_WEBHOOK_ID!,

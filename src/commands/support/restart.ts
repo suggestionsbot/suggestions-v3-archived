@@ -3,7 +3,6 @@ import SuggestionsClient from '../../structures/core/Client';
 import { CommandCategory, CommandNextFunction } from '../../types';
 import CommandContext from '../../structures/commands/Context';
 import MessageUtils from '../../utils/MessageUtils';
-import { oneLine } from 'common-tags';
 import Logger from '../../utils/Logger';
 
 export default class RestartCommand extends Command {
@@ -13,76 +12,48 @@ export default class RestartCommand extends Command {
 
     this.name = 'restart';
     this.category = CommandCategory.SUPPORT;
-    this.description = 'Restart a single shard/cluster, multiple shards/clusters or all shards/clusters.';
+    this.description = 'Restart a single cluster, multiple clusters or all clusters.';
     this.usages = [
-      'restart shard <id> [id] [...id]',
-      'restart shard all',
-      'restart cluster <id> [id] [...id]',
+      'restart cluster <id> [...id]',
       'restart cluster all',
     ];
     this.examples = [
-      'restart shard 14',
-      'restart cluster 3',
-      'restart shard 8 9 10 11',
-      'restart cluster 3 4 7',
-      'restart shard all',
-      'restart cluster all'
+      'restart 3',
+      'restart 3 4 7',
+      'restart all'
     ];
     this.supportOnly = true;
     this.guildOnly = false;
   }
 
   async runPreconditions(ctx: CommandContext, next: CommandNextFunction): Promise<any> {
-    const option = ctx.args.get(0);
-    const arg = ctx.args.get(1);
-    if (!option) return MessageUtils.error(this.client, ctx.message,
-      'Please provide a valid option!');
-
-    if (!['shard', 'cluster'].includes(option.toLowerCase()) || (['shard', 'cluster'].includes(option.toLowerCase()) && !arg))
-      return MessageUtils.error(this.client, ctx.message, oneLine`Valid options: \`${ctx.prefix + this.name} shard <id|all>\` 
-        or \`${ctx.prefix + this.name} cluster <id|all>\``);
+    const arg = ctx.args.get(0)?.toLowerCase();
+    if (!arg) return MessageUtils.error(this.client, ctx.message,
+      'Please provide a valid argument!');
 
     if (arg && isNaN(+arg) && (arg.toLowerCase() !== 'all'))
       return MessageUtils.error(this.client, ctx.message, `\`${arg}\` is not a number`);
-    else if (arg.toLowerCase() === 'all') next();
+    else if (arg.toLowerCase() === 'all') return next();
 
     next();
   }
 
   async run(ctx: CommandContext): Promise<any> {
-    const option = ctx.args.get(0).toLowerCase();
-    const arg = ctx.args.get(1).toLowerCase();
+    const arg = ctx.args.get(0).toLowerCase();
 
-    switch (option) {
-      // case 'shard': {
-      //
-      //   break;
-      // }
-      case 'cluster': {
-        try {
-          await ctx.embed(
-            MessageUtils.defaultEmbed()
-              .setDescription(`Restarting ${arg === 'all' ? 'all clusters' : `cluster \`${arg}\``}.`)
-              .setFooter(`ID: ${ctx.sender.id}`)
-              .setTimestamp()
-          );
+    try {
+      if (arg === 'all') this.client.cluster.ipc.broadcast('restart');
+      else this.client.cluster.launchModule?.restartCluster(+arg);
 
-          if (arg === 'all') {
-            return this.client.redis.helpers.getStats().then(data => {
-              data.clusters.map(c => {
-                this.client.base!.restartCluster(c.cluster);
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
-                setTimeout(() => {}, 3000);
-              });
-            });
-          } else this.client.base!.restartCluster(+arg);
-
-        } catch (e) {
-          Logger.error(`CMD:${this.name.toUpperCase()}`, e);
-          return MessageUtils.error(this.client, ctx.message, e.message, true);
-        }
-        break;
-      }
+      await ctx.embed(
+        MessageUtils.defaultEmbed()
+          .setDescription(`Restarting ${arg === 'all' ? 'all clusters' : `cluster \`${arg}\``}.`)
+          .setFooter(`ID: ${ctx.sender.id}`)
+          .setTimestamp()
+      );
+    } catch (e) {
+      Logger.error(`CMD:${this.name.toUpperCase()}`, e);
+      return MessageUtils.error(this.client, ctx.message, e.message, true);
     }
   }
 }

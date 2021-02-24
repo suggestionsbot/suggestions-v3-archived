@@ -1,15 +1,15 @@
 import { Member, TextChannel } from 'eris';
+import { ClusterManagerStats } from '@nedbot/sharder';
 
 import {
   GuildSchema,
-  ShardStats, SuggestionChannelType,
+  SuggestionChannelType,
   SuggestionGuild, SuggestionUser, UserSchema,
 } from '../../../types';
 import Util from '../../../utils/Util';
 import Redis from '../index';
 
 // TODO: Add methods for storing the bot inviter
-
 export default class RedisHelpers {
   constructor(public redis: Redis) {}
 
@@ -55,10 +55,10 @@ export default class RedisHelpers {
     return this.redis.instance!.get(`guild:${Util.getGuildID(guild)}:blacklists:count`).then((count: any) => +count);
   }
 
-  async getStats(): Promise<ShardStats> {
-    const data: any = await this.redis.instance!.hgetall('shardstats');
-    const field = Object.keys(data).sort((a, b) => +a - +b)[0];
-    return JSON.parse(data[field]);
+  async getStats(): Promise<ClusterManagerStats> {
+    return this.redis.instance!.zrevrangebylex('shardstats', '+', '-', 'LIMIT', 0, 1).then((d: any) => {
+      return JSON.parse(d[0].split(/:(.+)/)[1]);
+    });
   }
 
   async getGuildCount(): Promise<number> {
@@ -71,8 +71,8 @@ export default class RedisHelpers {
     return data.users;
   }
 
-  updateStats(data: ShardStats): Promise<boolean> {
-    return this.redis.instance!.hset('shardstats', Date.now().toString(), JSON.stringify(data));
+  updateStats(data: ClusterManagerStats): Promise<boolean> {
+    return this.redis.instance!.zadd('shardstats', 1, `${Date.now()}:${JSON.stringify(data)}`);
   }
 
   getCachedGuild(guild: SuggestionGuild): Promise<GuildSchema> {

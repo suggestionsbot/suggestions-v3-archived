@@ -43,7 +43,8 @@ const config: BotConfig = {
     regular: 355392,
     logs: 84992,
     staff: 85056,
-    actionlogs: 84992
+    actionlogs: 84992,
+    review: 84992
   },
   defaults: {
     guild: <GuildSchema>{

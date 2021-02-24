@@ -38,7 +38,7 @@ export default class ChannelManager extends Collection<BaseChannel> {
     if (!text) throw new Error('TextChannelNotFound');
 
     switch (dbChannel.type) {
-      case SuggestionChannelType.SUGGESTIONS: case SuggestionChannelType.LOGS: {
+      case SuggestionChannelType.SUGGESTIONS: case SuggestionChannelType.LOGS: case SuggestionChannelType.REVIEW: {
         const channel = new SuggestionChannel(this.client, guild, dbChannel.type, text, settings);
         await channel.init();
         this.client.suggestionChannels.addChannel(channel);

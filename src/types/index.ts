@@ -42,6 +42,7 @@ export interface BotConfig {
     logs: number;
     staff: number;
     actionlogs: number;
+    review: number;
   };
   defaults: {
     guild: GuildSchema;
@@ -219,7 +220,8 @@ export enum SuggestionChannelType {
   STAFF = 'staff',
   APPROVED = 'approved',
   REJECTED = 'rejected',
-  ACTION_LOGS = 'actionlogs'
+  ACTION_LOGS = 'actionlogs',
+  REVIEW = 'review'
 }
 
 export interface DisabledCommand extends Document {
@@ -275,8 +277,12 @@ export interface SuggestionSchema extends Document {
   voted: Array<VoteResult>;
   notes: Array<Note>;
   edits: Array<Edit>;
+  state: SuggestionStateType;
+  review: boolean;
   getMessageLink(args: MessageLinkFormatter): string;
   getSuggestionID(long: boolean): string;
+  setState(state: SuggestionStateType): void;
+  setReview(review: boolean): void;
 }
 
 export type StatusReply = Document;
@@ -491,3 +497,42 @@ export type ActionLogChange = {
   before: any;
   after: any;
 };
+
+export type SuggestionStateType = |
+'PENDING' |
+'APPROVED' |
+'REJECTED' |
+'CONSIDERED' |
+'IMPLEMENTED';
+
+export type PendingSuggestion = {
+  type: 'PENDING',
+  inReview: boolean
+};
+
+export type ApprovedSuggestion = {
+  type: 'APPROVED',
+  inReview: boolean
+};
+
+export type RejectedSuggestion = {
+  type: 'REJECTED',
+  inReview: boolean
+};
+
+export type ConsideredSuggestion = {
+  type: 'CONSIDERED',
+  inReview: false
+};
+
+export type ImplementedSuggestion = {
+  type: 'IMPLEMENTED',
+  inReview: false
+};
+
+export type SuggestionState = |
+PendingSuggestion |
+ApprovedSuggestion |
+RejectedSuggestion |
+ConsideredSuggestion |
+ImplementedSuggestion;

@@ -20,7 +20,7 @@ import Logger from '../../../utils/Logger';
 import emojis from '../../../utils/Emojis';
 import SuggestionChannel from '../../../structures/suggestions/SuggestionChannel';
 
-type ChannelType = 'regular' | 'staff' | 'logs' | 'actionlogs';
+type ChannelType = 'regular' | 'staff' | 'logs' | 'actionlogs' | 'review';
 
 /**
  * TODO implement premium guild checks for adding additional channels (limit is 2 channels)
@@ -549,6 +549,7 @@ export default class ConfigChannelsCommand extends SubCommand {
       case 'staff': return returnedPerm = 'staff';
       case 'logs': case 'approved': case 'rejected': return returnedPerm = 'logs';
       case 'actionlogs': return returnedPerm = 'actionlogs';
+      case 'review': return returnedPerm = 'review';
     }
 
     return returnedPerm;

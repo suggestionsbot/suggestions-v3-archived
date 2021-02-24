@@ -29,7 +29,7 @@ export default class SuggestionChannelCondition extends Condition {
     if (gChannel && (channels.length > 1) && !ids.includes(gChannel.id))
       throw new Error(stripIndents`${gChannel.mention} is not a valid suggestions channel!
         
-        Valid channels: ${channels.map(c => `<#${c}>`).join(' ')}`);
+        Valid channels: ${channels.map(c => `<#${c.id}>`).join(' ')}`);
 
     const docChannel = channels.find(c => c.id === gChannel!.id)!;
     let sChannel = <SuggestionChannel>this.client.suggestionChannels.get(gChannel!.id);

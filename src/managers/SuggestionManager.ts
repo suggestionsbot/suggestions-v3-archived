@@ -1,14 +1,12 @@
 import { Collection } from '@augu/immutable';
-import { Message, User } from 'eris';
-import { stripIndents } from 'common-tags';
+import { User } from 'eris';
 
-import { Edit, SuggestionChannelType, SuggestionSchema, SuggestionType } from '../types';
+import { SuggestionChannelType, SuggestionSchema, SuggestionType } from '../types';
 import SuggestionChannel from '../structures/suggestions/SuggestionChannel';
 import Logger from '../utils/Logger';
 import SuggestionsClient from '../structures/core/Client';
 import Suggestion from '../structures/suggestions/Suggestion';
 import Util from '../utils/Util';
-import SuggestionEmbeds from '../utils/SuggestionEmbeds';
 
 export default class SuggestionManager {
   readonly #cache: Collection<Suggestion>;
@@ -82,52 +80,8 @@ export default class SuggestionManager {
     return deleted;
   }
 
-  async edit(query: Suggestion|string, executor: User, ctxMessage: Message, edit: string, reason?: string): Promise<Suggestion|undefined> {
-    const data = query instanceof Suggestion
-      ? <SuggestionSchema>await this.queryFromDatabase(query.id(), true)
-      : <SuggestionSchema>await this.fetch(query, false, true, true);
-
-    const newEdit = <Edit>{
-      edit,
-      editedBy: executor.id,
-      reason: reason ? reason : undefined
-    };
-
-    data!.suggestion = edit;
-    data!.edits.unshift(newEdit);
-    const saved = await data!.save();
-    const suggestion = await new Suggestion(this.client).setData(saved);
-    if (this.#cache.has(suggestion!.data.id)) this.#cache.set(suggestion!.id(), suggestion!);
-    this.client.redis.instance!.incr(`suggestions:${suggestion!.id()}:edits:count`);
-
-    const allowedNicknames = Util.userCanDisplayNickname({
-      client: this.client,
-      guild: suggestion.guild,
-      profile: suggestion.userProfile,
-      settings: suggestion.guildSettings
-    });
-
-    const messageID = suggestion.data.message;
-    const message = this.channel.channel.messages.get(messageID) ?? await this.channel.channel.getMessage(messageID);
-    if (message) {
-      if (!suggestion.message) suggestion.setSuggestionMessage(message);
-      const embed = SuggestionEmbeds.fullSuggestion({
-        author: suggestion.author,
-        channel: suggestion.channel,
-        guild: suggestion.guild,
-        id: suggestion.id(true),
-        message: ctxMessage,
-        nickname: allowedNicknames,
-        suggestion: edit
-      });
-
-      await message.edit({ embed });
-    }
-
-    Logger.log(`Edited suggestion ${suggestion!.id(true)}.`);
-    this.client.emit('suggestionEdit', suggestion, executor, edit, reason);
-
-    return suggestion;
+  async edit(query: Suggestion|string, executor: User): Promise<Suggestion|undefined> {
+    return;
   }
 
   async fetch(query: string, cache: boolean = true, force: boolean = false, raw?: boolean): Promise<Suggestion|SuggestionSchema|undefined> {

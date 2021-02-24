@@ -4,10 +4,20 @@ import * as crypto from 'crypto';
 
 import SuggestionsClient from '../core/Client';
 import SuggestionChannel from './SuggestionChannel';
-import { Edit, GuildSchema, Note, StatusUpdates, SuggestionSchema, SuggestionType, UserSchema } from '../../types';
+import {
+  Edit,
+  GuildSchema,
+  Note,
+  StatusUpdates,
+  SuggestionSchema, SuggestionState,
+  SuggestionStateType,
+  SuggestionType,
+  UserSchema
+} from '../../types';
 import emojis from '../../utils/Emojis';
 import Util from '../../utils/Util';
 import SuggestionEmbeds from '../../utils/SuggestionEmbeds';
+import Logger from '../../utils/Logger';
 
 export default class Suggestion {
   #author!: User;
@@ -21,11 +31,19 @@ export default class Suggestion {
   #suggestion!: string;
   #data!: SuggestionSchema;
   #type!: SuggestionType;
+  #state!: SuggestionStateType;
+  #review!: boolean;
   #edits!: Array<Edit>;
   #notes!: Array<Note>;
   #statusUpdates!: Array<StatusUpdates>;
 
-  constructor(public client: SuggestionsClient) {}
+  constructor(public client: SuggestionsClient) {
+    this.#state = 'PENDING';
+    this.#review = false;
+    this.#edits = [];
+    this.#notes = [];
+    this.#statusUpdates = [];
+  }
 
   get postable(): boolean {
     return (
@@ -66,6 +84,14 @@ export default class Suggestion {
 
   get type(): SuggestionType {
     return this.#type;
+  }
+
+  get state(): SuggestionStateType {
+    return this.#state;
+  }
+
+  get review(): boolean {
+    return this.#review;
   }
 
   get edits(): Array<Edit> {
@@ -137,6 +163,47 @@ export default class Suggestion {
     return this;
   }
 
+  setState(state: SuggestionState): void {
+    if (state.type === this.#state) throw new Error('SameSuggestionState');
+
+    switch (state.type) {
+      case 'PENDING': {
+        if (state.inReview) {
+          //  handle logic to send suggestion to review channel
+
+        } else {
+          //  handle logic to send suggestion to its set channel
+        }
+        break;
+      }
+      case 'APPROVED': {
+        if (state.inReview) {
+          //  handle logic to send suggestion to review channel
+
+        } else {
+          //  handle logic to send suggestion to its set channel
+        }
+        break;
+      }
+      case 'REJECTED': {
+
+        break;
+      }
+      case 'CONSIDERED': {
+
+        break;
+      }
+      case 'IMPLEMENTED': {
+
+        break;
+      }
+      default: {
+
+        break;
+      }
+    }
+  }
+
   async fetchMessage(): Promise<Message|undefined> {
     if (this.#suggestionMessage) return this.#suggestionMessage;
     const messageID = this.#data.message;
@@ -156,6 +223,8 @@ export default class Suggestion {
     if (data.channel) this.#channel = <SuggestionChannel>await this.client.suggestionChannels.fetchChannel(this.#guild, data.channel)!;
     if (data.suggestion) this.#suggestion = data.suggestion;
     if (data.type) this.#type = data.type;
+    if (data.state) this.#state = data.state;
+    if (data.review) this.#review = data.review;
     if (data.message) await this.fetchMessage();
     if (data.edits) this.#edits = data.edits;
     if (data.notes) this.#notes = data.notes;
@@ -208,5 +277,52 @@ export default class Suggestion {
     this.#data = await this.#channel.suggestions.add(this);
 
     return this;
+  }
+
+  async edit(executor: User, edit: string, reason?: string): Promise<this> {
+    const newEdit = <Edit>{
+      edit,
+      editedBy: executor.id,
+      reason: reason ? reason : undefined
+    };
+
+    this.#suggestion = edit;
+    this.#edits.unshift(newEdit);
+    const saved = await this.#data.save();
+    await this.setData(saved);
+    if (this.#channel.suggestions.cache.has(this.#id))
+      this.#channel.suggestions.cache.set(this.#id, this);
+    this.client.redis.instance!.incr(`suggestions:${this.#id}:edits:count`);
+
+    const allowedNicknames = Util.userCanDisplayNickname({
+      client: this.client,
+      guild: this.guild,
+      profile: this.userProfile,
+      settings: this.guildSettings
+    });
+
+    const messageID = this.#data.message;
+    const message = this.channel.channel.messages.get(messageID) ?? await this.channel.channel.getMessage(messageID);
+    if (message) {
+      if (!this.#suggestionMessage) this.setSuggestionMessage(message);
+      const embed = SuggestionEmbeds.fullSuggestion({
+        author: this.#author,
+        channel: this.#channel,
+        guild: this.#guild,
+        id: this.#id.slice(33, 40),
+        message,
+        nickname: allowedNicknames,
+        suggestion: edit
+      });
+
+      await message.edit({ embed });
+    }
+
+    Logger.log(`Edited suggestion ${this.#id.slice(33, 40)}.`);
+    this.client.emit('suggestionEdit', this, executor, edit, reason);
+
+    return new Promise(resolve => {
+      resolve(this);
+    });
   }
 }

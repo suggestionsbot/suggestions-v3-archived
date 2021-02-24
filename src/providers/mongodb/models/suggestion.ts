@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { SuggestionSchema, MessageLinkFormatter } from '../../../types';
+import { SuggestionSchema, MessageLinkFormatter, SuggestionStateType } from '../../../types';
 
 export const Suggestion = new Schema({
   guild: { type: String },
@@ -35,7 +35,13 @@ export const Suggestion = new Schema({
       reason: String,
       edited: { type: Number, default: Date.now() }
     }]
-  }
+  },
+  state: {
+    type: String,
+    enum: ['PENDING', 'APPROVED', 'REJECTED', 'CONSIDERED', 'IMPLEMENTED'],
+    default: 'PENDING'
+  },
+  review: { type: Boolean }
 });
 
 Suggestion.method('getMessageLink', function(this: SuggestionSchema, args: MessageLinkFormatter): string {
@@ -45,6 +51,14 @@ Suggestion.method('getMessageLink', function(this: SuggestionSchema, args: Messa
 Suggestion.method('getSuggestionID', function(this: SuggestionSchema, long = true): string {
   if (long) return this.id;
   else return this.id.slice(33, 40);
+});
+
+Suggestion.method('setState', function(this: SuggestionSchema, state: SuggestionStateType) {
+  this.state = state;
+});
+
+Suggestion.method('setReview', function(this: SuggestionSchema, review: boolean) {
+  this.review = review;
 });
 
 Suggestion.pre('save', function(next) {

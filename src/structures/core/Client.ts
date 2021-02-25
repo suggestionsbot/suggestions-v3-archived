@@ -84,6 +84,16 @@ export default class SuggestionsClient extends Client {
     this.suggestionHandler = new SuggestionHandler(this);
     this.messageCollectors = [];
     this.system = this.production ? '601219766258106399' : '737166408525283348';
+
+    if (!this.production) {
+      this.on('debug', (message: string, id: number) => {
+        Logger.debug('CLIENT', 'shard', id, 'message', JSON.parse(message));
+      });
+    }
+
+    this.on('error', (err: Error, id: number) => {
+      Logger.error('CLIENT', 'shard', id, 'error', err.stack);
+    });
   }
 
   start(): void {

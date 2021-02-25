@@ -1757,7 +1757,7 @@ eris-reactions@^0.1.3:
 
 "eris@https://github.com/suggestionsbot/eris.git#dev":
   version "0.14.0"
-  resolved "https://github.com/suggestionsbot/eris.git#f8108ece33308cece0d7d45fe60ee031fb25f600"
+  resolved "https://github.com/suggestionsbot/eris.git#3987ce7d7e192ab08bcecc589164d7113f533f0a"
   dependencies:
     ws "^7.2.1"
 

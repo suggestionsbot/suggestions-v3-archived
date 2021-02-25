@@ -87,7 +87,11 @@ export default class SuggestionsClient extends Client {
 
     if (!this.production) {
       this.on('debug', (message: string, id: number) => {
-        Logger.debug('CLIENT', 'shard', id, 'message', JSON.parse(message));
+        try {
+          Logger.debug('CLIENT', 'shard', id, 'message', JSON.parse(message));
+        } catch (e) {
+          Logger.debug('CLIENT', 'shard', id, 'message', message);
+        }
       });
     }
 

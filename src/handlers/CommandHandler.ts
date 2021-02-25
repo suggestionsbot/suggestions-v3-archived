@@ -121,13 +121,23 @@ export default class CommandHandler {
         // TODO make sure to eventually set this to only run in production in the future
 
         if (this.client.redis.instance) {
-          await Promise.all([
-            this.client.redis.instance.hincrby(`guild:${message.guildID}:member:${message.author.id}:commands:count`, cmd.name, 1),
-            this.client.redis.instance.hincrby(`guild:${message.guildID}:commands:count`, cmd.name, 1),
-            this.client.redis.instance.incrby(`guild:${message.guildID}:commands:count`, 1),
-            this.client.redis.instance.incrby('global:commands', 1),
-            this.client.database.helpers.command.createCommand(message, cmd.name)
-          ]);
+          const promises = [
+            message.guild && this.client.redis.instance.hincrby(`guild:${message.guildID}:member:${message.author.id}:commands`, cmd.name, 1),
+            message.guild && this.client.redis.instance.hincrby(`guild:${message.guildID}:commands`, cmd.name, 1),
+            message.guild && this.client.redis.instance.incrby(`guild:${message.guildID}:member:${message.author.id}:commands:count`, 1),
+            message.guild && this.client.redis.instance.incrby(`guild:${message.guildID}:commands:count`, 1),
+          ];
+
+          if (message.guild) {
+            promises.push(...[
+              this.client.redis.instance.hincrby(`guild:${message.guildID}:member:${message.author.id}:commands`, cmd.name, 1),
+              this.client.redis.instance.hincrby(`guild:${message.guildID}:commands`, cmd.name, 1),
+              this.client.redis.instance.incrby(`guild:${message.guildID}:member:${message.author.id}:commands:count`, 1),
+              this.client.redis.instance.incrby(`guild:${message.guildID}:commands:count`, 1),
+            ]);
+          }
+
+          await Promise.all(promises);
         }
       } catch (e) {
         Logger.error('COMMAND HANDLER', e);

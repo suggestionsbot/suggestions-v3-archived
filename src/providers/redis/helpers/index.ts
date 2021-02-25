@@ -1,4 +1,4 @@
-import { Member, TextChannel } from 'eris';
+import { Member, TextChannel, User } from 'eris';
 import { ClusterManagerStats } from '@nedbot/sharder';
 
 import {
@@ -36,7 +36,7 @@ export default class RedisHelpers {
   }
 
   async getGlobalCommandCount(): Promise<number> {
-    return this.redis.instance!.get('global:commands').then((count: any) => +count);
+    return this.redis.instance!.get('global:commands:count').then((count: any) => +count);
   }
 
   async getGuildCommandCount(guild: SuggestionGuild): Promise<number> {
@@ -45,6 +45,10 @@ export default class RedisHelpers {
 
   async getMemberCommandCount(member: Member): Promise<number> {
     return this.redis.instance!.get(`guild:${member.guild.id}:member:${member.id}:commands:count`).then((count: any) => +count);
+  }
+
+  async getUserCommandCount(user: User): Promise<number> {
+    return this.redis.instance!.get(`user:${user.id}:commands:count`).then((count: any) => +count);
   }
 
   async getGlobalBlacklistCount(): Promise<number> {

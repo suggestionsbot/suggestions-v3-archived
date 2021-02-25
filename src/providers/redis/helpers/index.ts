@@ -22,7 +22,7 @@ export default class RedisHelpers {
   }
 
   async getGlobalSuggestionCount(): Promise<number> {
-    return this.redis.instance!.get('global:suggestions:count').then((count: any) => +count);
+    return this.redis.instance!.get('global:suggestions').then((count: any) => +count);
   }
 
   async getChannelCount(guild: SuggestionGuild, type: SuggestionChannelType, channel?: TextChannel): Promise<number> {
@@ -36,7 +36,7 @@ export default class RedisHelpers {
   }
 
   async getGlobalCommandCount(): Promise<number> {
-    return this.redis.instance!.get('global:commands:count').then((count: any) => +count);
+    return this.redis.instance!.get('global:commands').then((count: any) => +count);
   }
 
   async getGuildCommandCount(guild: SuggestionGuild): Promise<number> {
@@ -48,7 +48,7 @@ export default class RedisHelpers {
   }
 
   async getGlobalBlacklistCount(): Promise<number> {
-    return this.redis.instance!.get('global:blacklists:count').then((count: any) => +count);
+    return this.redis.instance!.get('global:blacklists').then((count: any) => +count);
   }
 
   async getGuildBlacklistCount(guild: SuggestionGuild): Promise<number> {

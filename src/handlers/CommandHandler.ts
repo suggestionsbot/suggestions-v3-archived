@@ -122,8 +122,8 @@ export default class CommandHandler {
 
         if (this.client.redis.instance) {
           await Promise.all([
-            this.client.redis.instance.hincrby(`guild:${message.guildID}:member:${message.author.id}:commands`, cmd.name, 1),
-            this.client.redis.instance.hincrby(`guild:${message.guildID}:commands`, cmd.name, 1),
+            this.client.redis.instance.hincrby(`guild:${message.guildID}:member:${message.author.id}:commands:count`, cmd.name, 1),
+            this.client.redis.instance.hincrby(`guild:${message.guildID}:commands:count`, cmd.name, 1),
             this.client.redis.instance.incrby(`guild:${message.guildID}:commands:count`, 1),
             this.client.redis.instance.incrby('global:commands', 1),
             this.client.database.helpers.command.createCommand(message, cmd.name)

@@ -23,7 +23,7 @@ export default class PingCommand extends Command {
 
   async run(ctx: Context): Promise<any> {
     try {
-      const missingEmbedPermissions = Util.getMissingPermissions(['embedLinks'], <TextChannel>ctx.channel, ctx.me!);
+      const missingEmbedPermissions = ctx.guild ? Util.getMissingPermissions(['embedLinks'], <TextChannel>ctx.channel, ctx.me!) : [];
       if (missingEmbedPermissions.isEmpty()) {
         const msg = await ctx.embed(
           MessageUtils.defaultEmbed().setDescription('🏓 Ping!'),

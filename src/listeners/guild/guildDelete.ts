@@ -32,7 +32,7 @@ export default class extends Event {
         .setColor(color)
         .setTimestamp();
 
-      await this.client.getRESTChannel(this.client.system)
+      await this.client.getRESTChannel(this.client.config.channels.serverLogs)
         .then(((chn: any) => (<TextChannel>chn).createMessage({ embed: oldServer })));
     } catch (e) {
       Logger.error('GUILD_CREATE EVENT', e);

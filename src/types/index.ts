@@ -48,8 +48,11 @@ export interface BotConfig {
     guild: GuildSchema;
     user: UserSchema;
   };
-  supportRoles: Array<string>
-  boosterRole: string
+  supportRoles: Array<string>;
+  boosterRole: string;
+  channels: {
+    serverLogs: string;
+  }
 }
 
 export interface VoteSite {

@@ -59,7 +59,7 @@ export const main = async (): Promise<boolean> => {
       client: SuggestionsClient,
       statsUpdateInterval: 60000,
       debug: true,
-      clusterCount: 2,
+      clusterCount: 1,
       guildsPerShard: 1500,
       clientOptions: CLIENT_OPTIONS,
       webhooks: {

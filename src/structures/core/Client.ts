@@ -21,7 +21,7 @@ import {
   AwaitMessagesOptions,
   AwaitReply,
   AwaitReactionsOptions,
-  GuildSchema, SuggestionChannelType, SuggestionUser, UserSchema,
+  GuildSchema, SuggestionChannelType, SuggestionUser, UserSchema, ClientStatusData,
 } from '../../types';
 import config from '../../config';
 import CommandHandler from '../../handlers/CommandHandler';
@@ -123,13 +123,13 @@ export default class SuggestionsClient extends Client {
     const prefix = this.getPrefixes()[0];
 
     if (this.production) {
-      this.cluster!.ipc.broadcast('changeStatus', {
+      this.cluster!.ipc.broadcast<ClientStatusData>('changeStatus', {
         status: 'online',
         name: `your suggestions | ${prefix + 'help'}`,
         type: 2
       });
     } else {
-      this.cluster!.ipc.broadcast('changeStatus', {
+      this.cluster!.ipc.broadcast<ClientStatusData>('changeStatus', {
         status: 'dnd',
         name: 'in code land...',
         type: 0

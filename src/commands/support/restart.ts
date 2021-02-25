@@ -39,7 +39,7 @@ export default class RestartCommand extends Command {
   }
 
   async run(ctx: CommandContext): Promise<any> {
-    const arg = ctx.args.get(0).toLowerCase();
+    const arg = ctx.args.get(0)?.toLowerCase();
 
     try {
       if (arg === 'all') this.client.cluster.ipc.broadcast('restart');

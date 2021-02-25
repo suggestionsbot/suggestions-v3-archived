@@ -1,20 +1,13 @@
 import * as Sentry from '@sentry/node';
 import { CaptureConsole, RewriteFrames } from '@sentry/integrations';
-import { LaunchModule } from '@nedbot/sharder';
+import { LaunchModule, IPCMessage } from '@nedbot/sharder';
 import { setDefaults } from 'wumpfetch';
-import { BotActivityType, Status } from 'eris';
-import { IPCMessage } from '@nedbot/sharder/dist/types/struct/IPC';
 
 import SuggestionsClient from './Client';
 import { version } from '../../../package.json';
 import Logger from '../../utils/Logger';
 import config from '../../config';
-
-interface MessageData extends IPCMessage {
-  status?: Status
-  name?: string;
-  type?: BotActivityType;
-}
+import { ClientStatusData } from '../../types';
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -40,19 +33,18 @@ setDefaults({
 
 export default class extends LaunchModule<SuggestionsClient> {
   launch(): void {
-    this.ipc.register('changeStatus', (data: MessageData) => {
-      this.client.editStatus(data!.status!, {
-        name: data.name!,
-        type: data.type!,
+    this.ipc.register('changeStatus', ({ data }: IPCMessage<ClientStatusData>) => {
+      this.client.editStatus(data.status, {
+        name: data.name,
+        type: data.type,
         url: data.url
       });
     });
 
     process.on('message', async data => {
       try {
-        if (data.name === 'shardStats') {
-          if (this.client.redis.instance) await this.client.redis.helpers.updateStats(data.data);
-        }
+        if (data.name === 'shardStats' && this.client.redis.instance)
+          await this.client.redis.helpers.updateStats(data.data);
       } catch (e) {
         Logger.error('SHARD CLASS', e);
       }

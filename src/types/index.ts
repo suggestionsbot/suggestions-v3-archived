@@ -1,4 +1,4 @@
-import { BotActivityType, Guild, Member, Message, User } from 'eris';
+import { BotActivityType, Guild, Member, Message, Status, User } from 'eris';
 import { Commands, RedisClient } from 'redis';
 import { Document } from 'mongoose';
 import { StoreData } from 'frenchkiss';
@@ -500,3 +500,10 @@ ApprovedSuggestion |
 RejectedSuggestion |
 ConsideredSuggestion |
 ImplementedSuggestion;
+
+export interface ClientStatusData {
+  status: Status;
+  name: string;
+  type: BotActivityType;
+  url?: string;
+}

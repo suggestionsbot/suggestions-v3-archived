@@ -118,22 +118,20 @@ export default class CommandHandler {
         if (data) ctx.local = data;
         await cmd.run(ctx);
         if (cmd.runPostconditions) await cmd.runPostconditions(ctx, postConditionNext);
-        // TODO make sure to eventually set this to only run in production in the future
 
         if (this.client.redis.instance) {
           const promises = [
-            message.guild && this.client.redis.instance.hincrby(`guild:${message.guildID}:member:${message.author.id}:commands`, cmd.name, 1),
-            message.guild && this.client.redis.instance.hincrby(`guild:${message.guildID}:commands`, cmd.name, 1),
-            message.guild && this.client.redis.instance.incrby(`guild:${message.guildID}:member:${message.author.id}:commands:count`, 1),
-            message.guild && this.client.redis.instance.incrby(`guild:${message.guildID}:commands:count`, 1),
+            this.client.redis.instance.hincrby(`user:${message.author.id}:commands`, cmd.name, 1),
+            this.client.redis.instance.hincrby('global:commands', cmd.name, 1),
+            this.client.redis.instance.incr('global:commands:count')
           ];
 
           if (message.guild) {
             promises.push(...[
               this.client.redis.instance.hincrby(`guild:${message.guildID}:member:${message.author.id}:commands`, cmd.name, 1),
               this.client.redis.instance.hincrby(`guild:${message.guildID}:commands`, cmd.name, 1),
-              this.client.redis.instance.incrby(`guild:${message.guildID}:member:${message.author.id}:commands:count`, 1),
-              this.client.redis.instance.incrby(`guild:${message.guildID}:commands:count`, 1),
+              this.client.redis.instance.incr(`guild:${message.guildID}:member:${message.author.id}:commands:count`),
+              this.client.redis.instance.incr(`guild:${message.guildID}:commands:count`),
             ]);
           }
 

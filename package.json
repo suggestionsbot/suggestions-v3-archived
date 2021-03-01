@@ -88,7 +88,7 @@
   "dependencies": {
     "@anishshobith/deeptype": "^1.0.0",
     "@augu/immutable": "^0.6.0",
-    "@nedbot/sharder": "^0.0.11",
+    "@nedbot/sharder": "^0.0.12",
     "@sentry/integrations": "^6.0.0",
     "@sentry/node": "^6.0.0",
     "@sentry/tracing": "^6.0.0",

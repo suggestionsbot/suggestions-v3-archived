@@ -13,7 +13,10 @@ export const Suggestion = new Schema({
   statusUpdates: {
     type: [{
       index: Number,
-      status: { type: String },
+      state: {
+        type: String,
+        enum: ['PENDING', 'APPROVED', 'REJECTED', 'CONSIDERED', 'IMPLEMENTED']
+      },
       response: { type: String },
       time: { type: String, default: Date.now() },
       updatedBy: { type: String }

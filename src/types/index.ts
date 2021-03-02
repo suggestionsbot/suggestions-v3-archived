@@ -293,7 +293,7 @@ export interface SuggestionSchema extends Document {
 export type StatusReply = Document;
 
 export interface StatusUpdates extends Document {
-  status: string;
+  state: SuggestionStateType;
   response: string;
   time: number;
   updatedBy: string;
@@ -314,7 +314,7 @@ export interface Edit extends Document {
 
 export interface ResultEmoji extends Document {
   emoji: string;
-  result: number;
+  count: number;
 }
 
 export interface VoteResult extends Document {
@@ -505,6 +505,14 @@ ApprovedSuggestion |
 RejectedSuggestion |
 ConsideredSuggestion |
 ImplementedSuggestion;
+
+export interface SuggestionStateData {
+  executor: User;
+  target?: User;
+  response?: string;
+  results?: Array<ResultEmoji>;
+  voted?: Array<VoteResult>;
+}
 
 export interface ClientStatusData {
   status: Status;

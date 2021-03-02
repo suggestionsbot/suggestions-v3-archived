@@ -15,7 +15,9 @@ const config: BotConfig = {
     main: 0xdd9323,
     suggestion: {
       approved: 0x00e640,
-      rejected: 0xcf000f
+      rejected: 0xd63031,
+      considered: 0xfdcb6e,
+      implemented: 0x74b9ff
     },
     guild: {
       created: 0x2ecc71,

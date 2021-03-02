@@ -25,6 +25,8 @@ export interface BotConfig {
     suggestion: {
       approved: number;
       rejected: number;
+      considered: number;
+      implemented: number;
     };
     guild: {
       created: number;

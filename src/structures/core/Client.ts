@@ -13,7 +13,6 @@ import {
 } from 'eris';
 import { inspect } from 'util';
 import { stripIndents } from 'common-tags';
-import emojis from '../../utils/Emojis';
 
 import {
   BotConfig,
@@ -42,6 +41,7 @@ import SuggestionChannel from '../suggestions/SuggestionChannel';
 import SuggestionHandler from '../../handlers/SuggestionHandler';
 import Context from '../commands/Context';
 import Util from '../../utils/Util';
+import emojis from '../../utils/Emojis';
 
 /**
  * TODO Rewrite all emoji search methods to support sharding/clustering
@@ -200,7 +200,7 @@ export default class SuggestionsClient extends Client {
         if (emojiSet.custom) {
           return this.cluster.ipc.fetchGuild(emojiSet.system ? this.system : settings.guild).then(g => {
             if (!g) throw new Error('GuildNotFound');
-            const emoji = g.emojis.find((emoji: Emoji) => emoji.id === e);
+            const emoji = (<Array<Emoji>>g.emojis).find((emoji: Emoji) => emoji.id === e);
             if (!emoji) return e;
 
             if (emoji.animated) return `<a:${emoji.name}:${emoji.id}>`;
@@ -220,9 +220,9 @@ export default class SuggestionsClient extends Client {
 
       if (set.custom) {
         emojiSet = set.emojis.map(async e => {
-          return this.cluster!.ipc.fetchGuild(set.system ? '737166408525283348' : settings.guild).then(g => {
+          return this.cluster!.ipc.fetchGuild(set.system ? this.system : settings.guild).then(g => {
             if (!g) throw new Error('GuildNotFound');
-            const emoji = g.emojis.find((emoji: Emoji) => emoji.id === e);
+            const emoji = (<Array<Emoji>>g.emojis).find((emoji: Emoji) => emoji.id === e);
             if (!emoji) return e;
 
             if (emoji.animated) return `<a:${emoji.name}:${emoji.id}>`;

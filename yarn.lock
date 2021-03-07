@@ -1578,10 +1578,10 @@ dayjs@^1.9.1:
   resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.9.8.tgz#9a65fbdca037e3d5835f98672da6e796f757cd58"
   integrity sha512-F42qBtJRa30FKF7XDnOQyNUTsaxDkuaZRj/i7BejSHC34LlLfPoIU4aeopvWfM+m1dJ6/DHKAWLg2ur+pLgq1w==
 
-dbots@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/dbots/-/dbots-7.0.0.tgz#f879a93ed25bb2d5583d1c8aa5d899ae089bbb56"
-  integrity sha512-+tl/NX7MTr/nD+9VtwtqQVNR/3BjMDeMF1Ag8XLXKH37B2hwUP6rg9MKXuchDQ+/W/zahXXL0fa0fhgGe6PisA==
+dbots@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/dbots/-/dbots-8.0.0.tgz#281d7f18a7a19286bdf6c640a1f23c71d8581349"
+  integrity sha512-3G42KawyIzDDlLWqN2de1c/EapSdCpiaKKdSTa7+cLcCDF662P+RQFM02g2qDHrF7PxH4CmjslYgXFIVo/r0XQ==
   dependencies:
     axios "^0.21.0"
     promise.allsettled "^1.0.2"

@@ -14,6 +14,7 @@ const config: BotConfig = {
   colors: {
     main: 0xdd9323,
     suggestion: {
+      pending: 0xdd9323,
       approved: 0x00e640,
       rejected: 0xd63031,
       considered: 0xfdcb6e,

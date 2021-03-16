@@ -12,7 +12,6 @@ export const Suggestion = new Schema({
   type: { type: String, enum: ['regular', 'staff'] },
   statusUpdates: {
     type: [{
-      index: Number,
       state: {
         type: String,
         enum: ['PENDING', 'APPROVED', 'REJECTED', 'CONSIDERED', 'IMPLEMENTED']
@@ -41,8 +40,8 @@ export const Suggestion = new Schema({
   },
   state: {
     type: String,
-    enum: ['PENDING', 'APPROVED', 'REJECTED', 'CONSIDERED', 'IMPLEMENTED'],
-    default: 'PENDING'
+    enum: ['pending', 'approved', 'rejected', 'considered', 'implemented'],
+    default: 'pending'
   },
   review: { type: Boolean }
 });

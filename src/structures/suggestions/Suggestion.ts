@@ -9,7 +9,8 @@ import {
   GuildSchema,
   Note,
   StatusUpdates,
-  SuggestionSchema, SuggestionState,
+  SuggestionSchema,
+  SuggestionState,
   SuggestionStateType,
   SuggestionType,
   UserSchema
@@ -38,7 +39,7 @@ export default class Suggestion {
   #statusUpdates!: Array<StatusUpdates>;
 
   constructor(public client: SuggestionsClient) {
-    this.#state = 'PENDING';
+    this.#state = SuggestionStateType.PENDING;
     this.#review = false;
     this.#edits = [];
     this.#notes = [];
@@ -167,7 +168,7 @@ export default class Suggestion {
     if (state.type === this.#state) throw new Error('SameSuggestionState');
 
     switch (state.type) {
-      case 'PENDING': {
+      case SuggestionStateType.PENDING: {
         if (state.inReview) {
           //  handle logic to send suggestion to review channel
 
@@ -176,7 +177,7 @@ export default class Suggestion {
         }
         break;
       }
-      case 'APPROVED': {
+      case SuggestionStateType.APPROVED: {
         if (state.inReview) {
           //  handle logic to send suggestion to review channel
 
@@ -185,15 +186,15 @@ export default class Suggestion {
         }
         break;
       }
-      case 'REJECTED': {
+      case SuggestionStateType.REJECTED: {
 
         break;
       }
-      case 'CONSIDERED': {
+      case SuggestionStateType.CONSIDERED: {
 
         break;
       }
-      case 'IMPLEMENTED': {
+      case SuggestionStateType.IMPLEMENTED: {
 
         break;
       }

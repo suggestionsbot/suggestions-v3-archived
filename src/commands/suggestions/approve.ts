@@ -103,7 +103,7 @@ export default class ApproveCommand extends SubCommand {
       Logger.log('results', results);
       Logger.log('voted', voted);
 
-      const toApprove = new ApprovedState(suggestion, {
+      const toApprove = new ApprovedState(suggestion, ctx.message, {
         executor: ctx.sender,
         response: reason,
         target: suggestion.author,
@@ -111,6 +111,7 @@ export default class ApproveCommand extends SubCommand {
         voted
       });
 
+      await toApprove.post();
     } catch (e) {
       Logger.error('APPROVE', e.stack);
       return MessageUtils.error(this.client, ctx.message, e.message, true);

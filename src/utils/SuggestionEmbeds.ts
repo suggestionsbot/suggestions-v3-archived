@@ -5,7 +5,7 @@ import MessageEmbed from './MessageEmbed';
 import MessageUtils from './MessageUtils';
 import Util from './Util';
 import SuggestionChannel from '../structures/suggestions/SuggestionChannel';
-import { ResultEmoji } from '../types';
+import { ResultEmoji, SuggestionStateType } from '../types';
 import config from '../config';
 
 interface BaseEmbedData {
@@ -246,11 +246,11 @@ export default class SuggestionEmbeds {
       .setTimestamp();
   }
 
-  static suggestionApprovedDM(data: BaseDMEmbedData): MessageEmbed {
+  static suggestionStatusUpdateDM(data: BaseDMEmbedData, status: SuggestionStateType): MessageEmbed {
     return new MessageEmbed()
-      .setColor(config.colors.suggestion.approved)
+      .setColor(config.colors.suggestion[status])
       .setAuthor(data.guild.name, data.guild.iconURL)
-      .setDescription(stripIndents`Hey, ${data.author.mention}. Your suggestion has been approved by ${data.executor.mention}!
+      .setDescription(stripIndents`Hey, ${data.author.mention}. Your suggestion has been ${status} by ${data.executor.mention}!
         
         ${data.reason ? `**Reason:** ${data.reason}\n` : ''}
         *Jump to Suggestion* → [${Util.boldCode(data.id)}](${data.link})

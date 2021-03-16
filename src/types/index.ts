@@ -22,12 +22,7 @@ export interface BotConfig {
   github: string;
   colors: {
     main: number;
-    suggestion: {
-      approved: number;
-      rejected: number;
-      considered: number;
-      implemented: number;
-    };
+    suggestion: Record<SuggestionStateType, number>;
     guild: {
       created: number;
       deleted: number;
@@ -467,35 +462,36 @@ export type ActionLogChange = {
   after: any;
 };
 
-export type SuggestionStateType = |
-'PENDING' |
-'APPROVED' |
-'REJECTED' |
-'CONSIDERED' |
-'IMPLEMENTED';
+export enum SuggestionStateType {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+  CONSIDERED = 'considered',
+  IMPLEMENTED = 'implemented'
+}
 
 export type PendingSuggestion = {
-  type: 'PENDING',
+  type: SuggestionStateType.PENDING,
   inReview: boolean
 };
 
 export type ApprovedSuggestion = {
-  type: 'APPROVED',
+  type: SuggestionStateType.APPROVED,
   inReview: boolean
 };
 
 export type RejectedSuggestion = {
-  type: 'REJECTED',
+  type: SuggestionStateType.REJECTED,
   inReview: boolean
 };
 
 export type ConsideredSuggestion = {
-  type: 'CONSIDERED',
+  type: SuggestionStateType.CONSIDERED,
   inReview: false
 };
 
 export type ImplementedSuggestion = {
-  type: 'IMPLEMENTED',
+  type: SuggestionStateType.IMPLEMENTED,
   inReview: false
 };
 

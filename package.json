@@ -96,7 +96,7 @@
     "bufferutil": "^4.0.1",
     "common-tags": "^1.8.0",
     "dayjs": "^1.9.1",
-    "dbots": "^8.0.0",
+    "dbots": "^9.0.0",
     "dotenv": "^8.2.0",
     "eris": "https://github.com/suggestionsbot/eris.git#dev",
     "eris-reactions": "^0.1.3",

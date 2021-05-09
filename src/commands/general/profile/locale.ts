@@ -12,7 +12,6 @@ export default class ProfileLocaleCommand extends SubCommand {
     this.parent = 'profile';
     this.arg = 'locale';
     this.name = 'profile-locale';
-    this.friendly = 'profile locale';
     this.category = CommandCategory.GENERAL;
     this.description = 'Set your locale/language in a guild or globally.';
     this.usages = [

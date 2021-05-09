@@ -6,9 +6,12 @@ import { SubCommand as SubCommandClass } from '../../types';
 export default abstract class SubCommand extends Command implements SubCommandClass {
   parent!: string;
   arg!: string;
-  friendly!: string;
 
   protected constructor(client: ExStaff) {
     super(client);
+  }
+
+  get friendly(): string {
+    return this.name.replace(/-/g, ' ');
   }
 }

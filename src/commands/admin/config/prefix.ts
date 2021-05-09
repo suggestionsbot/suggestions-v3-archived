@@ -15,7 +15,6 @@ export default class ConfigPrefixCommand extends SubCommand {
     this.parent = 'config';
     this.arg = 'prefix';
     this.name = 'config-prefix';
-    this.friendly = 'config prefix';
     this.category = CommandCategory.ADMIN;
     this.description = 'Update the bot\'s prefixes in the guild.';
     this.usages = ['config prefix [value]'];

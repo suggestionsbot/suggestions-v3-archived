@@ -13,7 +13,6 @@ export default class ConfigUserSelfEditCommand extends SubCommand {
     this.parent = 'config';
     this.arg = 'userSelfEdit';
     this.name = 'config-userSelfEdit';
-    this.friendly = 'config userSelfEdit';
     this.category = CommandCategory.ADMIN;
     this.description = 'Configure if users should be allowed to edit their own suggestions.';
     this.usages = [

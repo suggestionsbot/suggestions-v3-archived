@@ -12,7 +12,6 @@ export default class ConfigLocaleCommand extends SubCommand {
     this.parent = 'config';
     this.arg = 'locale';
     this.name = 'config-locale';
-    this.friendly = 'config locale';
     this.category = CommandCategory.ADMIN;
     this.description = 'Set the default locale for the guild and its users.';
     this.usages = [

@@ -18,7 +18,6 @@ export default class ConfigEmojisCommand extends SubCommand {
     this.parent = 'config';
     this.arg = 'emojis';
     this.name = 'config-emojis';
-    this.friendly = 'config emojis';
     this.category = CommandCategory.ADMIN;
     this.description = 'Update the guild\'s vote emoji sets.';
     this.aliases = ['voteemojis'];

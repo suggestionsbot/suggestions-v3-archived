@@ -14,7 +14,6 @@ export default class ProfileAllowNicknamesCommand extends SubCommand {
     this.parent = 'profile';
     this.arg = 'allowNicknames';
     this.name = 'profile-allowNicknames';
-    this.friendly = 'profile allowNicknames';
     this.category = CommandCategory.GENERAL;
     this.description = 'Set if you want your nickname/displayname to be shown in suggestions.';
     this.usages = ['profile allowNicknames [true|on|false|off|toggle]'];

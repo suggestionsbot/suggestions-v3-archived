@@ -20,7 +20,6 @@ export default class ConfigRolesCommand extends SubCommand {
     this.parent = 'config';
     this.arg = 'roles';
     this.name = 'config-roles';
-    this.friendly = 'config roles';
     this.category = CommandCategory.ADMIN;
     this.description = 'Update the guild\'s staff roles';
     this.aliases = ['staffroles'];

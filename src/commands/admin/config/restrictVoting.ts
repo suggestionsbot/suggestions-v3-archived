@@ -13,7 +13,6 @@ export default class ConfigRestrictVotingCommand extends SubCommand {
     this.parent = 'config';
     this.arg = 'restrictVoting';
     this.name = 'config-restrictVoting';
-    this.friendly = 'config restrictVoting';
     this.category = CommandCategory.ADMIN;
     this.description = 'Configure if suggestion reactions should be restricted to set vote emojis.';
     this.usages = [

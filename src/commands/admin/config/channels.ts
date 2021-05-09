@@ -36,7 +36,6 @@ export default class ConfigChannelsCommand extends SubCommand {
     this.parent = 'config';
     this.arg = 'channels';
     this.name = 'config-channels';
-    this.friendly = 'config channels';
     this.category = CommandCategory.ADMIN;
     this.description = 'Update and view suggestion/log channels in the guild.';
     this.aliases = ['channel'];

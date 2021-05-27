@@ -64,7 +64,7 @@
   },
   "homepage": "https://github.com/suggestionsbot/suggestions#readme",
   "devDependencies": {
-    "@types/async-redis": "1.1.1",
+    "@types/async-redis": "1.1.2",
     "@types/common-tags": "1.8.0",
     "@types/dotenv": "8.2.0",
     "@types/giphy-api": "2.0.2",

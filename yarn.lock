@@ -626,10 +626,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@types/async-redis@1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@types/async-redis/-/async-redis-1.1.1.tgz#487ed546e63ddb84b1a4ae66901b9fe8bc6bd265"
-  integrity sha512-NUS/27r3XP+3hXAzsV9dGnk6JXXIQErP5xHHlGVqnC+V0gBqAzQy9MojjcDWmhR9nhZ8xp3p6GvR4X3Yl5U7Kw==
+"@types/async-redis@1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@types/async-redis/-/async-redis-1.1.2.tgz#8b44948155b9f1c709ae69ee457c8124f58ada00"
+  integrity sha512-iqHv95+qElhz8hKlby07LlAf8+xoHlVaUYiEZAJOh+cg4673XuWdUEW1mvbx1j7bxBWJcdzcSkLQqJq5h/AtOQ==
   dependencies:
     "@types/redis" "*"
 

@@ -710,10 +710,10 @@
   dependencies:
     winston "^3.3.3"
 
-"@nedbot/sharder@^0.0.12":
-  version "0.0.12"
-  resolved "https://registry.yarnpkg.com/@nedbot/sharder/-/sharder-0.0.12.tgz#098702a98620e3706a3f13b84bebaab7b08908d8"
-  integrity sha512-JSUB93isv9+iuilRGRTcl5isI9MqONO1ZHe0SteI+/uNkSfFRPT5RmJDiCfq0Ibw+t9L7M9z+0Hh7mlGnZhXog==
+"@nedbot/sharder@^0.1.0":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@nedbot/sharder/-/sharder-0.1.2.tgz#6509ea106a9ddb66610ed0fc30d4d3d96f4d80c7"
+  integrity sha512-D0p7EGlG8BSFuvlpW/SINvBv7hhHdVFFEMdbDS0Raxjoi2MoY2UadpVifTndSw3vq+DMLka+EX7HqBS1Ewp2PA==
   dependencies:
     "@nedbot/logger" "^1.0.1"
 

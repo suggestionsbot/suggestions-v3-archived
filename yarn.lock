@@ -905,10 +905,10 @@
   dependencies:
     dotenv "*"
 
-"@types/giphy-api@2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@types/giphy-api/-/giphy-api-2.0.2.tgz#a9ca00cce8c31ab511dd848af2244daaf7ca79f8"
-  integrity sha512-tcYC4IcFs3FG9sGhGirQLl0ahyexxFJcgN0OKtkRXjwDoLgk7Si202aupgxFlC5pPUjJVFYD0e9Hv40psI6nnQ==
+"@types/giphy-api@2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@types/giphy-api/-/giphy-api-2.0.3.tgz#cdb689040bb61fbb8d3de094238cec16ca8c4e86"
+  integrity sha512-nqwYMwWwa6uwnj4RbiexCj9yPTQS8etUD5LyA4T7GwqyX5WDowJ+8c5J5N4QHJOvHXF1wzt/fQ0UIAkDJtg+ig==
 
 "@types/graceful-fs@^4.1.2":
   version "4.1.4"
